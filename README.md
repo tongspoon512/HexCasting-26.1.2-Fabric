@@ -6,7 +6,13 @@ Hex Casting 的 **Minecraft 26.1.2（Fabric）** 移植分支。原模组由 pet
 
 在此基础上，本分支还移植了 [HexDebug](https://github.com/object-Object/HexDebug) 的**剪接台（Splicing Table）**，用于在游戏内直接编辑 iota 列表。
 
-> 仅供个人存档与继续移植使用，并非官方发布版本。遇到问题时请附上完整日志。
+> **个人移植项目声明**
+>
+> 本仓库是个人学习与存档用途的**非官方移植分支**，与 FallingColors、petrak@（gamma-delta）、object-Object 及 YukkuriC 均无隶属或合作关系，也不代表上述项目的质量与立场。
+>
+> - 这里的改动**不会提交给上游仓库**，也不建议把本仓库的问题反馈到上游 issue 区。
+> - 上游项目本身请以各自官方仓库与文档为准；本仓库只保证「能在 26.1.2 Fabric 上跑起来」。
+> - 仅供个人存档与继续移植使用，并非官方发布版本。遇到问题时请附上完整日志。
 
 ## 状态一览
 
