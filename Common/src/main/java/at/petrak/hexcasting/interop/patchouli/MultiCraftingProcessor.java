@@ -9,8 +9,7 @@
 package at.petrak.hexcasting.interop.patchouli;
 
 import at.petrak.hexcasting.api.HexAPI;
-import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -35,14 +34,14 @@ public class MultiCraftingProcessor implements IComponentProcessor {
         List<String> names = vars.get("recipes").asStream().map(IVariable::asString).collect(Collectors.toList());
         this.recipes = new ArrayList<>();
         for (String name : names) {
-            CraftingRecipe recipe = PatchouliUtils.getRecipe(RecipeType.CRAFTING, new ResourceLocation(name));
+            CraftingRecipe recipe = PatchouliUtils.getRecipe(RecipeType.CRAFTING, Identifier.withDefaultNamespace(name));
             if (recipe != null) {
                 recipes.add(recipe);
                 if (shapeless) {
                     shapeless = !(recipe instanceof ShapedRecipe);
                 }
-                for (Ingredient ingredient : recipe.getIngredients()) {
-                    int size = ingredient.getItems().length;
+                for (Ingredient ingredient : recipe.placementInfo().ingredients()) {
+                    int size = (int) ingredient.items().count();
                     if (longestIngredientSize < size) {
                         longestIngredientSize = size;
                     }
@@ -61,7 +60,7 @@ public class MultiCraftingProcessor implements IComponentProcessor {
         }
         if (key.equals("heading")) {
             if (!hasCustomHeading) {
-                return IVariable.from(recipes.get(0).getResultItem(level.registryAccess()).getHoverName());
+                return IVariable.from(PatchouliUtils.getResultItem(recipes.get(0), level).getHoverName());
             }
             return null;
         }
@@ -73,23 +72,25 @@ public class MultiCraftingProcessor implements IComponentProcessor {
             for (CraftingRecipe recipe : recipes) {
                 if (recipe instanceof ShapedRecipe shaped) {
                     if (shaped.getWidth() < shapedX + 1) {
-                        ingredients.add(Ingredient.EMPTY);
+                        ingredients.add(PatchouliUtils.EMPTY);
                     } else {
                         int realIndex = index - (shapedY * (3 - shaped.getWidth()));
-                        NonNullList<Ingredient> list = recipe.getIngredients();
-                        ingredients.add(list.size() > realIndex ? list.get(realIndex) : Ingredient.EMPTY);
+                        var list = shaped.getIngredients();
+                        ingredients.add(list.size() > realIndex
+                            ? list.get(realIndex).orElse(PatchouliUtils.EMPTY)
+                            : PatchouliUtils.EMPTY);
                     }
 
                 } else {
-                    NonNullList<Ingredient> list = recipe.getIngredients();
-                    ingredients.add(list.size() > index ? list.get(index) : Ingredient.EMPTY);
+                    var list = recipe.placementInfo().ingredients();
+                    ingredients.add(list.size() > index ? list.get(index) : PatchouliUtils.EMPTY);
                 }
             }
             return PatchouliUtils.interweaveIngredients(ingredients, longestIngredientSize);
         }
         if (key.equals("output")) {
             return IVariable.wrapList(
-                recipes.stream().map(recipe -> recipe.getResultItem(level.registryAccess())).map(IVariable::from).collect(Collectors.toList()));
+                recipes.stream().map(recipe -> PatchouliUtils.getResultItem(recipe, level)).map(IVariable::from).collect(Collectors.toList()));
         }
         if (key.equals("shapeless")) {
             return IVariable.wrap(shapeless);

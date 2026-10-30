@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,8 +43,8 @@ public class BlockRedstoneImpetus extends BlockAbstractImpetus {
     }
 
     @Override
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand,
-        BlockHitResult pHit) {
+    public InteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer,
+        InteractionHand pHand, BlockHitResult pHit) {
         if (pLevel instanceof ServerLevel level
             && level.getBlockEntity(pPos) instanceof BlockEntityRedstoneImpetus tile) {
             var usedStack = pPlayer.getItemInHand(pHand);
@@ -50,7 +52,7 @@ public class BlockRedstoneImpetus extends BlockAbstractImpetus {
                 tile.clearPlayer();
                 tile.sync();
                 pLevel.playSound(null, pPos, HexSounds.IMPETUS_REDSTONE_CLEAR, SoundSource.BLOCKS, 1f, 1f);
-                return InteractionResult.sidedSuccess(pLevel.isClientSide);
+                return InteractionResult.SUCCESS;
             } else {
                 var datumContainer = IXplatAbstractions.INSTANCE.findDataHolder(usedStack);
                 if (datumContainer != null) {
@@ -64,7 +66,7 @@ public class BlockRedstoneImpetus extends BlockAbstractImpetus {
 
                             pLevel.playSound(null, pPos, HexSounds.IMPETUS_REDSTONE_DING,
                                 SoundSource.BLOCKS, 1f, 1f);
-                            return InteractionResult.sidedSuccess(pLevel.isClientSide);
+                            return InteractionResult.SUCCESS;
                         }
                     }
                 }
@@ -83,9 +85,9 @@ public class BlockRedstoneImpetus extends BlockAbstractImpetus {
     }
 
     @Override
-    public void neighborChanged(BlockState pState, Level pLevel, BlockPos pPos, Block pBlock, BlockPos pFromPos,
+    public void neighborChanged(BlockState pState, Level pLevel, BlockPos pPos, Block pBlock, Orientation pOrientation,
         boolean pIsMoving) {
-        super.neighborChanged(pState, pLevel, pPos, pBlock, pFromPos, pIsMoving);
+        super.neighborChanged(pState, pLevel, pPos, pBlock, pOrientation, pIsMoving);
 
         if (pLevel instanceof ServerLevel slevel) {
             boolean prevPowered = pState.getValue(POWERED);

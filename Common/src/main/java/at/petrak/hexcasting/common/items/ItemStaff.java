@@ -6,11 +6,11 @@ import at.petrak.hexcasting.common.lib.HexSounds;
 import at.petrak.hexcasting.common.msgs.MsgClearSpiralPatternsS2C;
 import at.petrak.hexcasting.common.msgs.MsgOpenSpellGuiS2C;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -18,16 +18,16 @@ import net.minecraft.world.level.Level;
 
 public class ItemStaff extends Item {
     // 0 = normal. 1 = old. 2 = cherry preview
-    public static final ResourceLocation FUNNY_LEVEL_PREDICATE = new ResourceLocation(HexAPI.MOD_ID, "funny_level");
+    public static final Identifier FUNNY_LEVEL_PREDICATE = Identifier.fromNamespaceAndPath(HexAPI.MOD_ID, "funny_level");
 
     public ItemStaff(Properties pProperties) {
         super(pProperties);
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
-        if (player.getAttributeValue(HexAttributes.FEEBLE_MIND) > 0){
-            return InteractionResultHolder.fail(player.getItemInHand(hand));
+    public InteractionResult use(Level world, Player player, InteractionHand hand) {
+        if (player.getAttributeValue(HexAttributes.holder(HexAttributes.FEEBLE_MIND)) > 0){
+            return InteractionResult.FAIL;
         }
         if (player.isShiftKeyDown()) {
             if (world.isClientSide()) {
@@ -53,7 +53,7 @@ public class ItemStaff extends Item {
         player.awardStat(Stats.ITEM_USED.get(this));
 //        player.gameEvent(GameEvent.ITEM_INTERACT_START);
 
-        return InteractionResultHolder.success(player.getItemInHand(hand));
+        return InteractionResult.SUCCESS.heldItemTransformedTo(player.getItemInHand(hand));
     }
 
 }

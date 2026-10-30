@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "#hexcasting:quenched_allay_blocks",
+  "result": {
+    "id": "hexcasting:quenched_allay_tiles"
+  }
+}

@@ -6,14 +6,17 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(MouseHandler.class)
 public class FabricMouseHandlerMixin {
-    @Inject(method = "onScroll", cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isSpectator()Z"))
-    private void onScroll(long winptr, double xOff, double yOff, CallbackInfo ci, double delta) {
-        var cancel = MouseScrollCallback.EVENT.invoker().interact(delta);
-        if (cancel) {
+    /**
+     * 26.1 reworked the body of onScroll (two-axis accumulation via ScrollWheelHandler), so the old
+     * local capture no longer applies. Cancelling at HEAD is equivalent for our use: the listener
+     * bails out on its own whenever a screen is open.
+     */
+    @Inject(method = "onScroll", at = @At("HEAD"), cancellable = true)
+    private void onScroll(long winptr, double xOff, double yOff, CallbackInfo ci) {
+        if (MouseScrollCallback.EVENT.invoker().interact(yOff)) {
             ci.cancel();
         }
     }

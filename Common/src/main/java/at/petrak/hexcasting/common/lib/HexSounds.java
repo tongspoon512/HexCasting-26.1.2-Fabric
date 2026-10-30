@@ -1,6 +1,6 @@
 package at.petrak.hexcasting.common.lib;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 
 import java.util.LinkedHashMap;
@@ -10,13 +10,13 @@ import java.util.function.BiConsumer;
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
 public class HexSounds {
-    public static void registerSounds(BiConsumer<SoundEvent, ResourceLocation> r) {
+    public static void registerSounds(BiConsumer<SoundEvent, Identifier> r) {
         for (var e : SOUNDS.entrySet()) {
             r.accept(e.getValue(), e.getKey());
         }
     }
 
-    private static final Map<ResourceLocation, SoundEvent> SOUNDS = new LinkedHashMap<>();
+    private static final Map<Identifier, SoundEvent> SOUNDS = new LinkedHashMap<>();
 
     public static final SoundEvent START_PATTERN = sound("casting.pattern.start");
     public static final SoundEvent ADD_TO_PATTERN = sound("casting.pattern.add_segment");

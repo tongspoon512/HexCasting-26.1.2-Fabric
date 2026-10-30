@@ -8,7 +8,7 @@ import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.widget.WidgetHolder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
 public class EmiPhialRecipe implements EmiRecipe {
-    private static final ResourceLocation OVERLAY = modLoc("textures/gui/phial_recipe.png");
+    private static final Identifier OVERLAY = modLoc("textures/gui/phial_recipe.png");
 
     private final EmiIngredient inputs;
     private final EmiIngredient bottle;
@@ -38,7 +38,7 @@ public class EmiPhialRecipe implements EmiRecipe {
     }
 
     @Override
-    public @Nullable ResourceLocation getId() {
+    public @Nullable Identifier getId() {
         return HexEMIPlugin.PHIAL_ID;
     }
 

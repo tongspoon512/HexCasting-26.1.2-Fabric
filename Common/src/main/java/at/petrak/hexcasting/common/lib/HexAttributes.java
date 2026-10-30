@@ -2,7 +2,9 @@ package at.petrak.hexcasting.common.lib;
 
 import at.petrak.hexcasting.api.HexAPI;
 import at.petrak.hexcasting.api.casting.eval.env.PlayerBasedCastEnv;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 
@@ -17,13 +19,13 @@ import static at.petrak.hexcasting.api.HexAPI.modLoc;
  * On fabric: it's a mixin
  */
 public class HexAttributes {
-    public static void register(BiConsumer<Attribute, ResourceLocation> r) {
+    public static void register(BiConsumer<Attribute, Identifier> r) {
         for (var e : ATTRIBUTES.entrySet()) {
             r.accept(e.getValue(), e.getKey());
         }
     }
 
-    private static final Map<ResourceLocation, Attribute> ATTRIBUTES = new LinkedHashMap<>();
+    private static final Map<Identifier, Attribute> ATTRIBUTES = new LinkedHashMap<>();
 
     private static final String MOD_ID = HexAPI.MOD_ID;
 
@@ -58,5 +60,13 @@ public class HexAttributes {
             throw new IllegalArgumentException("Typo? Duplicate id " + id);
         }
         return attr;
+    }
+
+    /**
+     * 26.1 attribute lookups all go through holders, so this bridges the raw attributes above back into the
+     * registry that owns them.
+     */
+    public static Holder<Attribute> holder(Attribute attr) {
+        return BuiltInRegistries.ATTRIBUTE.wrapAsHolder(attr);
     }
 }

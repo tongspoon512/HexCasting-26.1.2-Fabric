@@ -1,0 +1,23 @@
+{
+  "hexdoc.hexcasting.title": "Libro Hex",
+  "hexdoc.hexcasting.description": "El libro hex, todo en un lugar.",
+  "hexdoc.renderer.palettes": "Paletas",
+  "hexdoc.renderer.animated": "animado",
+  "hexdoc.renderer.monocolor": "monocromo",
+  "hexdoc.renderer.gradient": "gradiente",
+  "hexdoc.renderer.segment": "segmento",
+  "hexdoc.renderer.default": "por defecto",
+  "hexdoc.renderer.turbo": "turbo",
+  "hexdoc.renderer.dark2": "oscuro2",
+  "hexdoc.renderer.renders": "Renderizados",
+  "hexdoc.pattern.show": "Haz clic para mostrar el hechizo",
+  "hexdoc.pattern.hide": "Haz clic para ocultar el hechizo",
+  "hexdoc.pattern.paused": "Pausado",
+  "hexdoc.pattern.not_supported": "Su navegador no admite la visualización de patrones. Código del patrón: {}",
+  "hexdoc.villager_requirements.any": "El aldeano debe ser un {level} o superior",
+  "hexdoc.villager_requirements.professional": "El aldeano debe ser un {level} {profession} o superior",
+  "block.hexcasting.slate": "Pizarra en blanco",
+  "tag.item.c.brown_dye": "Tintes marrones",
+  "tag.item.c.glowstone_dusts": "Polvos de piedra luminosa",
+  "tag.item.c.wood_sticks": "Palos de madera"
+}

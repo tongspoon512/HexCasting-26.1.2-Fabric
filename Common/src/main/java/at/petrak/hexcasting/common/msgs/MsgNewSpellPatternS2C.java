@@ -7,7 +7,7 @@ import at.petrak.hexcasting.common.lib.HexSounds;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 
@@ -17,10 +17,10 @@ import static at.petrak.hexcasting.api.HexAPI.modLoc;
  * Sent server->client when the player finishes casting a spell.
  */
 public record MsgNewSpellPatternS2C(ExecutionClientView info, int index) implements IMessage {
-    public static final ResourceLocation ID = modLoc("pat_sc");
+    public static final Identifier ID = modLoc("pat_sc");
 
     @Override
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return ID;
     }
 
@@ -31,8 +31,8 @@ public record MsgNewSpellPatternS2C(ExecutionClientView info, int index) impleme
         var resolutionType = buf.readEnum(ResolvedPatternType.class);
         var index = buf.readInt();
 
-        var stack = buf.readList(FriendlyByteBuf::readNbt);
-        var raven = buf.readOptional(FriendlyByteBuf::readNbt).orElse(null);
+        var stack = buf.readList(b -> b.readNbt());
+        var raven = buf.readOptional(b -> b.readNbt()).orElse(null);
 
         return new MsgNewSpellPatternS2C(
             new ExecutionClientView(isStackEmpty, resolutionType, stack, raven), index
@@ -45,8 +45,8 @@ public record MsgNewSpellPatternS2C(ExecutionClientView info, int index) impleme
         buf.writeEnum(this.info.getResolutionType());
         buf.writeInt(this.index);
 
-        buf.writeCollection(this.info.getStackDescs(), FriendlyByteBuf::writeNbt);
-        buf.writeOptional(Optional.ofNullable(this.info.getRavenmind()), FriendlyByteBuf::writeNbt);
+        buf.writeCollection(this.info.getStackDescs(), (b, t) -> b.writeNbt(t));
+        buf.writeOptional(Optional.ofNullable(this.info.getRavenmind()), (b, t) -> b.writeNbt(t));
     }
 
     public static void handle(MsgNewSpellPatternS2C self) {
@@ -56,7 +56,7 @@ public record MsgNewSpellPatternS2C(ExecutionClientView info, int index) impleme
                 var mc = Minecraft.getInstance();
                 if (self.info().isStackClear()) {
                     // don't pay attention to the screen, so it also stops when we die
-                    mc.getSoundManager().stop(HexSounds.CASTING_AMBIANCE.getLocation(), null);
+                    mc.getSoundManager().stop(HexSounds.CASTING_AMBIANCE.location(), null);
                 }
                 var screen = Minecraft.getInstance().screen;
                 if (screen instanceof GuiSpellcasting spellGui) {

@@ -58,7 +58,7 @@ public class BooleanIota extends Iota {
 
     public static BooleanIota deserialize(Tag tag) throws IllegalArgumentException {
         var dtag = HexUtils.downcast(tag, ByteTag.TYPE);
-        return new BooleanIota(dtag.getAsByte() != 0);
+        return new BooleanIota(dtag.byteValue() != 0);
     }
 
     public static Component display(boolean b) {

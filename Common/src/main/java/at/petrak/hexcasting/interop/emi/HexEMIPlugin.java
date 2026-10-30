@@ -11,19 +11,19 @@ import dev.emi.emi.api.recipe.EmiRecipeCategory;
 import dev.emi.emi.api.render.EmiTexture;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
 @EmiEntrypoint
 public class HexEMIPlugin implements EmiPlugin {
-	private static final ResourceLocation BRAINSWEEP_ID = modLoc("brainsweep");
-	public static final ResourceLocation PHIAL_ID = modLoc("craft/battery");
-	public static final ResourceLocation EDIFY_ID = modLoc("edify");
+	private static final Identifier BRAINSWEEP_ID = modLoc("brainsweep");
+	public static final Identifier PHIAL_ID = modLoc("craft/battery");
+	public static final Identifier EDIFY_ID = modLoc("edify");
 
-	private static final ResourceLocation SIMPLIFIED_ICON_BRAINSWEEP = modLoc("textures/gui/brainsweep_recipe_icon.png");
-	private static final ResourceLocation SIMPLIFIED_ICON_PHIAL = modLoc("textures/gui/phial_recipe_icon.png");
-	private static final ResourceLocation SIMPLIFIED_ICON_EDIFY = modLoc("textures/gui/edify_recipe_icon.png");
+	private static final Identifier SIMPLIFIED_ICON_BRAINSWEEP = modLoc("textures/gui/brainsweep_recipe_icon.png");
+	private static final Identifier SIMPLIFIED_ICON_PHIAL = modLoc("textures/gui/phial_recipe_icon.png");
+	private static final Identifier SIMPLIFIED_ICON_EDIFY = modLoc("textures/gui/edify_recipe_icon.png");
 
 	public static final EmiRecipeCategory BRAINSWEEP = new EmiRecipeCategory(BRAINSWEEP_ID,
 		new PatternRendererEMI(BRAINSWEEP_ID, 16, 16),
@@ -46,14 +46,17 @@ public class HexEMIPlugin implements EmiPlugin {
 		registry.addWorkstation(PHIAL, EmiIngredient.of(HexTags.Items.STAVES));
 		registry.addWorkstation(EDIFY, EmiIngredient.of(HexTags.Items.STAVES));
 
-		for (BrainsweepRecipe recipe : registry.getRecipeManager()
-			.getAllRecipesFor(HexRecipeStuffRegistry.BRAINSWEEP_TYPE)) {
+		for (var holder : registry.getRecipeManager().getRecipes()) {
+			if (!(holder.value() instanceof BrainsweepRecipe recipe)) {
+				continue;
+			}
 			var inputBlocks = EmiIngredient.of(recipe.blockIn().getDisplayedStacks().stream()
 				.map(EmiStack::of).toList());
 			var inputEntity = new BrainsweepeeEmiStack(recipe.entityIn());
 			var mediaCost = new MediaEmiStack(recipe.mediaCost());
 			var output = EmiStack.of(recipe.result().getBlock());
-			registry.addRecipe(new EmiBrainsweepRecipe(inputBlocks, inputEntity, mediaCost, output, recipe.getId()));
+			registry.addRecipe(new EmiBrainsweepRecipe(inputBlocks, inputEntity, mediaCost, output,
+				holder.id().identifier()));
 		}
 
 		if (PhialRecipeStackBuilder.shouldAddRecipe()) {

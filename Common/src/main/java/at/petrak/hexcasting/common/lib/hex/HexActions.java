@@ -55,7 +55,8 @@ import at.petrak.hexcasting.interop.pehkui.OpSetScale;
 import at.petrak.hexcasting.interop.pehkui.PehkuiInterop;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -73,7 +74,7 @@ import static at.petrak.hexcasting.api.HexAPI.modLoc;
 public class HexActions {
     public static final Registry<ActionRegistryEntry> REGISTRY = IXplatAbstractions.INSTANCE.getActionRegistry();
 
-    private static final Map<ResourceLocation, ActionRegistryEntry> ACTIONS = new LinkedHashMap<>();
+    private static final Map<Identifier, ActionRegistryEntry> ACTIONS = new LinkedHashMap<>();
 
     // In general:
     // - CCW is the normal or construction version
@@ -287,7 +288,7 @@ public class HexActions {
 
     public static final ActionRegistryEntry CRAFT$CYPHER = make("craft/cypher", new ActionRegistryEntry(
         HexPattern.fromAngles("waqqqqq", HexDir.EAST), 
-        new OpMakePackagedSpell(s -> (s.is(HexItems.CYPHER)||s.is(HexItems.ANCIENT_CYPHER)), HexItems.CYPHER::getDescription, MediaConstants.CRYSTAL_UNIT)
+        new OpMakePackagedSpell(s -> (s.is(HexItems.CYPHER)||s.is(HexItems.ANCIENT_CYPHER)), () -> Component.translatable(HexItems.CYPHER.getDescriptionId()), MediaConstants.CRYSTAL_UNIT)
     ));
     public static final ActionRegistryEntry CRAFT$TRINKET = make("craft/trinket", new ActionRegistryEntry(
         HexPattern.fromAngles("wwaqqqqqeaqeaeqqqeaeq", HexDir.EAST), 
@@ -301,44 +302,44 @@ public class HexActions {
         HexPattern.fromAngles("aqqqaqwwaqqqqqeqaqqqawwqwqwqwqwqw", HexDir.SOUTH_WEST), OpMakeBattery.INSTANCE));
 
     public static final ActionRegistryEntry POTION$WEAKNESS = make("potion/weakness", new ActionRegistryEntry(
-        HexPattern.fromAngles("qqqqqaqwawaw", HexDir.NORTH_WEST), new OpPotionEffect(MobEffects.WEAKNESS,
+        HexPattern.fromAngles("qqqqqaqwawaw", HexDir.NORTH_WEST), new OpPotionEffect(MobEffects.WEAKNESS.value(),
         MediaConstants.DUST_UNIT / 10, true, false)
     ));
     public static final ActionRegistryEntry POTION$LEVITATION = make("potion/levitation", new ActionRegistryEntry(
-        HexPattern.fromAngles("qqqqqawwawawd", HexDir.WEST), new OpPotionEffect(MobEffects.LEVITATION,
+        HexPattern.fromAngles("qqqqqawwawawd", HexDir.WEST), new OpPotionEffect(MobEffects.LEVITATION.value(),
         MediaConstants.DUST_UNIT / 5, false, false)
     ));
     public static final ActionRegistryEntry POTION$WITHER = make("potion/wither", new ActionRegistryEntry(
-        HexPattern.fromAngles("qqqqqaewawawe", HexDir.SOUTH_WEST), new OpPotionEffect(MobEffects.WITHER,
+        HexPattern.fromAngles("qqqqqaewawawe", HexDir.SOUTH_WEST), new OpPotionEffect(MobEffects.WITHER.value(),
         MediaConstants.DUST_UNIT, true, false)
     ));
     public static final ActionRegistryEntry POTION$POISON = make("potion/poison", new ActionRegistryEntry(
-        HexPattern.fromAngles("qqqqqadwawaww", HexDir.SOUTH_EAST), new OpPotionEffect(MobEffects.POISON,
+        HexPattern.fromAngles("qqqqqadwawaww", HexDir.SOUTH_EAST), new OpPotionEffect(MobEffects.POISON.value(),
         MediaConstants.DUST_UNIT / 3, true, false)
     ));
     public static final ActionRegistryEntry POTION$SLOWNESS = make("potion/slowness", new ActionRegistryEntry(
-        HexPattern.fromAngles("qqqqqadwawaw", HexDir.SOUTH_EAST), new OpPotionEffect(MobEffects.MOVEMENT_SLOWDOWN,
+        HexPattern.fromAngles("qqqqqadwawaw", HexDir.SOUTH_EAST), new OpPotionEffect(MobEffects.SLOWNESS.value(),
         MediaConstants.DUST_UNIT / 3, true, false)
     ));
 
     public static final ActionRegistryEntry POTION$REGENERATION = make("potion/regeneration", new ActionRegistryEntry(
-        HexPattern.fromAngles("qqqqaawawaedd", HexDir.NORTH_WEST), new OpPotionEffect(MobEffects.REGENERATION,
+        HexPattern.fromAngles("qqqqaawawaedd", HexDir.NORTH_WEST), new OpPotionEffect(MobEffects.REGENERATION.value(),
         MediaConstants.DUST_UNIT, true, true)
     ));
     public static final ActionRegistryEntry POTION$NIGHT_VISION = make("potion/night_vision", new ActionRegistryEntry(
-        HexPattern.fromAngles("qqqaawawaeqdd", HexDir.WEST), new OpPotionEffect(MobEffects.NIGHT_VISION,
+        HexPattern.fromAngles("qqqaawawaeqdd", HexDir.WEST), new OpPotionEffect(MobEffects.NIGHT_VISION.value(),
         MediaConstants.DUST_UNIT / 5, false, true)
     ));
     public static final ActionRegistryEntry POTION$ABSORPTION = make("potion/absorption", new ActionRegistryEntry(
-        HexPattern.fromAngles("qqaawawaeqqdd", HexDir.SOUTH_WEST), new OpPotionEffect(MobEffects.ABSORPTION,
+        HexPattern.fromAngles("qqaawawaeqqdd", HexDir.SOUTH_WEST), new OpPotionEffect(MobEffects.ABSORPTION.value(),
         MediaConstants.DUST_UNIT, true, true)
     ));
     public static final ActionRegistryEntry POTION$HASTE = make("potion/haste", new ActionRegistryEntry(
-        HexPattern.fromAngles("qaawawaeqqqdd", HexDir.SOUTH_EAST), new OpPotionEffect(MobEffects.DIG_SPEED,
+        HexPattern.fromAngles("qaawawaeqqqdd", HexDir.SOUTH_EAST), new OpPotionEffect(MobEffects.HASTE.value(),
         MediaConstants.DUST_UNIT / 3, true, true)
     ));
     public static final ActionRegistryEntry POTION$STRENGTH = make("potion/strength", new ActionRegistryEntry(
-        HexPattern.fromAngles("aawawaeqqqqdd", HexDir.EAST), new OpPotionEffect(MobEffects.DAMAGE_BOOST,
+        HexPattern.fromAngles("aawawaeqqqqdd", HexDir.EAST), new OpPotionEffect(MobEffects.STRENGTH.value(),
         MediaConstants.DUST_UNIT / 3, true, true)
     ));
 
@@ -632,7 +633,7 @@ public class HexActions {
         return are;
     }
 
-    public static void register(BiConsumer<ActionRegistryEntry, ResourceLocation> r) {
+    public static void register(BiConsumer<ActionRegistryEntry, Identifier> r) {
         for (var e : ACTIONS.entrySet()) {
             r.accept(e.getValue(), e.getKey());
         }

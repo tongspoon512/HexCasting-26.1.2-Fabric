@@ -105,7 +105,7 @@ public class StaffCastEnv extends PlayerBasedSpiralPatternCastEnv {
 
         // TODO: do we reset the number of evals run via the staff? because each new pat is a new tick.
 
-        ExecutionClientView clientInfo = vm.queueExecuteAndWrapIota(new PatternIota(msg.pattern()), sender.serverLevel());
+        ExecutionClientView clientInfo = vm.queueExecuteAndWrapIota(new PatternIota(msg.pattern()), sender.level());
 
         if (clientInfo.isStackClear()) {
             IXplatAbstractions.INSTANCE.setStaffcastImage(sender, null);
@@ -134,7 +134,7 @@ public class StaffCastEnv extends PlayerBasedSpiralPatternCastEnv {
             // Somehow we lost spraying particles on each new pattern, so do it here
             // this also nicely prevents particle spam on trinkets
             new ParticleSpray(sender.position(), new Vec3(0.0, 1.5, 0.0), 0.4, Math.PI / 3, 30)
-                .sprayParticles(sender.serverLevel(), IXplatAbstractions.INSTANCE.getPigment(sender));
+                .sprayParticles(sender.level(), IXplatAbstractions.INSTANCE.getPigment(sender));
         }
     }
 }

@@ -3,63 +3,82 @@ package at.petrak.hexcasting.interop.utils;
 import at.petrak.hexcasting.api.casting.math.HexCoord;
 import at.petrak.hexcasting.api.casting.math.HexPattern;
 import at.petrak.hexcasting.api.utils.HexUtils;
+import at.petrak.hexcasting.client.render.HexGuiRender;
+import at.petrak.hexcasting.client.render.MeshCollector;
+import at.petrak.hexcasting.client.render.MeshVertex;
+import at.petrak.hexcasting.client.render.PatternColors;
+import at.petrak.hexcasting.client.render.PatternRenderer;
+import at.petrak.hexcasting.client.render.PatternSettings;
 import at.petrak.hexcasting.client.render.RenderLib;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.util.FastColor;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
 public final class PatternDrawingUtil {
-    public static void drawPattern(GuiGraphics graphics, int x, int y, List<PatternEntry> patterns, List<Vec2> dots,
+    public static void drawPattern(GuiGraphicsExtractor graphics, int x, int y, List<PatternEntry> patterns, List<Vec2> dots,
                    boolean strokeOrder, int outer, int innerLight, int innerDark,
                    int dotColor) {
-        var poseStack = graphics.pose();
-        poseStack.pushPose();
-        poseStack.translate(x, y, 1);
-        var mat = poseStack.last().pose();
-        var prevShader = RenderSystem.getShader();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-//        RenderSystem.disableDepthTest();
-        RenderSystem.disableCull();
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        // 26.1's GUI draws through recorded render states, so the local translation lives in the mesh transform
+        // rather than in the 2D pose stack.
+        var mat = new Matrix4f().translate(x, y, 0);
+        var mesh = new MeshCollector();
 
         // mark center
 //        RenderLib.drawSpot(mat, Vec2.ZERO, 0f, 0f, 0f, 1f);
 
         for (var pat : patterns) {
-            RenderLib.drawLineSeq(mat, pat.zappyPoints(), 5f, 0, outer, outer);
+            RenderLib.drawLineSeq(mat, pat.zappyPoints(), 5f, 0, outer, outer, mesh);
             RenderLib.drawLineSeq(mat, pat.zappyPoints(), 2f, 0,
-                strokeOrder ? innerDark : innerLight, innerLight);
+                strokeOrder ? innerDark : innerLight, innerLight, mesh);
 
             if (strokeOrder) {
-                RenderLib.drawSpot(mat, pat.zappyPoints().get(0), 2.5f, 1f, 0.1f, 0.15f, 0.6f);
+                RenderLib.drawSpot(mat, pat.zappyPoints().get(0), 2.5f, 1f, 0.1f, 0.15f, 0.6f, mesh);
             }
         }
 
-        float dotR = FastColor.ARGB32.red(dotColor) / 255f;
-        float dotG = FastColor.ARGB32.green(dotColor) / 255f;
-        float dotB = FastColor.ARGB32.blue(dotColor) / 255f;
-        float dotA = FastColor.ARGB32.alpha(dotColor) / 255f;
+        float dotR = ARGB.red(dotColor) / 255f;
+        float dotG = ARGB.green(dotColor) / 255f;
+        float dotB = ARGB.blue(dotColor) / 255f;
+        float dotA = ARGB.alpha(dotColor) / 255f;
 
         for (var dot : dots) {
-            RenderLib.drawSpot(mat, dot, 1.5f, dotR, dotG, dotB, dotA);
+            RenderLib.drawSpot(mat, dot, 1.5f, dotR, dotG, dotB, dotA, mesh);
         }
 
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(() -> prevShader);
+        HexGuiRender.submitMesh(graphics, mesh);
+    }
 
-        RenderSystem.enableCull();
+    /**
+     * Renders a single pattern through {@link PatternRenderer} into the GUI's render-state queue.
+     *
+     * <p>{@code PatternRenderer} still works in a {@link PoseStack} and emits into a {@code MeshSink},
+     * while the GUI only has a 2D pose stack and records meshes, so we render into a throwaway pose
+     * stack and replay the captured meshes into a {@link MeshCollector}.</p>
+     */
+    public static void renderPattern(GuiGraphicsExtractor graphics, HexPattern pattern,
+                                     PatternSettings patSets, PatternColors patColors,
+                                     double seed, int resPerUnit, float x, float y) {
+        var ps = new PoseStack();
+        ps.translate(x, y, 0);
 
-        poseStack.popPose();
+        var mesh = new MeshCollector();
+        PatternRenderer.renderPattern(pattern, ps, new PatternRenderer.WorldlyBits(captured -> {
+            mesh.begin(captured.mode, captured.transform, captured.texture);
+            for (MeshVertex v : captured.vertices) {
+                mesh.vertex(v.x, v.y, v.z, v.color, v.u, v.v);
+            }
+            mesh.end();
+        }), patSets, patColors, seed, resPerUnit);
+
+        HexGuiRender.submitMesh(graphics, mesh);
     }
 
     public static PatternRenderingData loadPatterns(List<Pair<HexPattern, HexCoord>> patterns,

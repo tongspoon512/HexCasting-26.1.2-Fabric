@@ -33,7 +33,7 @@ sealed interface SpellContinuation {
 
         @JvmStatic
         fun fromNBT(nbt: CompoundTag, world: ServerLevel): SpellContinuation {
-            val frames = nbt.getList(TAG_FRAME, Tag.TAG_COMPOUND)
+            val frames = nbt.getListOrEmpty(TAG_FRAME)
             var result: SpellContinuation = Done
             for (frame in frames.asReversed()) {
                 if (frame is CompoundTag) {

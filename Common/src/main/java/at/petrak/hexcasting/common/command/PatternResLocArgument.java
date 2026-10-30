@@ -12,15 +12,15 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
-public class PatternResLocArgument extends ResourceLocationArgument {
+public class PatternResLocArgument extends IdentifierArgument {
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_PATTERN = new DynamicCommandExceptionType(
         (errorer) ->
             Component.translatable("hexcasting.pattern.unknown", errorer)
@@ -36,7 +36,7 @@ public class PatternResLocArgument extends ResourceLocationArgument {
         var registry = IXplatAbstractions.INSTANCE.getActionRegistry();
         for (var key : registry.registryKeySet()) {
             if (HexUtils.isOfTag(registry, key, HexTags.Actions.PER_WORLD_PATTERN)) {
-                suggestions.add(key.location().toString());
+                suggestions.add(key.identifier().toString());
             }
         }
 
@@ -45,7 +45,7 @@ public class PatternResLocArgument extends ResourceLocationArgument {
 
     public static HexPattern getPattern(
         CommandContext<CommandSourceStack> ctx, String argumentName) throws CommandSyntaxException {
-        var targetId = ctx.getArgument(argumentName, ResourceLocation.class);
+        var targetId = ctx.getArgument(argumentName, Identifier.class);
         var targetKey = ResourceKey.create(IXplatAbstractions.INSTANCE.getActionRegistry().key(), targetId);
         var foundPat = PatternRegistryManifest.getCanonicalStrokesPerWorld(targetKey, ctx.getSource().getServer().overworld());
         if (foundPat == null) {

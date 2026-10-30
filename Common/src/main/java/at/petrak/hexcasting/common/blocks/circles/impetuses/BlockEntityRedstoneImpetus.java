@@ -2,14 +2,16 @@ package at.petrak.hexcasting.common.blocks.circles.impetuses;
 
 import at.petrak.hexcasting.api.HexAPI;
 import at.petrak.hexcasting.api.casting.circles.BlockEntityAbstractImpetus;
-import at.petrak.hexcasting.api.utils.NBTHelper;
 import at.petrak.hexcasting.common.lib.HexBlockEntities;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.DataResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -17,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -106,12 +109,11 @@ public class BlockEntityRedstoneImpetus extends BlockEntityAbstractImpetus {
             if (!name.equals(cachedDisplayProfile) || cachedDisplayStack == null) {
                 cachedDisplayProfile = name;
                 var head = new ItemStack(Items.PLAYER_HEAD);
-                NBTHelper.put(head, "SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), name));
-                head.getItem().verifyTagAfterLoad(head.getOrCreateTag());
+                head.set(DataComponents.PROFILE, ResolvableProfile.createResolved(name));
                 cachedDisplayStack = head;
             }
             lines.add(new Pair<>(cachedDisplayStack,
-                Component.translatable("hexcasting.tooltip.lens.impetus.redstone.bound", name.getName())));
+                Component.translatable("hexcasting.tooltip.lens.impetus.redstone.bound", name.name())));
         } else {
             lines.add(new Pair<>(new ItemStack(Items.BARRIER),
                 Component.translatable("hexcasting.tooltip.lens.impetus.redstone.bound.none")));
@@ -122,23 +124,27 @@ public class BlockEntityRedstoneImpetus extends BlockEntityAbstractImpetus {
     protected void saveModData(CompoundTag tag) {
         super.saveModData(tag);
         if (this.storedPlayer != null) {
-            tag.putUUID(TAG_STORED_PLAYER, this.storedPlayer);
+            tag.putIntArray(TAG_STORED_PLAYER, UUIDUtil.uuidToIntArray(this.storedPlayer));
         }
         if (this.storedPlayerProfile != null) {
-            tag.put(TAG_STORED_PLAYER_PROFILE, NbtUtils.writeGameProfile(new CompoundTag(), storedPlayerProfile));
+            DataResult<Tag> result = ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE,
+                ResolvableProfile.createResolved(storedPlayerProfile));
+            result.result().ifPresent(t -> tag.put(TAG_STORED_PLAYER_PROFILE, t));
         }
     }
 
     @Override
     protected void loadModData(CompoundTag tag) {
         super.loadModData(tag);
-        if (tag.contains(TAG_STORED_PLAYER, Tag.TAG_INT_ARRAY)) {
-            this.storedPlayer = tag.getUUID(TAG_STORED_PLAYER);
-        } else {
-            this.storedPlayer = null;
-        }
-        if (tag.contains(TAG_STORED_PLAYER_PROFILE, Tag.TAG_COMPOUND)) {
-            this.storedPlayerProfile = NbtUtils.readGameProfile(tag.getCompound(TAG_STORED_PLAYER_PROFILE));
+        this.storedPlayer = tag.getIntArray(TAG_STORED_PLAYER)
+            .map(UUIDUtil::uuidFromIntArray)
+            .orElse(null);
+        if (tag.contains(TAG_STORED_PLAYER_PROFILE)) {
+            this.storedPlayerProfile = ResolvableProfile.CODEC
+                .parse(NbtOps.INSTANCE, tag.getCompoundOrEmpty(TAG_STORED_PLAYER_PROFILE))
+                .result()
+                .map(ResolvableProfile::partialProfile)
+                .orElse(null);
         } else {
             this.storedPlayerProfile = null;
         }

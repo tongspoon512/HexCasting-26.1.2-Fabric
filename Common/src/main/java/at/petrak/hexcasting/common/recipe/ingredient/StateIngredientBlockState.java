@@ -1,6 +1,5 @@
 package at.petrak.hexcasting.common.recipe.ingredient;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
@@ -56,17 +55,14 @@ public class StateIngredientBlockState implements StateIngredient {
     @Nullable
     @Override
     public List<Component> descriptionTooltip() {
-        ImmutableMap<Property<?>, Comparable<?>> map = state.getValues();
-        if (map.isEmpty()) {
+        List<Property.Value<?>> values = state.getValues().toList();
+        if (values.isEmpty()) {
             return StateIngredient.super.descriptionTooltip();
         }
-        List<Component> tooltip = new ArrayList<>(map.size());
-        for (Map.Entry<Property<?>, Comparable<?>> entry : map.entrySet()) {
-            Property<?> key = entry.getKey();
-            @SuppressWarnings({"unchecked", "rawtypes"})
-            String name = ((Property) key).getName(entry.getValue());
-
-            tooltip.add(Component.literal(key.getName() + " = " + name).withStyle(ChatFormatting.GRAY));
+        List<Component> tooltip = new ArrayList<>(values.size());
+        for (Property.Value<?> entry : values) {
+            tooltip.add(Component.literal(entry.property().getName() + " = " + entry.valueName())
+                .withStyle(ChatFormatting.GRAY));
         }
         return tooltip;
     }

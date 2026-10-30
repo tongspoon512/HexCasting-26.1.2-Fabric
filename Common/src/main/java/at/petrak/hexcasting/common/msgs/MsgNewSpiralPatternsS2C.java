@@ -5,7 +5,7 @@ import at.petrak.hexcasting.xplat.IClientXplatAbstractions;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +14,10 @@ import java.util.UUID;
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
 public record MsgNewSpiralPatternsS2C(UUID playerUUID, List<HexPattern> patterns, int lifetime) implements IMessage {
-    public static final ResourceLocation ID = modLoc("spi_pats_sc");
+    public static final Identifier ID = modLoc("spi_pats_sc");
 
     @Override
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return ID;
     }
 

@@ -4,6 +4,7 @@ import at.petrak.hexcasting.api.casting.*
 import at.petrak.hexcasting.api.casting.castables.SpellAction
 import at.petrak.hexcasting.api.casting.eval.CastingEnvironment
 import at.petrak.hexcasting.api.casting.iota.Iota
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.entity.LivingEntity
@@ -45,7 +46,7 @@ class OpPotionEffect(
         RenderedSpell {
         override fun cast(env: CastingEnvironment) {
             if (duration >= 1.0 / 20.0) {
-                val effectInst = MobEffectInstance(effect, (duration * 20).toInt(), potency.toInt() - 1)
+                val effectInst = MobEffectInstance(BuiltInRegistries.MOB_EFFECT.wrapAsHolder(effect), (duration * 20).toInt(), potency.toInt() - 1)
                 target.addEffect(effectInst)
             }
         }

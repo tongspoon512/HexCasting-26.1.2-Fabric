@@ -2,7 +2,8 @@ package at.petrak.hexcasting.api.pigment;
 
 import at.petrak.hexcasting.common.lib.HexItems;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
-import net.minecraft.Util;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.util.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
@@ -28,8 +29,8 @@ public record FrozenPigment(ItemStack item, UUID owner) {
 
     public CompoundTag serializeToNBT() {
         var out = new CompoundTag();
-        out.put(TAG_STACK, this.item.save(new CompoundTag()));
-        out.putUUID(TAG_OWNER, this.owner);
+        out.store(TAG_STACK, ItemStack.CODEC, this.item);
+        out.store(TAG_OWNER, UUIDUtil.CODEC, this.owner);
         return out;
     }
 
@@ -37,14 +38,9 @@ public record FrozenPigment(ItemStack item, UUID owner) {
         if (tag.isEmpty()) {
             return FrozenPigment.DEFAULT.get();
         }
-        try {
-            CompoundTag stackTag = tag.getCompound(TAG_STACK);
-            var stack = ItemStack.of(stackTag);
-            var uuid = tag.getUUID(TAG_OWNER);
-            return new FrozenPigment(stack, uuid);
-        } catch (NullPointerException exn) {
-            return FrozenPigment.DEFAULT.get();
-        }
+        var stack = tag.read(TAG_STACK, ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        var uuid = tag.read(TAG_OWNER, UUIDUtil.CODEC).orElse(Util.NIL_UUID);
+        return new FrozenPigment(stack, uuid);
     }
 
     public ColorProvider getColorProvider() {

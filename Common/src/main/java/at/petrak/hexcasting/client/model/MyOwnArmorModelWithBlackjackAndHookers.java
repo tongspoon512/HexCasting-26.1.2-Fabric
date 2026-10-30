@@ -1,15 +1,14 @@
 package at.petrak.hexcasting.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.entity.state.ArmorStandRenderState;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.decoration.ArmorStand;
 
 // https://github.com/VazkiiMods/Botania/blob/1.19.x/Xplat/src/main/java/vazkii/botania/client/model/armor/ArmorModel.java
-public class MyOwnArmorModelWithBlackjackAndHookers extends HumanoidModel<LivingEntity> {
+public class MyOwnArmorModelWithBlackjackAndHookers extends HumanoidModel<HumanoidRenderState> {
     protected final EquipmentSlot slot;
 
     public MyOwnArmorModelWithBlackjackAndHookers(ModelPart root, EquipmentSlot slot) {
@@ -20,45 +19,41 @@ public class MyOwnArmorModelWithBlackjackAndHookers extends HumanoidModel<Living
     // [VanillaCopy] ArmorStandArmorModel.setupAnim because armor stands are dumb
     // This fixes the armor "breathing" and helmets always facing south on armor stands
     @Override
-    public void setupAnim(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks,
-        float netHeadYaw, float headPitch) {
-        if (!(entity instanceof ArmorStand entityIn)) {
-            super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+    public void setupAnim(HumanoidRenderState state) {
+        super.setupAnim(state);
+        if (!(state instanceof ArmorStandRenderState entityIn)) {
             return;
         }
 
-        this.head.xRot = ((float) Math.PI / 180F) * entityIn.getHeadPose().getX();
-        this.head.yRot = ((float) Math.PI / 180F) * entityIn.getHeadPose().getY();
-        this.head.zRot = ((float) Math.PI / 180F) * entityIn.getHeadPose().getZ();
+        this.head.xRot = ((float) Math.PI / 180F) * entityIn.headPose.x();
+        this.head.yRot = ((float) Math.PI / 180F) * entityIn.headPose.y();
+        this.head.zRot = ((float) Math.PI / 180F) * entityIn.headPose.z();
         this.head.setPos(0.0F, 1.0F, 0.0F);
-        this.body.xRot = ((float) Math.PI / 180F) * entityIn.getBodyPose().getX();
-        this.body.yRot = ((float) Math.PI / 180F) * entityIn.getBodyPose().getY();
-        this.body.zRot = ((float) Math.PI / 180F) * entityIn.getBodyPose().getZ();
-        this.leftArm.xRot = ((float) Math.PI / 180F) * entityIn.getLeftArmPose().getX();
-        this.leftArm.yRot = ((float) Math.PI / 180F) * entityIn.getLeftArmPose().getY();
-        this.leftArm.zRot = ((float) Math.PI / 180F) * entityIn.getLeftArmPose().getZ();
-        this.rightArm.xRot = ((float) Math.PI / 180F) * entityIn.getRightArmPose().getX();
-        this.rightArm.yRot = ((float) Math.PI / 180F) * entityIn.getRightArmPose().getY();
-        this.rightArm.zRot = ((float) Math.PI / 180F) * entityIn.getRightArmPose().getZ();
-        this.leftLeg.xRot = ((float) Math.PI / 180F) * entityIn.getLeftLegPose().getX();
-        this.leftLeg.yRot = ((float) Math.PI / 180F) * entityIn.getLeftLegPose().getY();
-        this.leftLeg.zRot = ((float) Math.PI / 180F) * entityIn.getLeftLegPose().getZ();
+        this.body.xRot = ((float) Math.PI / 180F) * entityIn.bodyPose.x();
+        this.body.yRot = ((float) Math.PI / 180F) * entityIn.bodyPose.y();
+        this.body.zRot = ((float) Math.PI / 180F) * entityIn.bodyPose.z();
+        this.leftArm.xRot = ((float) Math.PI / 180F) * entityIn.leftArmPose.x();
+        this.leftArm.yRot = ((float) Math.PI / 180F) * entityIn.leftArmPose.y();
+        this.leftArm.zRot = ((float) Math.PI / 180F) * entityIn.leftArmPose.z();
+        this.rightArm.xRot = ((float) Math.PI / 180F) * entityIn.rightArmPose.x();
+        this.rightArm.yRot = ((float) Math.PI / 180F) * entityIn.rightArmPose.y();
+        this.rightArm.zRot = ((float) Math.PI / 180F) * entityIn.rightArmPose.z();
+        this.leftLeg.xRot = ((float) Math.PI / 180F) * entityIn.leftLegPose.x();
+        this.leftLeg.yRot = ((float) Math.PI / 180F) * entityIn.leftLegPose.y();
+        this.leftLeg.zRot = ((float) Math.PI / 180F) * entityIn.leftLegPose.z();
         this.leftLeg.setPos(1.9F, 11.0F, 0.0F);
-        this.rightLeg.xRot = ((float) Math.PI / 180F) * entityIn.getRightLegPose().getX();
-        this.rightLeg.yRot = ((float) Math.PI / 180F) * entityIn.getRightLegPose().getY();
-        this.rightLeg.zRot = ((float) Math.PI / 180F) * entityIn.getRightLegPose().getZ();
+        this.rightLeg.xRot = ((float) Math.PI / 180F) * entityIn.rightLegPose.x();
+        this.rightLeg.yRot = ((float) Math.PI / 180F) * entityIn.rightLegPose.y();
+        this.rightLeg.zRot = ((float) Math.PI / 180F) * entityIn.rightLegPose.z();
         this.rightLeg.setPos(-1.9F, 11.0F, 0.0F);
-        this.hat.copyFrom(this.head);
-    }
-
-    @Override
-    public void renderToBuffer(PoseStack ms, VertexConsumer buffer, int light, int overlay, float r, float g, float b
-        , float a) {
-        setPartVisibility(slot);
-        super.renderToBuffer(ms, buffer, light, overlay, r, g, b, a);
+        this.hat.xRot = this.head.xRot;
+        this.hat.yRot = this.head.yRot;
+        this.hat.zRot = this.head.zRot;
+        this.hat.setPos(this.head.x, this.head.y, this.head.z);
     }
 
     // [VanillaCopy] HumanoidArmorLayer
+    @SuppressWarnings("unused")
     private void setPartVisibility(EquipmentSlot slot) {
         setAllVisible(false);
         switch (slot) {
@@ -81,5 +76,15 @@ public class MyOwnArmorModelWithBlackjackAndHookers extends HumanoidModel<Living
                 leftLeg.visible = true;
             }
         }
+    }
+
+    private void setAllVisible(boolean visible) {
+        this.head.visible = visible;
+        this.hat.visible = visible;
+        this.body.visible = visible;
+        this.rightArm.visible = visible;
+        this.leftArm.visible = visible;
+        this.rightLeg.visible = visible;
+        this.leftLeg.visible = visible;
     }
 }

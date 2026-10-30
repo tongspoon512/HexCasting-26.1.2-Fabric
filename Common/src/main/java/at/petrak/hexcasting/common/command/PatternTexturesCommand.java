@@ -11,7 +11,7 @@ public class PatternTexturesCommand
     public static void add(LiteralArgumentBuilder<CommandSourceStack> cmd) {
         // TODO: do we want these in release ??
         cmd.then(Commands.literal("textureToggle")
-                .requires(dp -> dp.hasPermission(Commands.LEVEL_ADMINS))
+                .requires(dp -> Commands.LEVEL_ADMINS.check(dp.permissions()))
                 .executes(ctx -> {
                     PatternTextureManager.useTextures = !PatternTextureManager.useTextures;
                     String log = (PatternTextureManager.useTextures ? "Enabled" : "Disabled") + " pattern texture rendering. This is meant for debugging.";
@@ -19,7 +19,7 @@ public class PatternTexturesCommand
                     return 1;
                 }));
         cmd.then(Commands.literal("textureRepaint")
-                .requires(dp -> dp.hasPermission(Commands.LEVEL_ADMINS))
+                .requires(dp -> Commands.LEVEL_ADMINS.check(dp.permissions()))
                 .executes(ctx -> {
                     PatternTextureManager.repaint();
                     ctx.getSource().sendSuccess(() -> Component.literal("Repainting pattern textures. This is meant for debugging."), true);

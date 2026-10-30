@@ -37,18 +37,18 @@ data class SpellCircleContext(val impetusPos: BlockPos, val aabb: AABB, val acti
         const val TAG_PLAYER_ALWAYS_IN_RANGE = "player_always_in_range"
 
         fun fromNBT(tag: CompoundTag): SpellCircleContext {
-            val impX = tag.getInt(TAG_IMPETUS_X)
-            val impY = tag.getInt(TAG_IMPETUS_Y)
-            val impZ = tag.getInt(TAG_IMPETUS_Z)
+            val impX = tag.getIntOr(TAG_IMPETUS_X, 0)
+            val impY = tag.getIntOr(TAG_IMPETUS_Y, 0)
+            val impZ = tag.getIntOr(TAG_IMPETUS_Z, 0)
 
-            val minX = tag.getDouble(TAG_MIN_X)
-            val minY = tag.getDouble(TAG_MIN_Y)
-            val minZ = tag.getDouble(TAG_MIN_Z)
-            val maxX = tag.getDouble(TAG_MAX_X)
-            val maxY = tag.getDouble(TAG_MAX_Y)
-            val maxZ = tag.getDouble(TAG_MAX_Z)
+            val minX = tag.getDoubleOr(TAG_MIN_X, 0.0)
+            val minY = tag.getDoubleOr(TAG_MIN_Y, 0.0)
+            val minZ = tag.getDoubleOr(TAG_MIN_Z, 0.0)
+            val maxX = tag.getDoubleOr(TAG_MAX_X, 0.0)
+            val maxY = tag.getDoubleOr(TAG_MAX_Y, 0.0)
+            val maxZ = tag.getDoubleOr(TAG_MAX_Z, 0.0)
 
-            val playerAIR = tag.getBoolean(TAG_PLAYER_ALWAYS_IN_RANGE)
+            val playerAIR = tag.getBooleanOr(TAG_PLAYER_ALWAYS_IN_RANGE, false)
 
             return SpellCircleContext(BlockPos(impX, impY, impZ), AABB(minX, minY, minZ, maxX, maxY, maxZ), playerAIR)
         }

@@ -22,7 +22,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Mob
-import net.minecraft.world.entity.npc.Villager
+import net.minecraft.world.entity.npc.villager.Villager
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
 
@@ -46,7 +46,7 @@ object OpBrainsweep : SpellAction {
         if (!env.canEditBlockAt(pos))
             throw MishapBadLocation(vecPos, "forbidden")
 
-        if (sacrifice.type.`is`(HexTags.Entities.NO_BRAINSWEEPING))
+        if (sacrifice.type.builtInRegistryHolder().`is`(HexTags.Entities.NO_BRAINSWEEPING))
             throw MishapBadBrainsweep(sacrifice, pos)
 
         if (IXplatAbstractions.INSTANCE.isBrainswept(sacrifice))
@@ -54,9 +54,12 @@ object OpBrainsweep : SpellAction {
 
         val state = env.world.getBlockState(pos)
 
-        val recman = env.world.recipeManager
-        val recipes = recman.getAllRecipesFor(HexRecipeStuffRegistry.BRAINSWEEP_TYPE)
-        val recipe = recipes.find { it.matches(state, sacrifice, env.world) }
+        // 26.1: recipes are looked up off RecipeAccess as holders; the recipe no longer knows its type list.
+        val recipe = env.world.recipeAccess().recipes
+            .asSequence()
+            .map { it.value() }
+            .filterIsInstance<BrainsweepRecipe>()
+            .find { it.matches(state, sacrifice, env.world) }
             ?: throw MishapBadBrainsweep(sacrifice, pos)
 
         return SpellAction.Result(

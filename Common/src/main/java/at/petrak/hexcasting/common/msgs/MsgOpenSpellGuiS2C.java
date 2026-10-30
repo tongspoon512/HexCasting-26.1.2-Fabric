@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 
 import java.util.List;
@@ -22,10 +22,10 @@ public record MsgOpenSpellGuiS2C(InteractionHand hand, List<ResolvedPattern> pat
                                  int parenCount
 )
     implements IMessage {
-    public static final ResourceLocation ID = modLoc("cgui");
+    public static final Identifier ID = modLoc("cgui");
 
     @Override
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return ID;
     }
 
@@ -34,10 +34,10 @@ public record MsgOpenSpellGuiS2C(InteractionHand hand, List<ResolvedPattern> pat
 
         var hand = buf.readEnum(InteractionHand.class);
 
-        var patterns = buf.readList(fbb -> ResolvedPattern.fromNBT(fbb.readAnySizeNbt()));
+        var patterns = buf.readList(fbb -> ResolvedPattern.fromNBT(fbb.readNbt()));
 
-        var stack = buf.readList(FriendlyByteBuf::readNbt);
-        var raven = buf.readAnySizeNbt();
+        var stack = buf.readList(b -> b.readNbt());
+        var raven = buf.readNbt();
 
         var parenCount = buf.readVarInt();
 
@@ -49,7 +49,7 @@ public record MsgOpenSpellGuiS2C(InteractionHand hand, List<ResolvedPattern> pat
 
         buf.writeCollection(this.patterns, (fbb, pat) -> fbb.writeNbt(pat.serializeToNBT()));
 
-        buf.writeCollection(this.stack, FriendlyByteBuf::writeNbt);
+        buf.writeCollection(this.stack, (b, t) -> b.writeNbt(t));
         buf.writeNbt(this.ravenmind);
 
         buf.writeVarInt(this.parenCount);

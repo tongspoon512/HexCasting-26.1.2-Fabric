@@ -1,35 +1,8 @@
 plugins {
-    id 'fabric-loom' version "1.9+"
-    id "at.petra-k.pkpcpbp.PKSubprojPlugin"
-}
-
-pkSubproj {
-    pkPublish = true
-    curseforgeJar = remapJar.archiveFile
-    curseforgeDependencies([
-        "paucal",
-        "patchouli",
-        "fabric-language-kotlin",
-        "inline",
-        "cloth-config",
-        "cardinal-components-api",
-        "fabric-api",
-    ])
-    modrinthJar = remapJar.archiveFile
-    modrinthDependencies([
-        "paucal:dabyDTwJ", // 0.6.0-fabric
-        "patchouli:$minecraftVersion-$patchouliVersion-fabric",
-        "fabric-language-kotlin:$fabricLanguageKotlinVersion",
-        "inline:$minecraftVersion-$inlineVersion-fabric",
-        "cloth-config:$clothConfigVersion+fabric",
-        "cardinal-components-api:$cardinalComponentsVersion",
-        "fabric-api:$fabricVersion",
-    ])
+    id 'fabric-loom' version "1.19-SNAPSHOT"
 }
 
 loom {
-    mixin.defaultRefmapName = "hexcasting.mixins.refmap.json"
-
     accessWidenerPath = file("src/main/resources/fabricasting.accesswidener")
 
     runs {
@@ -49,7 +22,7 @@ loom {
         }
 
         configureEach {
-            runDir "Fabric/run"
+            runDir "run"
             ideConfigGenerated(true)
         }
     }
@@ -58,18 +31,12 @@ loom {
 repositories {
     mavenCentral()
 
-    // paucal, patchi, inline, JEI
-    maven { url 'https://maven.blamejared.com' }
     // modmenu and clothconfig
+    maven { url "https://maven.terraformersmc.com/" }
     maven { url "https://maven.shedaniel.me/" }
     maven { url 'https://maven.ladysnake.org/releases' }
-    // Entity reach
-    maven { url "https://maven.jamieswhiteshirt.com/libs-release/" }
-    maven { url "https://mvn.devos.one/snapshots/" }
     // JEI fallback mirror
     maven { url "https://modmaven.dev" }
-    // EMI (temporarily changed from https://maven.terraformersmc.com/releases/ due to intermittent errors)
-    maven { url "https://maven.gnomecraft.net/releases" }
     exclusiveContent {
         forRepository {
             maven { url = "https://api.modrinth.com/maven" }
@@ -87,10 +54,12 @@ repositories {
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraftVersion}"
-    mappings loom.officialMojangMappings()
-    modImplementation("net.fabricmc:fabric-language-kotlin:${fabricLanguageKotlinVersion}")
-    modImplementation "net.fabricmc:fabric-loader:${fabricLoaderVersion}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricVersion}"
+    // MC 26.1.2 ships with official Mojang names directly (unobfuscated jar).
+    // Obfuscation is disabled (fabric.loom.disableObfuscation=true), so no
+    // mappings configuration is needed — source == production == official.
+    implementation("net.fabricmc:fabric-language-kotlin:${fabricLanguageKotlinVersion}")
+    implementation "net.fabricmc:fabric-loader:${fabricLoaderVersion}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabricVersion}"
 
     // Reqs
     compileOnly "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
@@ -100,56 +69,44 @@ dependencies {
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
     compileOnly project(":Common")
 
-    modImplementation "at.petra-k.paucal:paucal-fabric-$minecraftVersion:$paucalVersion"
-    modImplementation "vazkii.patchouli:Patchouli:$minecraftVersion-$patchouliVersion-FABRIC-SNAPSHOT"
+    // paucal is vendored as source
+    // patchouli is not available for 26.1 (guide book stubbed)
+    // inline is not available for 26.1 (text API stubbed)
 
-    modImplementation "com.samsthenerd.inline:inline-fabric:$minecraftVersion-$inlineVersion"
+    implementation "org.ladysnake.cardinal-components-api:cardinal-components-base:$cardinalComponentsVersion"
+    implementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:$cardinalComponentsVersion"
+    implementation "org.ladysnake.cardinal-components-api:cardinal-components-item:$cardinalComponentsVersion"
+    implementation "org.ladysnake.cardinal-components-api:cardinal-components-block:$cardinalComponentsVersion"
 
-    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:$cardinalComponentsVersion"
-//    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-util:$cardinalComponentsVersion"
-    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:$cardinalComponentsVersion"
-    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-item:$cardinalComponentsVersion"
-    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-block:$cardinalComponentsVersion"
-
-//    modImplementation "com.jamieswhiteshirt:reach-entity-attributes:${entityReachVersion}"
-//    include "com.jamieswhiteshirt:reach-entity-attributes:${entityReachVersion}"
-
-    // apparently the 1.18 version Just Works on 1.19
-    modImplementation "${modID}:serialization-hooks:$serializationHooksVersion"
-    include "${modID}:serialization-hooks:$serializationHooksVersion"
+    // bundled serialization hooks (stubbed as source for 26.1 official mappings)
+    // implementation "${modID}:serialization-hooks:$serializationHooksVersion"
+    // include "${modID}:serialization-hooks:$serializationHooksVersion"
     implementation(include("com.github.LlamaLad7:MixinExtras:0.1.1"))
 
     // Optional integrations
 
-    modApi("me.shedaniel.cloth:cloth-config-fabric:$clothConfigVersion") {
+    // cloth-config is a hard runtime dependency (config screen)
+    implementation("me.shedaniel.cloth:cloth-config-fabric:$clothConfigVersion") {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
-    modImplementation "dev.emi:trinkets:$trinketsVersion"
-    modImplementation "dev.emi:emi-fabric:${emiVersion}"
+    compileOnly("mezz.jei:jei-${minecraftVersion}-fabric-api:${jeiVersion}")
+    runtimeOnly("mezz.jei:jei-${minecraftVersion}-fabric:${jeiVersion}")
 
-    modCompileOnlyApi("mezz.jei:jei-${minecraftVersion}-fabric-api:${jeiVersion}")
-    modRuntimeOnly("mezz.jei:jei-${minecraftVersion}-fabric:${jeiVersion}")
-
-//    modImplementation "maven.modrinth:gravity-api:$gravityApiVersion"
-    modApi("com.github.Virtuoel:Pehkui:${pehkuiVersion}", {
+    compileOnly("com.github.Virtuoel:Pehkui:${pehkuiVersion}", {
         exclude group: "net.fabricmc.fabric-api"
     })
 
-    // *Something* is including an old version of modmenu with a broken mixin
-    // We can't figure out what it is
-    // so i'm just including a fresher version
-    modImplementation("com.terraformersmc:modmenu:$modmenuVersion")
-
-    // i am speed
-    // sodium is causing frustum mixin errors so don't use it
-//    modImplementation "maven.modrinth:sodium:${sodiumVersion}"
-    modImplementation "maven.modrinth:lithium:${lithiumVersion}"
-//    modImplementation "maven.modrinth:phosphor:${phosphorVersion}"
+    // optional (mod menu entrypoint); no compatible build for this snapshot
+    compileOnly("com.terraformersmc:modmenu:$modmenuVersion")
 }
 
-tasks.withType(JavaCompile) {
+tasks.named("compileJava", JavaCompile) {
     source(project(":Common").sourceSets.main.allSource)
+}
+// Loom defaults to running the client under xvfb-run, which is not installed here.
+tasks.withType(net.fabricmc.loom.task.RunGameTask).configureEach {
+    useXvfb.set(false)
 }
 compileKotlin {
     source(project(":Common").sourceSets.main.kotlin)

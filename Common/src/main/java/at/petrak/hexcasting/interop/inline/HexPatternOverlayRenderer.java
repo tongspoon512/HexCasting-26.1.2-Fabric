@@ -3,14 +3,14 @@ package at.petrak.hexcasting.interop.inline;
 import at.petrak.hexcasting.api.casting.math.HexPattern;
 import at.petrak.hexcasting.api.utils.NBTHelper;
 import at.petrak.hexcasting.client.render.PatternColors;
-import at.petrak.hexcasting.client.render.PatternRenderer;
 import at.petrak.hexcasting.client.render.PatternSettings;
 import at.petrak.hexcasting.client.render.RenderLib;
 import at.petrak.hexcasting.common.items.storage.ItemScroll;
 import at.petrak.hexcasting.common.items.storage.ItemSlate;
+import at.petrak.hexcasting.interop.utils.PatternDrawingUtil;
 import com.samsthenerd.inline.api.client.extrahooks.ItemOverlayRenderer;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Function;
@@ -43,14 +43,12 @@ public interface HexPatternOverlayRenderer extends ItemOverlayRenderer {
         new PatternColors(RenderLib.screenCol(0xff_cfa0f3), 0xff_763fa1);
 
     @Override
-    default void render(ItemStack itemStack, GuiGraphics guiGraphics) {
-        if(!Screen.hasShiftDown()) return;
+    default void render(ItemStack itemStack, GuiGraphicsExtractor guiGraphics) {
+        if(!Minecraft.getInstance().hasShiftDown()) return;
         HexPattern pat = getPattern(itemStack);
         if(pat == null) return;
-        var ps = guiGraphics.pose();
-        ps.pushPose();
-        ps.translate(1,1,100);
-        PatternRenderer.renderPattern(pat, guiGraphics.pose(), OVERLAY_RENDER_SETTINGS, HC_PURPLE_COLOR, 0, 16);
-        ps.popPose();
+        var pose = guiGraphics.pose();
+        PatternDrawingUtil.renderPattern(guiGraphics, pat, OVERLAY_RENDER_SETTINGS, HC_PURPLE_COLOR, 0, 16,
+            pose.m20() + 1f, pose.m21() + 1f);
     }
 }

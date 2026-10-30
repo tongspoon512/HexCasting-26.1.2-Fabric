@@ -2,7 +2,7 @@ package at.petrak.hexcasting.common.recipe.ingredient;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -16,7 +16,7 @@ import java.util.Random;
 public class StateIngredientTagExcluding extends StateIngredientTag {
     private final List<StateIngredient> excludes;
 
-    public StateIngredientTagExcluding(ResourceLocation id, Collection<StateIngredient> excludes) {
+    public StateIngredientTagExcluding(Identifier id, Collection<StateIngredient> excludes) {
         super(id);
         this.excludes = List.copyOf(excludes);
     }

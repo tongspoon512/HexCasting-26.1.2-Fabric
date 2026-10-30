@@ -6,7 +6,7 @@ import at.petrak.hexcasting.mixin.accessor.AccessorVillager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.phys.Vec3;
 
 public class RegisterMisc {

@@ -15,8 +15,9 @@ import at.petrak.hexcasting.api.mod.HexTags
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.RelativeMovement
-import net.minecraft.world.item.enchantment.EnchantmentHelper
+import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.world.entity.Relative
+import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.phys.Vec3
 
 // TODO while we're making breaking changes I *really* want to have the vector in the entity's local space
@@ -32,11 +33,11 @@ object OpTeleport : SpellAction {
         val delta = args.getVec3(1, argc)
         env.assertEntityInRange(teleportee)
 
-        if (teleportee.type.`is`(HexTags.Entities.CANNOT_TELEPORT))
+        if (teleportee.type.builtInRegistryHolder().`is`(HexTags.Entities.CANNOT_TELEPORT))
             throw MishapImmuneEntity(teleportee)
 
-        if (teleportee.type.`is`(HexTags.Entities.STICKY_TELEPORTERS)) {
-            val immunePassengers = teleportee.passengers.filter { it.type.`is`(HexTags.Entities.CANNOT_TELEPORT) }
+        if (teleportee.type.builtInRegistryHolder().`is`(HexTags.Entities.STICKY_TELEPORTERS)) {
+            val immunePassengers = teleportee.passengers.filter { it.type.builtInRegistryHolder().`is`(HexTags.Entities.CANNOT_TELEPORT) }
             if (!immunePassengers.isEmpty()) 
                 throw MishapImmuneEntity(immunePassengers.get(0))
         }
@@ -73,8 +74,8 @@ object OpTeleport : SpellAction {
                 // Armor and hotbar items have a further reduced chance to be dropped since it's particularly annoying
                 // having to rearrange those. Also it makes sense for LORE REASONS probably, since the caster is more
                 // aware of items they use often.
-                for (armorItem in teleportee.inventory.armor) {
-                    if (EnchantmentHelper.hasBindingCurse(armorItem))
+                for (armorItem in EquipmentSlot.values().filter { it.isArmor }.map { teleportee.getItemBySlot(it) }) {
+                    if (armorItem.getEnchantments().keySet().any { it.`is`(Enchantments.BINDING_CURSE) })
                         continue
 
                     if (Math.random() < baseDropChance * 0.25) {
@@ -83,7 +84,9 @@ object OpTeleport : SpellAction {
                     }
                 }
 
-                for ((pos, invItem) in teleportee.inventory.items.withIndex()) {
+                val inv = teleportee.inventory
+                for (pos in 0 until inv.getContainerSize()) {
+                    val invItem = inv.getItem(pos)
                     if (invItem == teleportee.mainHandItem) continue
                     val dropChance = if (pos < 9) baseDropChance * 0.5 else baseDropChance // hotbar
                     if (Math.random() < dropChance) {
@@ -107,12 +110,12 @@ object OpTeleport : SpellAction {
         // A "sticky" entity teleports itself and its riders
         // This is the default behavior for teleportTo(), so we remove the riders if the teleportee *isn't* sticky
         teleportee.stopRiding()
-        if (!teleportee.type.`is`(HexTags.Entities.STICKY_TELEPORTERS)) 
+        if (!teleportee.type.builtInRegistryHolder().`is`(HexTags.Entities.STICKY_TELEPORTERS)) 
             teleportee.passengers.forEach(Entity::stopRiding)
 
         // we specify that this is relative movement so that it doesn't reset player velocity. :mojank:
         // note that the coordinates here are still absolute, because vanilla relative teleports are weird
         teleportee.teleportTo(world, target.x, target.y, target.z,
-            RelativeMovement.ALL, teleportee.yRot, teleportee.xRot)
+            setOf(Relative.X, Relative.Y, Relative.Z, Relative.Y_ROT, Relative.X_ROT), teleportee.yRot, teleportee.xRot, false)
     }
 }

@@ -11,22 +11,26 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.stream.StreamSupport;
 
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
 public class PhialRecipeCategory implements IRecipeCategory<OpMakeBattery> {
-    public static final ResourceLocation UID = modLoc("craft_phial");
+    public static final Identifier UID = modLoc("craft_phial");
 
     private final IDrawableStatic background;
     private final IDrawable icon;
     private final Component localizedName;
 
     public PhialRecipeCategory(IGuiHelper guiHelper) {
-        ResourceLocation location = modLoc("textures/gui/phial_recipe.png");
+        Identifier location = modLoc("textures/gui/phial_recipe.png");
         background = guiHelper.drawableBuilder(location, 0, 0, 113, 40).setTextureSize(128, 128).build();
         var craftPhial = modLoc("craft/battery");
         localizedName = Component.translatable("hexcasting.action." + craftPhial);
@@ -39,8 +43,13 @@ public class PhialRecipeCategory implements IRecipeCategory<OpMakeBattery> {
     }
 
     @Override
-    public @NotNull IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return 113;
+    }
+
+    @Override
+    public int getHeight() {
+        return 40;
     }
 
     @Override
@@ -55,8 +64,11 @@ public class PhialRecipeCategory implements IRecipeCategory<OpMakeBattery> {
 
         var inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 12, 12)
             .addItemStacks(stacks.getFirst());
+        var baseItems = StreamSupport.stream(
+            BuiltInRegistries.ITEM.getTagOrEmpty(HexTags.Items.PHIAL_BASE).spliterator(), false)
+            .map(Holder::value);
         builder.addSlot(RecipeIngredientRole.INPUT, 47, 12)
-            .addIngredients(Ingredient.of(HexTags.Items.PHIAL_BASE));
+            .addIngredients(Ingredient.of(baseItems));
 
         var outputSlot = builder.addSlot(RecipeIngredientRole.OUTPUT, 85, 12)
             .addItemStacks(stacks.getSecond());

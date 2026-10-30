@@ -1,7 +1,7 @@
 package at.petrak.hexcasting.common.loot;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
@@ -24,53 +24,53 @@ public class HexLootHandler {
 
         // In places where it doesn't really make sense to have them lore-wise just put them rarely anyways
         // to make it less of a PITA for new players
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/simple_dungeon"), 1),
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/abandoned_mineshaft"), 1),
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/bastion_other"), 1),
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/nether_bridge"), 1),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/simple_dungeon"), 1),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/abandoned_mineshaft"), 1),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/bastion_other"), 1),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/nether_bridge"), 1),
 
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/jungle_temple"), 2),
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/desert_pyramid"), 2),
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/village/village_cartographer"), 2),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/jungle_temple"), 2),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/desert_pyramid"), 2),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/village/village_cartographer"), 2),
 
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/shipwreck_map"), 3),
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/bastion_treasure"), 3),
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/end_city_treasure"), 3),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/shipwreck_map"), 3),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/bastion_treasure"), 3),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/end_city_treasure"), 3),
 
         // ancient city chests have amethyst in them, thinking emoji
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/ancient_city"), 4),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/ancient_city"), 4),
         // wonder what those pillagers are up to with those scrolls
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/pillager_outpost"), 4),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/pillager_outpost"), 4),
 
         // if you manage to find one of these things you deserve a lot of scrolls
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/woodland_mansion"), 5),
-        new ScrollInjection(new ResourceLocation("minecraft", "chests/stronghold_library"), 5)
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/woodland_mansion"), 5),
+        new ScrollInjection(Identifier.fromNamespaceAndPath("minecraft", "chests/stronghold_library"), 5)
 
         // you can use the table hexcasting:random_scroll to get exactly 1 scroll and nothing else
     );
 
-    public static final ImmutableList<ResourceLocation> DEFAULT_LORE_INJECTS = ImmutableList.of(
-        new ResourceLocation("minecraft", "chests/simple_dungeon"),
-        new ResourceLocation("minecraft", "chests/abandoned_mineshaft"),
-        new ResourceLocation("minecraft", "chests/pillager_outpost"),
-        new ResourceLocation("minecraft", "chests/woodland_mansion"),
-        new ResourceLocation("minecraft", "chests/stronghold_library"),
+    public static final ImmutableList<Identifier> DEFAULT_LORE_INJECTS = ImmutableList.of(
+        Identifier.fromNamespaceAndPath("minecraft", "chests/simple_dungeon"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/abandoned_mineshaft"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/pillager_outpost"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/woodland_mansion"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/stronghold_library"),
         // >:)
-        new ResourceLocation("minecraft", "chests/village/village_desert_house"),
-        new ResourceLocation("minecraft", "chests/village/village_plains_house"),
-        new ResourceLocation("minecraft", "chests/village/village_savanna_house"),
-        new ResourceLocation("minecraft", "chests/village/village_snowy_house"),
-        new ResourceLocation("minecraft", "chests/village/village_taiga_house")
+        Identifier.fromNamespaceAndPath("minecraft", "chests/village/village_desert_house"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/village/village_plains_house"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/village/village_savanna_house"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/village/village_snowy_house"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/village/village_taiga_house")
     );
 
-    public static final ImmutableList<ResourceLocation> DEFAULT_CYPHER_INJECTS = ImmutableList.of(
-        new ResourceLocation("minecraft", "chests/simple_dungeon"),
-        new ResourceLocation("minecraft", "chests/abandoned_mineshaft"),
-        new ResourceLocation("minecraft", "chests/stronghold_corridor"),
-        new ResourceLocation("minecraft", "chests/jungle_temple"),
-        new ResourceLocation("minecraft", "chests/desert_pyramid"),
-        new ResourceLocation("minecraft", "chests/ancient_city"),
-        new ResourceLocation("minecraft", "chests/nether_bridge")
+    public static final ImmutableList<Identifier> DEFAULT_CYPHER_INJECTS = ImmutableList.of(
+        Identifier.fromNamespaceAndPath("minecraft", "chests/simple_dungeon"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/abandoned_mineshaft"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/stronghold_corridor"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/jungle_temple"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/desert_pyramid"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/ancient_city"),
+        Identifier.fromNamespaceAndPath("minecraft", "chests/nether_bridge")
         // you can use the table hexcasting:random_cypher to get exactly 1 cypher and nothing else
     );
 
@@ -82,8 +82,8 @@ public class HexLootHandler {
     public static final double DEFAULT_LORE_CHANCE = 0.4;
     public static final double DEFAULT_CYPHER_CHANCE = 0.4;
 
-    public static final ResourceLocation TABLE_INJECT_AMETHYST_CLUSTER = modLoc("inject/amethyst_cluster");
+    public static final Identifier TABLE_INJECT_AMETHYST_CLUSTER = modLoc("inject/amethyst_cluster");
 
-    public record ScrollInjection(ResourceLocation injectee, int countRange) {
+    public record ScrollInjection(Identifier injectee, int countRange) {
     }
 }

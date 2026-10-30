@@ -1,21 +1,25 @@
 package at.petrak.hexcasting.common.loot;
 
-import at.petrak.hexcasting.common.lib.HexLootFunctions;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import net.minecraft.util.GsonHelper;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
+import java.util.List;
+
 public class AmethystReducerFunc extends LootItemConditionalFunction {
+    public static final MapCodec<AmethystReducerFunc> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+        commonFields(inst).t1(),
+        Codec.DOUBLE.fieldOf("delta").forGetter(f -> f.delta)
+    ).apply(inst, AmethystReducerFunc::new));
+
     public final double delta;
 
-    public AmethystReducerFunc(LootItemCondition[] lootItemConditions, double delta) {
+    public AmethystReducerFunc(List<LootItemCondition> lootItemConditions, double delta) {
         super(lootItemConditions);
         this.delta = delta;
     }
@@ -33,22 +37,7 @@ public class AmethystReducerFunc extends LootItemConditionalFunction {
     }
 
     @Override
-    public LootItemFunctionType getType() {
-        return HexLootFunctions.AMETHYST_SHARD_REDUCER;
-    }
-
-    public static class Serializer extends LootItemConditionalFunction.Serializer<AmethystReducerFunc> {
-        @Override
-        public void serialize(JsonObject json, AmethystReducerFunc value, JsonSerializationContext ctx) {
-            super.serialize(json, value, ctx);
-            json.addProperty("delta", value.delta);
-        }
-
-        @Override
-        public AmethystReducerFunc deserialize(JsonObject object, JsonDeserializationContext ctx,
-            LootItemCondition[] conditions) {
-            var delta = GsonHelper.getAsDouble(object, "delta");
-            return new AmethystReducerFunc(conditions, delta);
-        }
+    public MapCodec<? extends LootItemConditionalFunction> codec() {
+        return CODEC;
     }
 }

@@ -5,7 +5,7 @@ import at.petrak.hexcasting.api.casting.eval.env.StaffCastEnv;
 import at.petrak.hexcasting.api.casting.math.HexPattern;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -22,10 +22,10 @@ import static at.petrak.hexcasting.api.HexAPI.modLoc;
 public record MsgNewSpellPatternC2S(InteractionHand handUsed, HexPattern pattern,
                                     List<ResolvedPattern> resolvedPatterns)
     implements IMessage {
-    public static final ResourceLocation ID = modLoc("pat_cs");
+    public static final Identifier ID = modLoc("pat_cs");
 
     @Override
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return ID;
     }
 

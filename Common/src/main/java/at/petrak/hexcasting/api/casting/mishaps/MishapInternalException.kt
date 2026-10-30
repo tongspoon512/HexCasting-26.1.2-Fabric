@@ -30,8 +30,8 @@ class MishapInternalException(val exception: Exception) : Mishap() {
 
         message = message.withStyle(
             Style.EMPTY
-                .withClickEvent(ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, trace))
-                .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(trace)))
+                .withClickEvent(ClickEvent.CopyToClipboard(trace))
+                .withHoverEvent(HoverEvent.ShowText(Component.literal(trace)))
         )
 
         return error("unknown", message)

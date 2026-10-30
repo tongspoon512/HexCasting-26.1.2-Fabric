@@ -1,25 +1,24 @@
 package at.petrak.hexcasting.fabric.datagen;
 
 import at.petrak.hexcasting.datagen.IXplatConditionsBuilder;
-import com.google.gson.JsonObject;
-import net.fabricmc.fabric.api.resource.conditions.v1.ConditionJsonProvider;
-import net.fabricmc.fabric.api.resource.conditions.v1.DefaultResourceConditions;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.fabricmc.fabric.impl.datagen.FabricDataGenHelper;
-import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.data.recipes.RecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.Recipe;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class HexFabricConditionsBuilder implements IXplatConditionsBuilder {
-    private final List<ConditionJsonProvider> conditions = new ArrayList<>();
+    private final List<ResourceCondition> conditions = new ArrayList<>();
     private final RecipeBuilder parent;
 
     public HexFabricConditionsBuilder(RecipeBuilder parent) {
@@ -28,19 +27,19 @@ public class HexFabricConditionsBuilder implements IXplatConditionsBuilder {
 
     @Override
     public IXplatConditionsBuilder whenModLoaded(String modid) {
-        conditions.add(DefaultResourceConditions.allModsLoaded(modid));
+        conditions.add(ResourceConditions.allModsLoaded(modid));
         return this;
     }
 
     @Override
     public IXplatConditionsBuilder whenModMissing(String modid) {
-        conditions.add(DefaultResourceConditions.not(DefaultResourceConditions.allModsLoaded(modid)));
+        conditions.add(ResourceConditions.not(ResourceConditions.allModsLoaded(modid)));
         return this;
     }
 
     @Override
-    public RecipeBuilder unlockedBy(@NotNull String string, @NotNull CriterionTriggerInstance criterionTriggerInstance) {
-        return parent.unlockedBy(string, criterionTriggerInstance);
+    public RecipeBuilder unlockedBy(@NotNull String string, @NotNull Criterion<?> criterion) {
+        return parent.unlockedBy(string, criterion);
     }
 
     @Override
@@ -49,48 +48,37 @@ public class HexFabricConditionsBuilder implements IXplatConditionsBuilder {
     }
 
     @Override
-    public Item getResult() {
-        return parent.getResult();
+    public ResourceKey<Recipe<?>> defaultId() {
+        return parent.defaultId();
     }
 
     @Override
     @SuppressWarnings("UnstableApiUsage")
-    public void save(@NotNull Consumer<FinishedRecipe> consumer, @NotNull ResourceLocation resourceLocation) {
-        Consumer<FinishedRecipe> withConditions = json -> {
-            FabricDataGenHelper.addConditions(json, conditions.toArray(new ConditionJsonProvider[0]));
+    public void save(@NotNull RecipeOutput output, @NotNull ResourceKey<Recipe<?>> id) {
+        if (conditions.isEmpty()) {
+            parent.save(output, id);
+            return;
+        }
 
-            consumer.accept(new FinishedRecipe() {
-                @Override
-                public void serializeRecipeData(@NotNull JsonObject jsonObject) {
-                    json.serializeRecipeData(jsonObject);
-                    ConditionJsonProvider[] conditions = FabricDataGenHelper.consumeConditions(json);
-                    ConditionJsonProvider.write(jsonObject, conditions);
-                }
+        var conditional = new RecipeOutput() {
+            @Override
+            public void accept(@NotNull ResourceKey<Recipe<?>> key, @NotNull Recipe<?> recipe,
+                @NotNull AdvancementHolder advancement) {
+                FabricDataGenHelper.addConditions(recipe, conditions.toArray(new ResourceCondition[0]));
+                output.accept(key, recipe, advancement);
+            }
 
-                @Override
-                public ResourceLocation getId() {
-                    return json.getId();
-                }
+            @Override
+            public Advancement.@NotNull Builder advancement() {
+                return output.advancement();
+            }
 
-                @Override
-                public RecipeSerializer<?> getType() {
-                    return json.getType();
-                }
-
-                @Nullable
-                @Override
-                public JsonObject serializeAdvancement() {
-                    return json.serializeAdvancement();
-                }
-
-                @Nullable
-                @Override
-                public ResourceLocation getAdvancementId() {
-                    return json.getAdvancementId();
-                }
-            });
+            @Override
+            public void includeRootAdvancement() {
+                // NO-OP
+            }
         };
 
-        parent.save(withConditions, resourceLocation);
+        parent.save(conditional, id);
     }
 }

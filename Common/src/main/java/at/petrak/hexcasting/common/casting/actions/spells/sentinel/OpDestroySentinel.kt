@@ -25,7 +25,7 @@ object OpDestroySentinel : SpellAction {
         // TODO why can't you remove things from other dimensions?
         val dim = sentinel?.dimension
         if (dim != null && dim != env.world.dimension())
-            throw MishapLocationInWrongDimension(dim.location())
+            throw MishapLocationInWrongDimension(dim.identifier())
 
         val particles = sentinel?.position?.let { listOf(ParticleSpray.cloud(it, 2.0)) }
             ?: listOf()

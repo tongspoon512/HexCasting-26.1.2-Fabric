@@ -10,7 +10,7 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.npc.Villager
+import net.minecraft.world.entity.npc.villager.Villager
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.UseOnContext
@@ -32,6 +32,8 @@ fun LivingEntity.setHurtWithStamp(source: DamageSource, stamp: Long) = (this as 
 }
 
 fun Entity.markHurt() = (this as AccessorEntity).`hex$markHurt`()
+
+fun Entity.isInvulnerableTo(source: DamageSource) = (this as AccessorEntity).`hex$isInvulnerableToBase`(source)
 
 fun Villager.tellWitnessesThatIWasMurdered(murderer: Entity) = (this as AccessorVillager).`hex$tellWitnessesThatIWasMurdered`(murderer)
 

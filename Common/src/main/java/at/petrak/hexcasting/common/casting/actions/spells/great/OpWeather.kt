@@ -23,15 +23,20 @@ class OpWeather(val rain: Boolean) : SpellAction {
     private data class Spell(val rain: Boolean) : RenderedSpell {
         override fun cast(env: CastingEnvironment) {
             val w = env.world
-            if (w.isRaining != rain) {
-                w.levelData.isRaining = rain // i hex the rains down in minecraftia
+            val weather = w.weatherData
+            if (weather.isRaining != rain) {
+                weather.isRaining = rain // i hex the rains down in minecraftia
 
                 val (minTime, maxTime) = if (rain) (30 to 90) else (60 to 180)
                 val time = (w.random.nextInt(minTime, maxTime)) * 20 * 60
                 if (rain) {
-                    w.setWeatherParameters(0, time, true, w.random.nextDouble() < 0.05)
+                    weather.clearWeatherTime = 0
+                    weather.rainTime = time
+                    weather.isThundering = w.random.nextDouble() < 0.05
                 } else {
-                    w.setWeatherParameters(time, 0, false, false)
+                    weather.clearWeatherTime = time
+                    weather.rainTime = 0
+                    weather.isThundering = false
                 }
             }
         }

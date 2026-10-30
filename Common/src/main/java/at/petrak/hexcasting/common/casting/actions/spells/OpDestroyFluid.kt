@@ -79,6 +79,7 @@ object OpDestroyFluid : SpellAction {
                         ) {
                             val success =
                                 if (blockstate.block is BucketPickup && !(blockstate.block as BucketPickup).pickupBlock(
+                                        env.castingEntity,
                                         env.world,
                                         here,
                                         blockstate
@@ -88,7 +89,7 @@ object OpDestroyFluid : SpellAction {
                                 } else if (blockstate.block is LiquidBlock) {
                                     env.world.setBlock(here, Blocks.AIR.defaultBlockState(), 3)
                                     true
-                                } else if (blockstate.tags.anyMatch { it == HexTags.Blocks.WATER_PLANTS }) {
+                                } else if (blockstate.`is`(HexTags.Blocks.WATER_PLANTS)) {
                                     val blockentity: BlockEntity? =
                                         if (blockstate.hasBlockEntity()) env.world.getBlockEntity(here) else null
                                     Block.dropResources(blockstate, env.world, here, blockentity)

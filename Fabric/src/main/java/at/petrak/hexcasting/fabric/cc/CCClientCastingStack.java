@@ -1,10 +1,11 @@
 package at.petrak.hexcasting.fabric.cc;
 
 import at.petrak.hexcasting.api.client.ClientCastingStack;
-import dev.onyxstudios.cca.api.v3.component.Component;
-import dev.onyxstudios.cca.api.v3.component.tick.ClientTickingComponent;
-import net.minecraft.nbt.CompoundTag;
+import org.ladysnake.cca.api.v3.component.Component;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class CCClientCastingStack implements Component, ClientTickingComponent {
 
@@ -23,8 +24,8 @@ public class CCClientCastingStack implements Component, ClientTickingComponent {
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag) { }
+    public void readData(ValueInput input) { }
 
     @Override
-    public void writeToNbt(CompoundTag tag) { }
+    public void writeData(ValueOutput output) { }
 }

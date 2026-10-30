@@ -11,7 +11,7 @@ import at.petrak.hexcasting.common.blocks.entity.BlockEntityConjured;
 import at.petrak.hexcasting.common.blocks.entity.BlockEntityQuenchedAllay;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -23,13 +23,13 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 public class HexBlockEntities {
-    public static void registerTiles(BiConsumer<BlockEntityType<?>, ResourceLocation> r) {
+    public static void registerTiles(BiConsumer<BlockEntityType<?>, Identifier> r) {
         for (var e : BLOCK_ENTITIES.entrySet()) {
             r.accept(e.getValue(), e.getKey());
         }
     }
 
-    private static final Map<ResourceLocation, BlockEntityType<?>> BLOCK_ENTITIES = new LinkedHashMap<>();
+    private static final Map<Identifier, BlockEntityType<?>> BLOCK_ENTITIES = new LinkedHashMap<>();
 
     public static final BlockEntityType<BlockEntityConjured> CONJURED_TILE = register(
         "conjured",
@@ -80,7 +80,7 @@ public class HexBlockEntities {
     private static <T extends BlockEntity> BlockEntityType<T> register(String id,
         BiFunction<BlockPos, BlockState, T> func, Block... blocks) {
         var ret = IXplatAbstractions.INSTANCE.createBlockEntityType(func, blocks);
-        var old = BLOCK_ENTITIES.put(new ResourceLocation(HexAPI.MOD_ID, id), ret);
+        var old = BLOCK_ENTITIES.put(Identifier.fromNamespaceAndPath(HexAPI.MOD_ID, id), ret);
         if (old != null) {
             throw new IllegalArgumentException("Duplicate id " + id);
         }

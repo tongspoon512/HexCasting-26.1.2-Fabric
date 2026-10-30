@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "minecraft:amethyst_shard",
+    "B": "minecraft:bread",
+    "C": "minecraft:cooked_beef",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    " SA",
+    " C ",
+    " B "
+  ],
+  "result": {
+    "id": "hexcasting:sub_sandwich"
+  }
+}

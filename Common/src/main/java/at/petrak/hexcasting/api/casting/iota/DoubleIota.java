@@ -62,7 +62,7 @@ public class DoubleIota extends Iota {
 
     public static DoubleIota deserialize(Tag tag) throws IllegalArgumentException {
         var dtag = HexUtils.downcast(tag, DoubleTag.TYPE);
-        return new DoubleIota(dtag.getAsDouble());
+        return new DoubleIota(dtag.doubleValue());
     }
 
     public static Component display(double d) {

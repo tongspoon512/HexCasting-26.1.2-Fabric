@@ -9,9 +9,9 @@ import at.petrak.hexcasting.api.casting.iota.EntityIota
 import at.petrak.hexcasting.api.casting.iota.Iota
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.animal.AgeableWaterCreature
 import net.minecraft.world.entity.animal.Animal
-import net.minecraft.world.entity.animal.WaterAnimal
-import net.minecraft.world.entity.boss.EnderDragonPart
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart
 import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.monster.Enemy
@@ -42,7 +42,7 @@ class OpGetEntitiesBy(val checker: Predicate<Entity>, val negate: Boolean) : Con
             env.isEntityInRange(e, true) && e.isAlive && !e.isSpectator
 
         @JvmStatic
-        fun isAnimal(e: Entity): Boolean = e is Animal || e is WaterAnimal
+        fun isAnimal(e: Entity): Boolean = e is Animal || e is AgeableWaterCreature
 
         @JvmStatic
         fun isMonster(e: Entity): Boolean = e is Enemy

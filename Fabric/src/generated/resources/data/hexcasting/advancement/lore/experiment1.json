@@ -1,0 +1,24 @@
+{
+  "parent": "hexcasting:lore",
+  "criteria": {
+    "grant": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "description": "",
+    "hidden": true,
+    "icon": {
+      "id": "hexcasting:lore_fragment"
+    },
+    "title": {
+      "translate": "advancement.hexcasting:lore/experiment1"
+    }
+  },
+  "requirements": [
+    [
+      "grant"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

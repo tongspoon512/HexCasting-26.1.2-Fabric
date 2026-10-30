@@ -7,18 +7,14 @@ import at.petrak.hexcasting.client.ClientTickCounter;
 import at.petrak.hexcasting.common.lib.HexAttributes;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
@@ -33,28 +29,28 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 public class HexAdditionalRenderers {
-    public static void overlayLevel(PoseStack ps, float partialTick) {
+    public static void overlayLevel(PoseStack ps, SubmitNodeCollector collector) {
         var player = Minecraft.getInstance().player;
         if (player != null) {
             var sentinel = IXplatAbstractions.INSTANCE.getSentinel(player);
             if (sentinel != null && player.level().dimension().equals(sentinel.dimension())) {
-                renderSentinel(sentinel, player, ps, partialTick);
+                renderSentinel(sentinel, player, ps, collector);
             }
         }
     }
 
-    public static void overlayGui(GuiGraphics graphics, float partialTicks) {
-        tryRenderScryingLensOverlay(graphics, partialTicks);
+    public static void overlayGui(GuiGraphicsExtractor graphics, float partialTicks) {
+        tryRenderScryingLensOverlay(graphics);
     }
 
     private static void renderSentinel(Sentinel sentinel, LocalPlayer owner,
-        PoseStack ps, float partialTicks) {
+        PoseStack ps, SubmitNodeCollector collector) {
         ps.pushPose();
 
         // zero vector is the player
         var mc = Minecraft.getInstance();
         var camera = mc.gameRenderer.getMainCamera();
-        var playerPos = camera.getPosition();
+        var playerPos = camera.position();
         ps.translate(
             sentinel.position().x - playerPos.x,
             sentinel.position().y - playerPos.y,
@@ -73,60 +69,47 @@ public class HexAdditionalRenderers {
         float scale = 0.5f;
         ps.scale(scale, scale, scale);
 
-
-        var tess = Tesselator.getInstance();
-        var buf = tess.getBuilder();
-        var neo = ps.last().pose();
-        RenderSystem.enableBlend();
-        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-        RenderSystem.disableDepthTest();
-        RenderSystem.disableCull();
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        RenderSystem.lineWidth(5f);
-
         var pigment = IXplatAbstractions.INSTANCE.getPigment(owner);
         var colProvider = pigment.getColorProvider();
-        BiConsumer<float[], float[]> v = (l, r) -> {
-            int lcolor = colProvider.getColor(time, new Vec3(l[0], l[1], l[2])),
-                rcolor = colProvider.getColor(time, new Vec3(r[0], r[1], r[2]));
-            var normal = new Vector3f(r[0] - l[0], r[1] - l[1], r[2] - l[2]);
-            normal.normalize();
-            buf.vertex(neo, l[0], l[1], l[2])
-                .color(lcolor)
-                .normal(ps.last().normal(), normal.x(), normal.y(), normal.z())
-                .endVertex();
-            buf.vertex(neo, r[0], r[1], r[2])
-                .color(rcolor)
-                .normal(ps.last().normal(), -normal.x(), -normal.y(), -normal.z())
-                .endVertex();
-        };
 
-        // Icosahedron inscribed inside the unit sphere
-        buf.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-        for (int side = 0; side <= 1; side++) {
-            var ring = (side == 0) ? Icos.BOTTOM_RING : Icos.TOP_RING;
-            var apex = (side == 0) ? Icos.BOTTOM : Icos.TOP;
+        // 26.1 has no immediate-mode line drawing; the icosahedron is submitted as one custom geometry batch.
+        collector.submitCustomGeometry(ps, RenderTypes.LINES_TRANSLUCENT, (pose, buf) -> {
+            BiConsumer<float[], float[]> v = (l, r) -> {
+                int lcolor = colProvider.getColor(time, new Vec3(l[0], l[1], l[2])),
+                    rcolor = colProvider.getColor(time, new Vec3(r[0], r[1], r[2]));
+                var normal = new Vector3f(r[0] - l[0], r[1] - l[1], r[2] - l[2]);
+                normal.normalize();
+                buf.addVertex(pose, l[0], l[1], l[2])
+                    .setColor(lcolor)
+                    .setNormal(pose, normal.x(), normal.y(), normal.z());
+                buf.addVertex(pose, r[0], r[1], r[2])
+                    .setColor(rcolor)
+                    .setNormal(pose, -normal.x(), -normal.y(), -normal.z());
+            };
 
-            // top & bottom spider
-            for (int i = 0; i < 5; i++) {
-                v.accept(apex, ring[i]);
+            // Icosahedron inscribed inside the unit sphere
+            for (int side = 0; side <= 1; side++) {
+                var ring = (side == 0) ? Icos.BOTTOM_RING : Icos.TOP_RING;
+                var apex = (side == 0) ? Icos.BOTTOM : Icos.TOP;
+
+                // top & bottom spider
+                for (int i = 0; i < 5; i++) {
+                    v.accept(apex, ring[i]);
+                }
+
+                // ring around
+                for (int i = 0; i < 5; i++) {
+                    v.accept(ring[i % 5], ring[(i + 1) % 5]);
+                }
             }
-
-            // ring around
+            // center band
             for (int i = 0; i < 5; i++) {
-                v.accept(ring[i % 5], ring[(i + 1) % 5]);
+                var bottom = Icos.BOTTOM_RING[i];
+                v.accept(Icos.TOP_RING[(i + 2) % 5], bottom);
+                v.accept(bottom, Icos.TOP_RING[(i + 3) % 5]);
             }
-        }
-        // center band
-        for (int i = 0; i < 5; i++) {
-            var bottom = Icos.BOTTOM_RING[i];
-            v.accept(Icos.TOP_RING[(i + 2) % 5], bottom);
-            v.accept(bottom, Icos.TOP_RING[(i + 3) % 5]);
-        }
-        tess.end();
+        });
 
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableCull();
         ps.popPose();
     }
 
@@ -149,9 +132,9 @@ public class HexAdditionalRenderers {
         }
     }
 
-    private static void tryRenderScryingLensOverlay(GuiGraphics graphics, float partialTicks) {
+    private static void tryRenderScryingLensOverlay(GuiGraphicsExtractor graphics) {
         var mc = Minecraft.getInstance();
-        var ps = graphics.pose();
+        var matrix = graphics.pose();
 
         LocalPlayer player = mc.player;
         ClientLevel level = mc.level;
@@ -159,7 +142,8 @@ public class HexAdditionalRenderers {
             return;
         }
 
-        if (player.getAttributeValue(HexAttributes.SCRY_SIGHT) <= 0.0 || player.getAttributeValue(HexAttributes.FEEBLE_MIND) > 0)
+        if (player.getAttributeValue(HexAttributes.holder(HexAttributes.SCRY_SIGHT)) <= 0.0
+            || player.getAttributeValue(HexAttributes.holder(HexAttributes.FEEBLE_MIND)) > 0)
             return;
 
         var hitRes = mc.hitResult;
@@ -191,14 +175,14 @@ public class HexAdditionalRenderers {
             if (!lines.isEmpty()) {
                 var x = window.getGuiScaledWidth() / 2f + 8f;
                 var y = window.getGuiScaledHeight() / 2f - totalHeight;
-                ps.pushPose();
-                ps.translate(x, y, 0);
+                matrix.pushMatrix();
+                matrix.translate(x, y);
 
                 for (var pair : actualLines) {
                     var stack = pair.getFirst();
                     if (!stack.isEmpty()) {
                         // this draws centered in the Y ...
-                        graphics.renderItem(pair.getFirst(), 0, 0);
+                        graphics.item(pair.getFirst(), 0, 0);
                     }
                     int tx = stack.isEmpty() ? 0 : 18;
                     int ty = 5;
@@ -207,16 +191,16 @@ public class HexAdditionalRenderers {
 
                     for (var line : text) {
                         var actualLine = Language.getInstance().getVisualOrder(line);
-                        graphics.drawString(mc.font, actualLine, tx, ty, 0xffffffff);
-                        ps.translate(0, mc.font.lineHeight, 0);
+                        graphics.text(mc.font, actualLine, tx, ty, 0xffffffff);
+                        matrix.translate(0f, mc.font.lineHeight);
                     }
                     if (text.isEmpty()) {
-                        ps.translate(0, mc.font.lineHeight, 0);
+                        matrix.translate(0f, mc.font.lineHeight);
                     }
-                    ps.translate(0, 6, 0);
+                    matrix.translate(0f, 6f);
                 }
 
-                ps.popPose();
+                matrix.popMatrix();
             }
         }
     }

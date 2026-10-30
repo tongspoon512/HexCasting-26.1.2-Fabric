@@ -40,7 +40,7 @@ public interface AkashicFloodfiller {
                 if (seenBlocks.add(neighbor)) {
                     var bs = world.getBlockState(neighbor);
                     if (isTarget.test(neighbor, bs, world)) {
-                        if (world.random.nextFloat() > skipChance) {
+                        if (world.getRandom().nextFloat() > skipChance) {
                             return neighbor;
                         } else {
                             skippedBlocks.add(neighbor);

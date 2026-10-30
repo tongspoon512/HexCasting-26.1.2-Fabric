@@ -4,7 +4,7 @@ import at.petrak.hexcasting.common.entities.EntityWallScroll;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
@@ -12,7 +12,7 @@ import static at.petrak.hexcasting.api.HexAPI.modLoc;
  * Sent S->C to have a wall scroll recalculate its pattern, to get readability offset.
  */
 public record MsgRecalcWallScrollDisplayS2C(int entityId, boolean showStrokeOrder) implements IMessage {
-    public static final ResourceLocation ID = modLoc("redoscroll");
+    public static final Identifier ID = modLoc("redoscroll");
 
     public static MsgRecalcWallScrollDisplayS2C deserialize(ByteBuf buffer) {
         var buf = new FriendlyByteBuf(buffer);
@@ -28,7 +28,7 @@ public record MsgRecalcWallScrollDisplayS2C(int entityId, boolean showStrokeOrde
     }
 
     @Override
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return ID;
     }
 

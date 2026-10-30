@@ -2,13 +2,13 @@ package at.petrak.hexcasting.fabric.cc.adimpl;
 
 import at.petrak.hexcasting.api.addldata.ADVariantItem;
 import at.petrak.hexcasting.api.item.VariantItem;
-import at.petrak.hexcasting.fabric.cc.HexCardinalComponents;
-import dev.onyxstudios.cca.api.v3.item.ItemComponent;
 import net.minecraft.world.item.ItemStack;
 
-public abstract class CCVariantItem extends ItemComponent implements ADVariantItem {
+public abstract class CCVariantItem implements ADVariantItem {
+    protected final ItemStack stack;
+
     public CCVariantItem(ItemStack stack) {
-        super(stack, HexCardinalComponents.VARIANT_ITEM);
+        this.stack = stack;
     }
 
     public static class ItemBased extends CCVariantItem {

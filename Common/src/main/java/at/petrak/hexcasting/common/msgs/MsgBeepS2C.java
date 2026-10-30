@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.phys.Vec3;
@@ -12,10 +12,10 @@ import net.minecraft.world.phys.Vec3;
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
 public record MsgBeepS2C(Vec3 target, int note, NoteBlockInstrument instrument) implements IMessage {
-    public static final ResourceLocation ID = modLoc("beep");
+    public static final Identifier ID = modLoc("beep");
 
     @Override
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return ID;
     }
 

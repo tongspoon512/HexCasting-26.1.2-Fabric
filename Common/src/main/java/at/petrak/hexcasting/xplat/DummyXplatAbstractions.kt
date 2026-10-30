@@ -39,7 +39,7 @@ import net.minecraft.world.entity.Mob
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Tier
+import net.minecraft.world.item.ToolMaterial
 import net.minecraft.world.item.crafting.Ingredient
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
@@ -95,20 +95,20 @@ internal class DummyXplatAbstractions: IXplatAbstractions {
     override fun isPigment(stack: ItemStack) = error("Found use of DummyXplatAbstractions.")
     override fun getColorProvider(pigment: FrozenPigment): ColorProvider? = error("Found use of DummyXplatAbstractions.")
     override fun addEquipSlotFabric(slot: EquipmentSlot): Item.Properties? = error("Found use of DummyXplatAbstractions.")
-    override fun <T : BlockEntity?> createBlockEntityType(func: BiFunction<BlockPos?, BlockState?, T?>, vararg blocks: Block?): BlockEntityType<T?>? = error("Found use of DummyXplatAbstractions.")
+    override fun <T : BlockEntity> createBlockEntityType(func: BiFunction<BlockPos, BlockState, T>, vararg blocks: Block): BlockEntityType<T>? = error("Found use of DummyXplatAbstractions.")
     override fun tryPlaceFluid(level: Level, hand: InteractionHand, pos: BlockPos, fluid: Fluid): Boolean = error("Found use of DummyXplatAbstractions.")
     override fun drainAllFluid(level: Level, pos: BlockPos): Boolean = error("Found use of DummyXplatAbstractions.")
-    override fun isCorrectTierForDrops(tier: Tier, bs: BlockState): Boolean = error("Found use of DummyXplatAbstractions.")
+    override fun isCorrectTierForDrops(tier: ToolMaterial, bs: BlockState): Boolean = error("Found use of DummyXplatAbstractions.")
     override fun getUnsealedIngredient(stack: ItemStack): Ingredient? = error("Found use of DummyXplatAbstractions.")
     override fun tags(): IXplatTags? = error("Found use of DummyXplatAbstractions.")
     override fun isShearsCondition(): LootItemCondition.Builder? = error("Found use of DummyXplatAbstractions.")
     override fun getModName(namespace: String): String? = error("Found use of DummyXplatAbstractions.")
-    override fun getActionRegistry(): Registry<ActionRegistryEntry?>? = error("Found use of DummyXplatAbstractions.")
-    override fun getSpecialHandlerRegistry(): Registry<SpecialHandler.Factory<*>?>? = error("Found use of DummyXplatAbstractions.")
+    override fun getActionRegistry(): Registry<ActionRegistryEntry>? = error("Found use of DummyXplatAbstractions.")
+    override fun getSpecialHandlerRegistry(): Registry<SpecialHandler.Factory<*>>? = error("Found use of DummyXplatAbstractions.")
     override fun getIotaTypeRegistry(): Registry<IotaType<*>> = MappedRegistry(HexRegistries.IOTA_TYPE, Lifecycle.stable())
-    override fun getArithmeticRegistry(): Registry<Arithmetic?>? = error("Found use of DummyXplatAbstractions.")
-    override fun getContinuationTypeRegistry(): Registry<ContinuationFrame.Type<*>?>? = error("Found use of DummyXplatAbstractions.")
-    override fun getEvalSoundRegistry(): Registry<EvalSound?>? = error("Found use of DummyXplatAbstractions.")
+    override fun getArithmeticRegistry(): Registry<Arithmetic>? = error("Found use of DummyXplatAbstractions.")
+    override fun getContinuationTypeRegistry(): Registry<ContinuationFrame.Type<*>>? = error("Found use of DummyXplatAbstractions.")
+    override fun getEvalSoundRegistry(): Registry<EvalSound>? = error("Found use of DummyXplatAbstractions.")
     override fun isBreakingAllowed(world: ServerLevel, pos: BlockPos, state: BlockState, player: Player?): Boolean = error("Found use of DummyXplatAbstractions.")
     override fun isPlacingAllowed(world: ServerLevel, pos: BlockPos, blockStack: ItemStack, player: Player?): Boolean = error("Found use of DummyXplatAbstractions.")
     override fun getPehkuiApi(): PehkuiInterop.ApiAbstraction? = error("Found use of DummyXplatAbstractions.")

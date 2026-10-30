@@ -2,14 +2,18 @@ package at.petrak.hexcasting.api.casting.iota;
 
 import at.petrak.hexcasting.api.utils.HexUtils;
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes;
+import com.google.gson.JsonParser;
 import com.samsthenerd.inline.api.InlineAPI;
 import com.samsthenerd.inline.api.data.EntityInlineData;
 import com.samsthenerd.inline.api.data.PlayerHeadData;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -42,8 +46,9 @@ public class EntityIota extends Iota {
     public @NotNull
     Tag serialize() {
         var out = new CompoundTag();
-        out.putUUID("uuid", this.getEntity().getUUID());
-        out.putString("name", Component.Serializer.toJson(getEntityNameWithInline(true)));
+        out.store("uuid", UUIDUtil.CODEC, this.getEntity().getUUID());
+        out.putString("name", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, getEntityNameWithInline(true))
+            .result().map(Object::toString).orElse(""));
         return out;
     }
 
@@ -55,15 +60,11 @@ public class EntityIota extends Iota {
     private Component getEntityNameWithInline(boolean fearSerializer){
         MutableComponent baseName = this.getEntity().getName().copy();
         Component inlineEnt = null;
-        if(this.getEntity() instanceof Player player){
-            inlineEnt = new PlayerHeadData(player.getGameProfile()).asText(!fearSerializer);
-            inlineEnt = inlineEnt.plainCopy().withStyle(InlineAPI.INSTANCE.withSizeModifier(inlineEnt.getStyle(), 1.5));
+        if(this.getEntity() instanceof Player){
+            inlineEnt = new PlayerHeadData().asText(!fearSerializer);
+            inlineEnt = inlineEnt.plainCopy().withStyle(InlineAPI.INSTANCE.withSizeModifier(inlineEnt.getStyle(), 1.5f));
         } else{
-            if(fearSerializer){ // we don't want to have to serialize an entity just to display it
-                inlineEnt = EntityInlineData.fromType(this.getEntity().getType()).asText(!fearSerializer);
-            } else {
-                inlineEnt = EntityInlineData.fromEntity(this.getEntity()).asText(!fearSerializer);
-            }
+            inlineEnt = new EntityInlineData().asText(!fearSerializer);
         }
         return baseName.append(Component.literal(": ")).append(inlineEnt);
     }
@@ -77,7 +78,10 @@ public class EntityIota extends Iota {
             if (uuidTag == null) {
                 return null;
             }
-            var uuid = NbtUtils.loadUUID(uuidTag);
+            var uuid = UUIDUtil.CODEC.parse(NbtOps.INSTANCE, uuidTag).result().orElse(null);
+            if (uuid == null) {
+                return null;
+            }
             var entity = world.getEntity(uuid);
             if (entity == null) {
                 return null;
@@ -90,12 +94,13 @@ public class EntityIota extends Iota {
             if (!(tag instanceof CompoundTag ctag)) {
                 return Component.translatable("hexcasting.spelldata.entity.whoknows");
             }
-            if (!ctag.contains("name", Tag.TAG_STRING)) {
+            var nameJson = ctag.getString("name").orElse(null);
+            if (nameJson == null) {
                 return Component.translatable("hexcasting.spelldata.entity.whoknows");
             }
-            var nameJson = ctag.getString("name");
 //            return Component.literal(nameJson);
-            return Component.Serializer.fromJsonLenient(nameJson).withStyle(ChatFormatting.AQUA);
+            return ComponentSerialization.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(nameJson))
+                .result().orElse(Component.empty()).copy().withStyle(ChatFormatting.AQUA);
         }
 
         @Override

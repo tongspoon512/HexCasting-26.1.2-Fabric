@@ -21,7 +21,7 @@ class OpItemEquality(val exact: Boolean) : ConstMediaAction {
             .let { HexItemHolderHandlers.applyHandlerFor(it) }
             ?: throw MishapInvalidIota.ofType(args[1], 1, "entity.item_holder")
 
-        val matches = if (exact) ItemStack.isSameItemSameTags(itemA, itemB)
+        val matches = if (exact) ItemStack.isSameItemSameComponents(itemA, itemB)
         else ItemStack.isSameItem(itemA, itemB)
 
         return matches.asActionResult

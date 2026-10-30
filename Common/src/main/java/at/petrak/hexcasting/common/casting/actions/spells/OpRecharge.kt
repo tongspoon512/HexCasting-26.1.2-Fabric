@@ -74,7 +74,7 @@ object OpRecharge : SpellAction {
 
                 itemEntity.item = entityStack
                 if (entityStack.isEmpty)
-                    itemEntity.kill()
+                    itemEntity.kill(env.world)
             }
         }
     }

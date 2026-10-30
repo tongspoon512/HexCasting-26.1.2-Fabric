@@ -173,7 +173,7 @@ class CastingVM(var image: CastingImage, val env: CastingEnvironment) {
     fun generateDescs(): Pair<List<CompoundTag>, CompoundTag?> {
         val stackDescs = this.image.stack.map { IotaType.serialize(it) }
         val ravenmind = if (this.image.userData.contains(HexAPI.RAVENMIND_USERDATA)) {
-            this.image.userData.getCompound(HexAPI.RAVENMIND_USERDATA)
+            this.image.userData.getCompound(HexAPI.RAVENMIND_USERDATA).orElse(null)
         } else null
         return Pair(stackDescs, ravenmind)
     }

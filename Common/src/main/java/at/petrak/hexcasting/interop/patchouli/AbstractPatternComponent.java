@@ -4,8 +4,8 @@ import at.petrak.hexcasting.api.casting.math.HexPattern;
 import at.petrak.hexcasting.client.render.PatternColors;
 import at.petrak.hexcasting.client.render.PatternRenderer;
 import at.petrak.hexcasting.client.render.PatternSettings;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiGraphics;
+import at.petrak.hexcasting.interop.utils.PatternDrawingUtil;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import vazkii.patchouli.api.IComponentRenderContext;
 import vazkii.patchouli.api.ICustomComponent;
 import vazkii.patchouli.api.IVariable;
@@ -36,11 +36,8 @@ abstract public class AbstractPatternComponent implements ICustomComponent {
     public abstract boolean showStrokeOrder();
 
     @Override
-    public void render(GuiGraphics graphics, IComponentRenderContext context, float pticks, int mouseX, int mouseY) {
-        PoseStack ps = graphics.pose();
+    public void render(GuiGraphicsExtractor graphics, IComponentRenderContext context, float pticks, int mouseX, int mouseY) {
         // want to position x: [0, 116], y: [16, 80]
-        ps.pushPose();
-
         int cols = (int)Math.ceil(Math.sqrt(patterns.size()));
         int rows = (int)Math.ceil(patterns.size()/(double)cols);
 
@@ -67,13 +64,9 @@ abstract public class AbstractPatternComponent implements ICustomComponent {
             int c = p % cols;
             HexPattern pattern = patterns.get(p);
 
-            ps.pushPose();
-            ps.translate(cellW * c, cellH * r + 16, 100);
-
-            PatternRenderer.renderPattern(pattern, graphics.pose(), patSets, patCols, 0, 4);
-            ps.popPose();
+            PatternDrawingUtil.renderPattern(graphics, pattern, patSets, patCols, 0, 4,
+                (float) (cellW * c), (float) (cellH * r + 16));
         }
-        ps.popPose();
     }
 
     @Override

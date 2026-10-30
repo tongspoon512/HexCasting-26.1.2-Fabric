@@ -18,7 +18,6 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.PushReaction;
 
@@ -29,7 +28,7 @@ import java.util.Locale;
 
 // When pops a true, outputs to FACING, when pops a false, outputs to the opposite
 public class BlockBooleanDirectrix extends BlockCircleComponent {
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final EnumProperty<State> STATE = EnumProperty.create("state", State.class);
 
     public BlockBooleanDirectrix(Properties properties) {

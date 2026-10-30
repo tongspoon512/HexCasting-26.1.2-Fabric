@@ -9,11 +9,11 @@ import net.minecraft.network.chat.Component;
 public class RecalcPatternsCommand {
     public static void add(LiteralArgumentBuilder<CommandSourceStack> cmd) {
         cmd.then(Commands.literal("recalcPatterns")
-            .requires(dp -> dp.hasPermission(Commands.LEVEL_ADMINS))
+            .requires(dp -> Commands.LEVEL_ADMINS.check(dp.permissions()))
             .executes(ctx -> {
                 var world = ctx.getSource().getServer().overworld();
                 var ds = world.getDataStorage();
-                ds.set(ScrungledPatternsSave.TAG_SAVED_DATA,
+                ds.set(ScrungledPatternsSave.TYPE,
                     ScrungledPatternsSave.createFromScratch(world.getSeed()));
 
                 ctx.getSource().sendSuccess(() ->

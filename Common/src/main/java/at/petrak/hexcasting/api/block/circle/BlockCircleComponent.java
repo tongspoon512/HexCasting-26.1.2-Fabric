@@ -81,7 +81,7 @@ public abstract class BlockCircleComponent extends Block implements ICircleCompo
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState pState, Level pLevel, BlockPos pPos) {
+    public int getAnalogOutputSignal(BlockState pState, Level pLevel, BlockPos pPos, Direction pDir) {
         return pState.getValue(ENERGIZED) ? 15 : 0;
     }
 

@@ -12,7 +12,7 @@ import net.minecraft.world.entity.Mob;
 public class BrainsweepCommand {
     public static void add(LiteralArgumentBuilder<CommandSourceStack> cmd) {
         cmd.then(Commands.literal("brainsweep")
-            .requires(dp -> dp.hasPermission(Commands.LEVEL_ADMINS))
+            .requires(dp -> Commands.LEVEL_ADMINS.check(dp.permissions()))
             .then(Commands.argument("target", EntityArgument.entity()).executes(ctx -> {
                 var target = EntityArgument.getEntity(ctx, "target");
                 if (target instanceof Mob mob) {

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "hexcasting:amethyst_dust",
+    "O": "minecraft:copper_ingot"
+  },
+  "pattern": [
+    " O ",
+    "OCO",
+    " O "
+  ],
+  "result": {
+    "id": "hexcasting:cypher"
+  }
+}

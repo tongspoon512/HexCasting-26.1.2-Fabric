@@ -12,6 +12,7 @@ import dev.emi.trinkets.api.TrinketsApi;
 import dev.emi.trinkets.api.client.TrinketRendererRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.LivingEntity;
@@ -27,7 +28,7 @@ public class TrinketsApiInterop {
             if (item instanceof HexBaubleItem bauble) {
                 TrinketsApi.registerTrinket(item, new Trinket() {
                     @Override
-                    public Multimap<Attribute, AttributeModifier> getModifiers(ItemStack stack, SlotReference slot,
+                    public Multimap<Holder<Attribute>, AttributeModifier> getModifiers(ItemStack stack, SlotReference slot,
                         LivingEntity entity, UUID uuid) {
                         var map = Trinket.super.getModifiers(stack, slot, entity, uuid);
                         map.putAll(bauble.getHexBaubleAttrs(stack));

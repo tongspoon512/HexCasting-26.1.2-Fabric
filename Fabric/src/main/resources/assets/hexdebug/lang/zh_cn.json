@@ -1,0 +1,16 @@
+{
+  "block.hexdebug.splicing_table": "剪接台",
+  "hexcasting.action.hexdebug:get_personal_media": "法力之精思",
+  "hexcasting.action.hexdebug:get_personal_media_max": "奥术之精思",
+  "hexcasting.action.hexdebug:mind_env/schedule": "拖延之策略",
+  "hexcasting.action.hexdebug:mind_env/running_code": "拖延之精思",
+  "hexdebug.attributes.personal_media": "个人媒质",
+  "hexdebug.attributes.personal_media_max": "个人媒质上限",
+  "hexdebug.attributes.personal_media_regen": "个人媒质再生",
+  "text.hexdebug.splicing_table.button.view_left": "视图左移",
+  "text.hexdebug.splicing_table.button.view_left_page": "翻到上一页",
+  "text.hexdebug.splicing_table.button.view_left_full": "跳转到开头",
+  "text.hexdebug.splicing_table.button.view_right": "视图右移",
+  "text.hexdebug.splicing_table.button.view_right_page": "翻到下一页",
+  "text.hexdebug.splicing_table.button.view_right_full": "跳转到末尾"
+}

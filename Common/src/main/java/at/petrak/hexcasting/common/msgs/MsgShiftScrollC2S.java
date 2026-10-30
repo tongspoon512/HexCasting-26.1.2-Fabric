@@ -9,15 +9,17 @@ import at.petrak.hexcasting.common.lib.HexItems;
 import at.petrak.hexcasting.common.lib.HexSounds;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
@@ -26,10 +28,10 @@ import static at.petrak.hexcasting.api.HexAPI.modLoc;
  * or scrolls in the spellcasting UI.
  */
 public record MsgShiftScrollC2S(double mainHandDelta, double offHandDelta, boolean isCtrl) implements IMessage {
-    public static final ResourceLocation ID = modLoc("scroll");
+    public static final Identifier ID = modLoc("scroll");
 
     @Override
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return ID;
     }
 
@@ -74,19 +76,19 @@ public record MsgShiftScrollC2S(double mainHandDelta, double offHandDelta, boole
         var sealed = ItemSpellbook.isSealed(stack);
 
         MutableComponent component;
-        if (hand == InteractionHand.OFF_HAND && stack.hasCustomHoverName()) {
+        if (hand == InteractionHand.OFF_HAND && stack.get(DataComponents.CUSTOM_NAME) != null) {
             if (sealed) {
                 component = Component.translatable("hexcasting.tooltip.spellbook.page_with_name.sealed",
                     Component.literal(String.valueOf(newIdx)).withStyle(ChatFormatting.WHITE),
                     Component.literal(String.valueOf(len)).withStyle(ChatFormatting.WHITE),
-                    Component.literal("").withStyle(stack.getRarity().color, ChatFormatting.ITALIC)
+                    Component.literal("").withStyle(stack.getRarity().color(), ChatFormatting.ITALIC)
                         .append(stack.getHoverName()),
                     Component.translatable("hexcasting.tooltip.spellbook.sealed").withStyle(ChatFormatting.GOLD));
             } else {
                 component = Component.translatable("hexcasting.tooltip.spellbook.page_with_name",
                     Component.literal(String.valueOf(newIdx)).withStyle(ChatFormatting.WHITE),
                     Component.literal(String.valueOf(len)).withStyle(ChatFormatting.WHITE),
-                    Component.literal("").withStyle(stack.getRarity().color, ChatFormatting.ITALIC)
+                    Component.literal("").withStyle(stack.getRarity().color(), ChatFormatting.ITALIC)
                         .append(stack.getHoverName()));
             }
 
@@ -103,15 +105,16 @@ public record MsgShiftScrollC2S(double mainHandDelta, double offHandDelta, boole
             }
         }
 
-        sender.displayClientMessage(component.withStyle(ChatFormatting.GRAY), true);
+        sender.sendOverlayMessage(component.withStyle(ChatFormatting.GRAY));
     }
 
     private void abacus(ServerPlayer sender, InteractionHand hand, ItemStack stack, double delta) {
         if (ItemSpellbook.supportsPageScrolling(stack)) {
             HexAPI.LOGGER.warn("Item stack has spellbook tags but is an abacus! The spellbook tags will be removed.");
-            var tag = stack.getTag();
-            tag.remove(ItemSpellbook.TAG_SELECTED_PAGE);
-            tag.remove(ItemSpellbook.TAG_PAGE_NAMES);
+            CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
+                tag.remove(ItemSpellbook.TAG_SELECTED_PAGE);
+                tag.remove(ItemSpellbook.TAG_PAGE_NAMES);
+            });
         }
 
         var increase = delta < 0;
@@ -140,8 +143,8 @@ public record MsgShiftScrollC2S(double mainHandDelta, double offHandDelta, boole
         var datumTag = HexItems.ABACUS.readIotaTag(stack);
         if (datumTag != null) {
             var popup = IotaType.getDisplay(datumTag);
-            sender.displayClientMessage(
-                Component.translatable("hexcasting.tooltip.abacus", popup).withStyle(ChatFormatting.GREEN), true);
+            sender.sendOverlayMessage(
+                Component.translatable("hexcasting.tooltip.abacus", popup).withStyle(ChatFormatting.GREEN));
         }
     }
 }

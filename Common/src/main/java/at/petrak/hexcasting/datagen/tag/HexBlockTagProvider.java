@@ -8,7 +8,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.data.tags.TagAppender;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -141,13 +142,14 @@ public class HexBlockTagProvider extends PaucalBlockTagProvider {
             HexBlocks.QUENCHED_ALLAY, HexBlocks.QUENCHED_ALLAY_BRICKS, HexBlocks.QUENCHED_ALLAY_BRICKS_SMALL, HexBlocks.QUENCHED_ALLAY_TILES);
 
         // this is a hack but fixes #532
-        var createBrittle = TagKey.create(Registries.BLOCK, new ResourceLocation("create", "brittle"));
-        tag(createBrittle).addOptionalTag(BuiltInRegistries.BLOCK.getKey(HexBlocks.SLATE));
+        var createBrittle = TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath("create", "brittle"));
+        tag(createBrittle).addOptionalTag(
+            TagKey.create(Registries.BLOCK, BuiltInRegistries.BLOCK.getKey(HexBlocks.SLATE)));
     }
 
-    void add(TagAppender<Block> appender, Block... blocks) {
+    void add(TagAppender<Block, Block> appender, Block... blocks) {
         for (Block block : blocks) {
-            appender.add(BuiltInRegistries.BLOCK.getResourceKey(block).orElseThrow());
+            appender.add(block);
         }
     }
 }

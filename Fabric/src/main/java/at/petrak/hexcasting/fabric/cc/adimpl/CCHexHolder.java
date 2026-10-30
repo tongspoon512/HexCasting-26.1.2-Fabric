@@ -4,17 +4,17 @@ import at.petrak.hexcasting.api.addldata.ADHexHolder;
 import at.petrak.hexcasting.api.item.HexHolderItem;
 import at.petrak.hexcasting.api.casting.iota.Iota;
 import at.petrak.hexcasting.api.pigment.FrozenPigment;
-import at.petrak.hexcasting.fabric.cc.HexCardinalComponents;
-import dev.onyxstudios.cca.api.v3.item.ItemComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public abstract class CCHexHolder extends ItemComponent implements ADHexHolder {
+public abstract class CCHexHolder implements ADHexHolder {
+    protected final ItemStack stack;
+
     public CCHexHolder(ItemStack stack) {
-        super(stack, HexCardinalComponents.HEX_HOLDER);
+        this.stack = stack;
     }
 
     public static class ItemBased extends CCHexHolder {

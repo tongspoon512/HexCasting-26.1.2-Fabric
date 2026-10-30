@@ -10,7 +10,7 @@ import com.samsthenerd.inline.api.matching.MatcherInfo;
 import com.samsthenerd.inline.api.matching.RegexMatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Tuple;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 public class HexPatternMatcher implements RegexMatcher {
 
-    private static final ResourceLocation patternMatcherID = HexAPI.modLoc("pattern");
+    private static final Identifier patternMatcherID = HexAPI.modLoc("pattern");
     private static final MatcherInfo patternMatcherInfo = MatcherInfo.fromId(patternMatcherID);
 
     // thx kyra <3
@@ -59,7 +59,7 @@ public class HexPatternMatcher implements RegexMatcher {
             if(sizeModString != null && sizeModString.equals("+"))
                 patDataStyle = InlineAPI.INSTANCE.withSizeModifier(patDataStyle, 2);
             if(sizeModString != null && sizeModString.equals("!"))
-                patDataStyle = InlineAPI.INSTANCE.withSizeModifier(patDataStyle, 1.5);
+                patDataStyle = InlineAPI.INSTANCE.withSizeModifier(patDataStyle, 1.5f);
             return new Tuple<>(new InlineMatch.DataMatch(patData,patDataStyle ), 0);
         } catch (Exception e){
             return new Tuple<>(null, 0);
@@ -81,7 +81,7 @@ public class HexPatternMatcher implements RegexMatcher {
      * Get the ID for this matcher
      * @return matcher's ID
      */
-    public ResourceLocation getId(){
+    public Identifier getId(){
         return patternMatcherID;
     }
 

@@ -11,6 +11,7 @@ import at.petrak.hexcasting.api.misc.MediaConstants
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
+import net.minecraft.world.phys.shapes.CollisionContext
 
 object OpBlockRaycast : ConstMediaAction {
     override val argc = 2
@@ -21,16 +22,11 @@ object OpBlockRaycast : ConstMediaAction {
 
         env.assertVecInRange(origin)
 
-        val blockHitResult = env.world.clip(
-            ClipContext(
-                origin,
-                Action.raycastEnd(origin, look),
-                ClipContext.Block.COLLIDER,
-                ClipContext.Fluid.NONE,
-                @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-                env.castingEntity
-            )
-        )
+        // 26.1's entity-taking ClipContext ctor is now non-null; fall back to an empty collision context.
+        val clipCtx = env.castingEntity?.let {
+            ClipContext(origin, Action.raycastEnd(origin, look), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, it)
+        } ?: ClipContext(origin, Action.raycastEnd(origin, look), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty())
+        val blockHitResult = env.world.clip(clipCtx)
 
         return if (blockHitResult.type == HitResult.Type.BLOCK && env.isVecInRange(Vec3.atCenterOf(blockHitResult.blockPos))) {
             // the position on the bhr is the position of the specific *hit point*, which is actually on the outside of the block

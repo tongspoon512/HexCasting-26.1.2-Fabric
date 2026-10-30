@@ -1,0 +1,31 @@
+{
+  "parent": "hexcasting:root",
+  "criteria": {
+    "waste_amt": {
+      "conditions": {
+        "media_wasted": {
+          "min": 89000.0
+        },
+        "player": []
+      },
+      "trigger": "hexcasting:spend_media"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.hexcasting:wasteful_cast.desc"
+    },
+    "icon": {
+      "id": "minecraft:glistering_melon_slice"
+    },
+    "title": {
+      "translate": "advancement.hexcasting:wasteful_cast"
+    }
+  },
+  "requirements": [
+    [
+      "waste_amt"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

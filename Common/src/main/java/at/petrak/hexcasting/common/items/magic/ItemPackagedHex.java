@@ -14,17 +14,17 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -40,7 +40,7 @@ import static at.petrak.hexcasting.api.HexAPI.modLoc;
 public abstract class ItemPackagedHex extends ItemMediaHolder implements HexHolderItem {
     public static final String TAG_PROGRAM = "patterns";
     public static final String TAG_PIGMENT = "pigment";
-    public static final ResourceLocation HAS_PATTERNS_PRED = modLoc("has_patterns");
+    public static final Identifier HAS_PATTERNS_PRED = modLoc("has_patterns");
 
     public ItemPackagedHex(Properties pProperties) {
         super(pProperties);
@@ -112,24 +112,24 @@ public abstract class ItemPackagedHex extends ItemMediaHolder implements HexHold
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level world, Player player, InteractionHand usedHand) {
         var stack = player.getItemInHand(usedHand);
         if (!hasHex(stack)) {
-            return InteractionResultHolder.fail(stack);
+            return InteractionResult.FAIL;
         }
 
-        if (world.isClientSide) {
-            return InteractionResultHolder.success(stack);
+        if (world.isClientSide()) {
+            return InteractionResult.SUCCESS.heldItemTransformedTo(stack);
         }
 
         List<Iota> instrs = getHex(stack, (ServerLevel) world);
         if (instrs == null) {
-            return InteractionResultHolder.fail(stack);
+            return InteractionResult.FAIL;
         }
         var sPlayer = (ServerPlayer) player;
         var env = new PackagedItemCastEnv(sPlayer, usedHand);
         var vm = CastingVM.empty(env);
-        var clientView = vm.queueExecuteAndWrapIotas(instrs, sPlayer.serverLevel());
+        var clientView = vm.queueExecuteAndWrapIotas(instrs, sPlayer.level());
 
         boolean broken = breakAfterDepletion() && getMedia(stack) == 0;
 
@@ -141,13 +141,13 @@ public abstract class ItemPackagedHex extends ItemMediaHolder implements HexHold
         }
         player.awardStat(stat);
 
-        sPlayer.getCooldowns().addCooldown(this, this.cooldown());
+        sPlayer.getCooldowns().addCooldown(stack, this.cooldown());
 
         if (clientView.getResolutionType().getSuccess()) {
             // Somehow we lost spraying particles on each new pattern, so do it here
             // this also nicely prevents particle spam on trinkets
             new ParticleSpray(player.position(), new Vec3(0.0, 1.5, 0.0), 0.4, Math.PI / 3, 30)
-                    .sprayParticles(sPlayer.serverLevel(), env.getPigment());
+                    .sprayParticles(sPlayer.level(), env.getPigment());
         }
 
         var sound = env.getSound().sound();
@@ -159,15 +159,17 @@ public abstract class ItemPackagedHex extends ItemMediaHolder implements HexHold
 
         if (broken) {
             stack.shrink(1);
-            player.broadcastBreakEvent(usedHand);
-            return InteractionResultHolder.consume(stack);
+            player.onEquippedItemBroken(this, usedHand == InteractionHand.MAIN_HAND
+                ? net.minecraft.world.entity.EquipmentSlot.MAINHAND
+                : net.minecraft.world.entity.EquipmentSlot.OFFHAND);
+            return InteractionResult.CONSUME.heldItemTransformedTo(stack);
         } else {
-            return InteractionResultHolder.success(stack);
+            return InteractionResult.SUCCESS.heldItemTransformedTo(stack);
         }
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack pStack) {
-        return UseAnim.BLOCK;
+    public ItemUseAnimation getUseAnimation(ItemStack pStack) {
+        return ItemUseAnimation.BLOCK;
     }
 }

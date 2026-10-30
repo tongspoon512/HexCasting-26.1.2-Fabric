@@ -1,6 +1,6 @@
 package at.petrak.hexcasting.client.render;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
@@ -10,7 +10,7 @@ public class GaslightingTracker {
     private static int LOOKING_COOLDOWN_MAX = 40;
     private static int LOOKING_COOLDOWN = LOOKING_COOLDOWN_MAX;
 
-    public static ResourceLocation GASLIGHTING_PRED = modLoc("variant");
+    public static Identifier GASLIGHTING_PRED = modLoc("variant");
 
     public static int getGaslightingAmount() {
         LOOKING_COOLDOWN = LOOKING_COOLDOWN_MAX;

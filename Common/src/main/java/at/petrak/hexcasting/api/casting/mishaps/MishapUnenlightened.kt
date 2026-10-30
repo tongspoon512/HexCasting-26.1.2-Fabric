@@ -19,7 +19,8 @@ class MishapUnenlightened : Mishap() {
 
     override fun execute(env: CastingEnvironment, errorCtx: Context, stack: MutableList<Iota>) {
         env.mishapEnvironment.dropHeldItems()
-        env.castingEntity?.sendSystemMessage("hexcasting.message.cant_great_spell".asTranslatedComponent)
+        // 26.1 only lets players receive system messages.
+        (env.castingEntity as? ServerPlayer)?.sendSystemMessage("hexcasting.message.cant_great_spell".asTranslatedComponent)
 
         // add some non-zero level of juice I guess
         val pos = env.mishapSprayPos()

@@ -6,7 +6,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -23,7 +23,7 @@ import java.util.stream.StreamSupport;
 public class StateIngredientTag extends StateIngredientBlocks {
 	private final TagKey<Block> tag;
 
-	public StateIngredientTag(ResourceLocation tag) {
+	public StateIngredientTag(Identifier tag) {
 		super(ImmutableSet.of());
 		this.tag = TagKey.create(Registries.BLOCK, tag);
 	}
@@ -74,7 +74,7 @@ public class StateIngredientTag extends StateIngredientBlocks {
 		return resolve().map(Block::defaultBlockState).collect(Collectors.toList());
 	}
 
-	public ResourceLocation getTagId() {
+	public Identifier getTagId() {
 		return tag.location();
 	}
 

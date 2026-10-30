@@ -1,10 +1,10 @@
 package at.petrak.hexcasting.interop.jei;
 
-import at.petrak.hexcasting.client.ClientTickCounter;
 import at.petrak.hexcasting.common.recipe.BrainsweepRecipe;
 import at.petrak.hexcasting.interop.patchouli.PatchouliUtils;
-import com.mojang.blaze3d.systems.RenderSystem;
+import at.petrak.hexcasting.interop.utils.EntityDrawingUtil;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -14,29 +14,27 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.List;
 
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
-import static at.petrak.hexcasting.client.render.RenderLib.renderEntity;
 
 public class BrainsweepRecipeCategory implements IRecipeCategory<BrainsweepRecipe> {
-    public static final ResourceLocation UID = modLoc("brainsweep");
+    public static final Identifier UID = modLoc("brainsweep");
 
     private final IDrawableStatic background;
     private final IDrawable icon;
     private final Component localizedName;
 
     public BrainsweepRecipeCategory(IGuiHelper guiHelper) {
-        ResourceLocation location = modLoc("textures/gui/brainsweep_recipe.png");
+        Identifier location = modLoc("textures/gui/brainsweep_recipe.png");
         background = guiHelper.drawableBuilder(location, 0, 0, 118, 86).setTextureSize(128, 128).build();
         var brainsweep = modLoc("brainsweep");
         localizedName = Component.translatable("hexcasting.action." + brainsweep);
@@ -50,9 +48,13 @@ public class BrainsweepRecipeCategory implements IRecipeCategory<BrainsweepRecip
     }
 
     @Override
-    public @NotNull
-    IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return 118;
+    }
+
+    @Override
+    public int getHeight() {
+        return 86;
     }
 
     @Override
@@ -62,19 +64,16 @@ public class BrainsweepRecipeCategory implements IRecipeCategory<BrainsweepRecip
     }
 
     @Override
-    public @NotNull
-    List<Component> getTooltipStrings(@NotNull BrainsweepRecipe recipe,
+    public void getTooltip(@NotNull ITooltipBuilder tooltip, @NotNull BrainsweepRecipe recipe,
         @NotNull IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
         if (37 <= mouseX && mouseX <= 37 + 26 && 19 <= mouseY && mouseY <= 19 + 48) {
             Minecraft mc = Minecraft.getInstance();
-            return recipe.entityIn().getTooltip(mc.options.advancedItemTooltips);
+            tooltip.addAll(recipe.entityIn().getTooltip(mc.options.advancedItemTooltips));
         }
-
-        return Collections.emptyList();
     }
 
     @Override
-    public void draw(@NotNull BrainsweepRecipe recipe, @NotNull IRecipeSlotsView recipeSlotsView, @NotNull GuiGraphics graphics, double mouseX, double mouseY) {
+    public void draw(@NotNull BrainsweepRecipe recipe, @NotNull IRecipeSlotsView recipeSlotsView, @NotNull GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null) {
             var examples = recipe.entityIn().exampleEntities(level);
@@ -86,9 +85,7 @@ public class BrainsweepRecipeCategory implements IRecipeCategory<BrainsweepRecip
             if (example == null)
                 return;
 
-            RenderSystem.enableBlend();
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            renderEntity(graphics, example, level, 50, 62.5f, ClientTickCounter.getTotal(), 20, 0);
+            EntityDrawingUtil.drawEntity(graphics, example, 50, 62.5f, 20f);
         }
     }
 

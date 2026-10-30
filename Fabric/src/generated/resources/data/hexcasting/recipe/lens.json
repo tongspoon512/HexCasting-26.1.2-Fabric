@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "hexcasting:amethyst_dust",
+    "O": "minecraft:glass"
+  },
+  "pattern": [
+    " O ",
+    "OCO",
+    " O "
+  ],
+  "result": {
+    "id": "hexcasting:lens"
+  }
+}

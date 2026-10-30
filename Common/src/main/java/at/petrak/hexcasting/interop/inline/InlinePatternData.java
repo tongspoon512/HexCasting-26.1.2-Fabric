@@ -9,17 +9,19 @@ import at.petrak.hexcasting.common.lib.HexItems;
 import com.mojang.serialization.Codec;
 import com.samsthenerd.inline.api.InlineData;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import org.jetbrains.annotations.NotNull;
 
 public class InlinePatternData implements InlineData<InlinePatternData>{
 
-    public static final ResourceLocation rendererId = HexAPI.modLoc("pattern");
+    public static final Identifier rendererId = HexAPI.modLoc("pattern");
 
     @NotNull
     public final HexPattern pattern;
@@ -34,7 +36,7 @@ public class InlinePatternData implements InlineData<InlinePatternData>{
     }
 
     @Override
-    public ResourceLocation getRendererId(){
+    public Identifier getRendererId(){
         return rendererId;
     }
 
@@ -42,10 +44,12 @@ public class InlinePatternData implements InlineData<InlinePatternData>{
     public Style getExtraStyle() {
         ItemStack scrollStack = new ItemStack(HexItems.SCROLL_MEDIUM);
         HexItems.SCROLL_MEDIUM.writeDatum(scrollStack, new PatternIota(pattern));
-        scrollStack.setHoverName(getPatternName(pattern).copy().withStyle(ChatFormatting.WHITE));
-        HoverEvent he = new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackInfo(scrollStack));
-        ClickEvent ce = new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, pattern.toString());
-        return Style.EMPTY.withHoverEvent(he).withClickEvent(ce);
+        scrollStack.set(DataComponents.CUSTOM_NAME,
+            getPatternName(pattern).copy().withStyle(ChatFormatting.WHITE));
+        HoverEvent he = new HoverEvent.ShowItem(ItemStackTemplate.fromNonEmptyStack(scrollStack));
+        ClickEvent ce = new ClickEvent.CopyToClipboard(pattern.toString());
+        return Style.EMPTY.withHoverEvent(he).withClickEvent(ce)
+            .withFont(InlinePatternFont.descriptionFor(pattern));
     }
 
     public static Component getPatternName(HexPattern pattern){
@@ -66,15 +70,19 @@ public class InlinePatternData implements InlineData<InlinePatternData>{
 
     @Override
     public Component asText(boolean withExtra) {
-        return Component.literal(pattern.toString()).withStyle(asStyle(withExtra));
+        // one placeholder character stands in for the whole pattern; the style's font description tells the
+        // client which pattern to draw, so this stays a plain serialisable component.
+        Style style = withExtra ? this.getExtraStyle()
+            : Style.EMPTY.withFont(InlinePatternFont.descriptionFor(pattern));
+        return Component.literal(String.valueOf(InlinePatternFont.PLACEHOLDER)).withStyle(style);
     }
 
     public static class InlinePatternDataType implements InlineDataType<InlinePatternData> {
-        private static final ResourceLocation ID = new ResourceLocation(HexAPI.MOD_ID, "pattern");
+        private static final Identifier ID = Identifier.fromNamespaceAndPath(HexAPI.MOD_ID, "pattern");
         public static final InlinePatternDataType INSTANCE = new InlinePatternDataType();
 
         @Override
-        public ResourceLocation getId(){
+        public Identifier getId(){
             return ID;
         }
 

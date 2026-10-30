@@ -1,19 +1,27 @@
 package at.petrak.hexcasting.datagen;
 
 import at.petrak.hexcasting.api.HexAPI;
-import at.petrak.hexcasting.common.blocks.circles.BlockEntitySlate;
 import at.petrak.hexcasting.common.lib.HexBlocks;
 import at.petrak.hexcasting.common.lib.HexItems;
 import at.petrak.hexcasting.common.loot.HexLootHandler;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import at.petrak.paucal.api.datagen.PaucalLootTableSubProvider;
-import net.minecraft.advancements.critereon.EnchantmentPredicate;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.MinMaxBounds;
-import net.minecraft.advancements.critereon.StatePropertiesPredicate;
-import net.minecraft.data.DataProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.criterion.DataComponentMatchers;
+import net.minecraft.advancements.criterion.EnchantmentPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.advancements.criterion.MinMaxBounds;
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.predicates.DataComponentPredicates;
+import net.minecraft.core.component.predicates.EnchantmentsPredicate;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
@@ -26,23 +34,30 @@ import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.ApplyBonusCount;
 import net.minecraft.world.level.storage.loot.functions.ApplyExplosionDecay;
-import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.*;
-import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
+import java.util.List;
 import java.util.Map;
 
 public class HexLootTables extends PaucalLootTableSubProvider {
-    public HexLootTables() {
-        super(HexAPI.MOD_ID);
+    public HexLootTables(HolderLookup.Provider registries) {
+        super(HexAPI.MOD_ID, registries);
     }
 
     @Override
     protected void makeLootTables(Map<Block, LootTable.Builder> blockTables,
-        Map<ResourceLocation, LootTable.Builder> lootTables) {
+        Map<Identifier, LootTable.Builder> lootTables) {
+        HolderGetter<Item> items = this.registries.lookupOrThrow(Registries.ITEM);
+        HolderGetter<Enchantment> enchantments = this.registries.lookupOrThrow(Registries.ENCHANTMENT);
+        // 26.1: enchantments are data-driven holders, so they must be looked up by key.
+        Holder<Enchantment> silkTouch = enchantments.getOrThrow(Enchantments.SILK_TOUCH);
+        Holder<Enchantment> fortune = enchantments.getOrThrow(Enchantments.FORTUNE);
+
         dropSelf(blockTables, HexBlocks.IMPETUS_EMPTY,
             HexBlocks.IMPETUS_RIGHTCLICK, HexBlocks.IMPETUS_LOOK, HexBlocks.IMPETUS_REDSTONE,
             HexBlocks.EMPTY_DIRECTRIX, HexBlocks.DIRECTRIX_REDSTONE, HexBlocks.DIRECTRIX_BOOLEAN,
@@ -63,15 +78,17 @@ public class HexLootTables extends PaucalLootTableSubProvider {
 
         makeSlabTable(blockTables, HexBlocks.EDIFIED_SLAB);
 
-        makeLeafTable(blockTables, HexBlocks.AMETHYST_EDIFIED_LEAVES);
-        makeLeafTable(blockTables, HexBlocks.AVENTURINE_EDIFIED_LEAVES);
-        makeLeafTable(blockTables, HexBlocks.CITRINE_EDIFIED_LEAVES);
+        makeLeafTable(blockTables, HexBlocks.AMETHYST_EDIFIED_LEAVES, silkTouch);
+        makeLeafTable(blockTables, HexBlocks.AVENTURINE_EDIFIED_LEAVES, silkTouch);
+        makeLeafTable(blockTables, HexBlocks.CITRINE_EDIFIED_LEAVES, silkTouch);
 
+        // 26.1 removed copy_nbt; block entity state transfers to the drop through item components now, so pull
+        // minecraft:block_entity_data straight out of the slate's block entity.
         var slatePool = LootPool.lootPool()
             .setRolls(ConstantValue.exactly(1))
             .add(LootItem.lootTableItem(HexBlocks.SLATE)
-                .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                    .copy(BlockEntitySlate.TAG_PATTERN, "BlockEntityTag." + BlockEntitySlate.TAG_PATTERN)));
+                .apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
+                    .include(DataComponents.BLOCK_ENTITY_DATA)));
         blockTables.put(HexBlocks.SLATE, LootTable.lootTable().withPool(slatePool));
 
         var doorPool = dropThisPool(HexBlocks.EDIFIED_DOOR, 1)
@@ -82,17 +99,21 @@ public class HexLootTables extends PaucalLootTableSubProvider {
 
 
         var silkTouchCond = MatchTool.toolMatches(
-            ItemPredicate.Builder.item().hasEnchantment(
-                new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.Ints.ANY)));
+            ItemPredicate.Builder.item().withComponents(
+                DataComponentMatchers.Builder.components()
+                    .partial(DataComponentPredicates.ENCHANTMENTS,
+                        EnchantmentsPredicate.enchantments(
+                            List.of(new EnchantmentPredicate(silkTouch, MinMaxBounds.Ints.ANY))))
+                    .build()));
         var noSilkTouchCond = silkTouchCond.invert();
         var goodAtAmethystingCond = MatchTool.toolMatches(
-            ItemPredicate.Builder.item().of(ItemTags.CLUSTER_MAX_HARVESTABLES)
+            ItemPredicate.Builder.item().of(items, ItemTags.CLUSTER_MAX_HARVESTABLES)
         );
 
         var dustPoolWhenGood = LootPool.lootPool()
             .add(LootItem.lootTableItem(HexItems.AMETHYST_DUST))
             .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 4)))
-            .apply(ApplyBonusCount.addOreBonusCount(Enchantments.BLOCK_FORTUNE))
+            .apply(ApplyBonusCount.addOreBonusCount(fortune))
             .when(noSilkTouchCond).when(goodAtAmethystingCond);
 
         var dustPoolWhenBad = LootPool.lootPool()
@@ -104,7 +125,7 @@ public class HexLootTables extends PaucalLootTableSubProvider {
             .add(LootItem.lootTableItem(HexItems.CHARGED_AMETHYST))
             .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
             .when(noSilkTouchCond).when(goodAtAmethystingCond)
-            .when(BonusLevelTableCondition.bonusLevelFlatChance(Enchantments.BLOCK_FORTUNE,
+            .when(BonusLevelTableCondition.bonusLevelFlatChance(fortune,
                 0.25f, 0.35f, 0.5f, 0.75f, 1.0f));
 
         var isThatAnMFingBadBrandonSandersonReference = LootPool.lootPool()
@@ -126,18 +147,22 @@ public class HexLootTables extends PaucalLootTableSubProvider {
             LootItem.lootTableItem(HexItems.QUENCHED_SHARD)
                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(2f, 4f)))
                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1), true)
-                    .when(BonusLevelTableCondition.bonusLevelFlatChance(Enchantments.BLOCK_FORTUNE,
+                    .when(BonusLevelTableCondition.bonusLevelFlatChance(fortune,
                         0.25f, 0.5f, 0.75f, 1.0f)))
         ));
         blockTables.put(HexBlocks.QUENCHED_ALLAY, LootTable.lootTable().withPool(quenchedPool));
     }
 
-    private void makeLeafTable(Map<Block, LootTable.Builder> lootTables, Block block) {
+    private void makeLeafTable(Map<Block, LootTable.Builder> lootTables, Block block, Holder<Enchantment> silkTouch) {
         var leafPool = dropThisPool(block, 1)
             .when(AnyOfCondition.anyOf(
                 IXplatAbstractions.INSTANCE.isShearsCondition(),
                 MatchTool.toolMatches(ItemPredicate.Builder.item()
-                    .hasEnchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.Ints.atLeast(1))))
+                    .withComponents(DataComponentMatchers.Builder.components()
+                        .partial(DataComponentPredicates.ENCHANTMENTS,
+                            EnchantmentsPredicate.enchantments(
+                                List.of(new EnchantmentPredicate(silkTouch, MinMaxBounds.Ints.atLeast(1)))))
+                        .build()))
             ));
         lootTables.put(block, LootTable.lootTable().withPool(leafPool));
     }

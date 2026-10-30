@@ -3,10 +3,11 @@ package at.petrak.hexcasting.api.casting.eval.vm
 import at.petrak.hexcasting.api.casting.SpellList
 import at.petrak.hexcasting.api.casting.eval.CastResult
 import at.petrak.hexcasting.api.casting.iota.Iota
+import at.petrak.hexcasting.api.utils.hasString
 import at.petrak.hexcasting.common.lib.hex.HexContinuationTypes
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 
 /**
@@ -92,17 +93,13 @@ interface ContinuationFrame {
          * @return `null` if it cannot get the type.
          */
         private fun getTypeFromTag(tag: CompoundTag): Type<*>? {
-            if (!tag.contains(HexContinuationTypes.KEY_TYPE, Tag.TAG_STRING.toInt())) {
+            if (!tag.hasString(HexContinuationTypes.KEY_TYPE)) {
                 return null
             }
 
-            val typeKey = tag.getString(HexContinuationTypes.KEY_TYPE)
-            if (!ResourceLocation.isValidResourceLocation(typeKey)) {
-                return null
-            }
-
-            val typeLoc = ResourceLocation(typeKey)
-            return HexContinuationTypes.REGISTRY[typeLoc]
+            val typeKey = tag.getString(HexContinuationTypes.KEY_TYPE).orElse(null) ?: return null
+            val typeLoc = Identifier.tryParse(typeKey) ?: return null
+            return HexContinuationTypes.REGISTRY.get(typeLoc).orElse(null)?.value()
         }
     }
 }

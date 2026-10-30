@@ -82,8 +82,8 @@ public class BlockEntityAkashicBookshelf extends HexBlockEntity {
     @Override
     protected void loadModData(CompoundTag tag) {
         if (tag.contains(TAG_PATTERN) && tag.contains(TAG_IOTA)) {
-            this.pattern = HexPattern.fromNBT(tag.getCompound(TAG_PATTERN));
-            this.iotaTag = tag.getCompound(TAG_IOTA);
+            this.pattern = HexPattern.fromNBT(tag.getCompoundOrEmpty(TAG_PATTERN));
+            this.iotaTag = tag.getCompoundOrEmpty(TAG_IOTA);
         } else if (tag.contains(TAG_DUMMY)) {
             this.pattern = null;
             this.iotaTag = null;

@@ -14,13 +14,15 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,7 +30,7 @@ import java.util.List;
 public class ListPerWorldPatternsCommand {
     public static void add(LiteralArgumentBuilder<CommandSourceStack> cmd) {
         cmd.then(Commands.literal("perWorldPatterns")
-            .requires(dp -> dp.hasPermission(Commands.LEVEL_GAMEMASTERS))
+            .requires(dp -> Commands.LEVEL_GAMEMASTERS.check(dp.permissions()))
             .then(Commands.literal("list")
                 .executes(ctx -> list(ctx.getSource())))
             .then(Commands.literal("give")
@@ -36,13 +38,13 @@ public class ListPerWorldPatternsCommand {
                     .executes(ctx ->
                         giveOne(ctx.getSource(),
                             getDefaultTarget(ctx.getSource()),
-                            ResourceLocationArgument.getId(ctx, "patternName"),
+                            IdentifierArgument.getId(ctx, "patternName"),
                             PatternResLocArgument.getPattern(ctx, "patternName")))
                     .then(Commands.argument("targets", EntityArgument.players())
                         .executes(ctx ->
                             giveOne(ctx.getSource(),
                                 EntityArgument.getPlayers(ctx, "targets"),
-                                ResourceLocationArgument.getId(ctx, "patternName"),
+                                IdentifierArgument.getId(ctx, "patternName"),
                                 PatternResLocArgument.getPattern(ctx, "patternName"))))))
             .then(Commands.literal("giveAll")
                 .executes(ctx ->
@@ -67,7 +69,7 @@ public class ListPerWorldPatternsCommand {
         var keys = IXplatAbstractions.INSTANCE.getActionRegistry().registryKeySet();
         var listing = keys
             .stream()
-            .sorted((a, b) -> compareResLoc(a.location(), b.location()))
+            .sorted((a, b) -> compareResLoc(a.identifier(), b.identifier()))
             .toList();
 
         var ow = source.getLevel().getServer().overworld();
@@ -77,7 +79,7 @@ public class ListPerWorldPatternsCommand {
 
             if (pat == null) continue;  // pattern doesn't appear to be a per-world pattern
 
-            source.sendSuccess(() -> Component.literal(key.location().toString())
+            source.sendSuccess(() -> Component.literal(key.identifier().toString())
                 .append(": ")
                 .append(new PatternIota(pat).display()), false);
         }
@@ -101,17 +103,17 @@ public class ListPerWorldPatternsCommand {
                     var pat = HexPattern.fromAnglesUnchecked(signature, startDir);
 
                     var tag = new CompoundTag();
-                    tag.putString(ItemScroll.TAG_OP_ID, key.location().toString());
+                    tag.putString(ItemScroll.TAG_OP_ID, key.identifier().toString());
                     tag.put(ItemScroll.TAG_PATTERN, pat.serializeToNBT());
 
                     var stack = new ItemStack(HexItems.SCROLL_LARGE);
-                    stack.setTag(tag);
+                    CustomData.set(DataComponents.CUSTOM_DATA, stack, tag);
 
                     for (var player : targets) {
                         var stackEntity = player.drop(stack, false);
                         if (stackEntity != null) {
                             stackEntity.setNoPickUpDelay();
-                            stackEntity.setThrower(player.getUUID());
+                            stackEntity.setThrower(player);
                         }
 
                         count++;
@@ -132,14 +134,14 @@ public class ListPerWorldPatternsCommand {
     }
 
     private static int giveOne(CommandSourceStack source, Collection<ServerPlayer> targets,
-        ResourceLocation patternName, HexPattern pat) {
+        Identifier patternName, HexPattern pat) {
         if (!targets.isEmpty()) {
             var tag = new CompoundTag();
             tag.putString(ItemScroll.TAG_OP_ID, patternName.toString());
             tag.put(ItemScroll.TAG_PATTERN, pat.serializeToNBT());
 
             var stack = new ItemStack(HexItems.SCROLL_LARGE);
-            stack.setTag(tag);
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
 
             source.sendSuccess(() ->
                 Component.translatable(
@@ -153,7 +155,7 @@ public class ListPerWorldPatternsCommand {
                 var stackEntity = player.drop(stack, false);
                 if (stackEntity != null) {
                     stackEntity.setNoPickUpDelay();
-                    stackEntity.setThrower(player.getUUID());
+                    stackEntity.setThrower(player);
                 }
             }
 
@@ -163,7 +165,7 @@ public class ListPerWorldPatternsCommand {
         }
     }
 
-    private static int compareResLoc(ResourceLocation a, ResourceLocation b) {
+    private static int compareResLoc(Identifier a, Identifier b) {
         var ns = a.getNamespace().compareTo(b.getNamespace());
         if (ns != 0) {
             return ns;

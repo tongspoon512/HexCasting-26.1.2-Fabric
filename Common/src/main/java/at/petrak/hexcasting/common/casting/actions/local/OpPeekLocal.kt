@@ -15,7 +15,7 @@ object OpPeekLocal : Action {
         val stack = image.stack.toMutableList()
 
         val rm = if (image.userData.contains(HexAPI.RAVENMIND_USERDATA)) {
-            IotaType.deserialize(image.userData.getCompound(HexAPI.RAVENMIND_USERDATA), env.world)
+            IotaType.deserialize(image.userData.getCompoundOrEmpty(HexAPI.RAVENMIND_USERDATA), env.world)
         } else {
             NullIota()
         }

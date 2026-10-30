@@ -9,7 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.FormattedCharSequence;
 
@@ -102,15 +102,15 @@ public abstract class IotaType<T extends Iota> {
      */
     @org.jetbrains.annotations.Nullable
     public static IotaType<?> getTypeFromTag(CompoundTag tag) {
-        if (!tag.contains(HexIotaTypes.KEY_TYPE, Tag.TAG_STRING)) {
+        var typeKey = tag.getString(HexIotaTypes.KEY_TYPE).orElse(null);
+        if (typeKey == null) {
             return null;
         }
-        var typeKey = tag.getString(HexIotaTypes.KEY_TYPE);
-        if (!ResourceLocation.isValidResourceLocation(typeKey)) {
+        var typeLoc = Identifier.tryParse(typeKey);
+        if (typeLoc == null) {
             return null;
         }
-        var typeLoc = new ResourceLocation(typeKey);
-        return HexIotaTypes.REGISTRY.get(typeLoc);
+        return HexIotaTypes.REGISTRY.getOptional(typeLoc).orElse(null);
     }
 
     /**

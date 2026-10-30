@@ -10,7 +10,7 @@ import at.petrak.hexcasting.common.entities.EntityWallScroll;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.AttachFace;
@@ -48,7 +48,7 @@ public class WorldlyPatternRenderHelpers {
             PatternSettings.ZappySettings.WOBBLY
     );
 
-    public static void renderPatternForScroll(HexPattern pattern, EntityWallScroll scroll, PoseStack ps, MultiBufferSource bufSource, int light, int blockSize, boolean showStrokeOrder)
+    public static void renderPatternForScroll(HexPattern pattern, int seed, PoseStack ps, SubmitNodeCollector bufSource, int light, int blockSize, boolean showStrokeOrder)
     {
         ps.pushPose();
         ps.translate(-blockSize / 2f, -blockSize / 2f, 1f / 32f);
@@ -56,7 +56,7 @@ public class WorldlyPatternRenderHelpers {
         ps.last().normal().mul(new Matrix3f(1, 0, 0, 0, 0, 1, 0, 1, 0));
         renderPattern(pattern, showStrokeOrder ? READABLE_SCROLL_SETTINGS : SCROLL_SETTINGS,
                 showStrokeOrder ? PatternColors.READABLE_SCROLL_COLORS : PatternColors.DEFAULT_PATTERN_COLOR,
-                scroll.getPos().hashCode(), ps, bufSource, null, null, light, blockSize);
+                seed, ps, bufSource, null, null, light, blockSize);
         ps.popPose();
     }
 
@@ -65,7 +65,7 @@ public class WorldlyPatternRenderHelpers {
     private static final Vec3[] WALL_NORMALS = {new Vec3(0, 0, -1), new Vec3(-1, 0, 0), new Vec3(0, 0, -1), new Vec3(-1, 0, 0)};
     private static final Vec3i[] SLATE_FLOORCEIL_FACINGS = {new Vec3i(0,0,0), new Vec3i(1,0,0), new Vec3i(1,0,1), new Vec3i(0,0,1)};
 
-    public static void renderPatternForSlate(BlockEntitySlate tile, HexPattern pattern, PoseStack ps, MultiBufferSource buffer, int light, BlockState bs)
+    public static void renderPatternForSlate(int seed, HexPattern pattern, PoseStack ps, SubmitNodeCollector buffer, int light, BlockState bs)
     {
 
         boolean isOnWall = bs.getValue(BlockSlate.ATTACH_FACE) == AttachFace.WALL;
@@ -99,13 +99,13 @@ public class WorldlyPatternRenderHelpers {
         renderPattern(pattern,
                 wombly ? WORLDLY_SETTINGS_WOBBLY : WORLDLY_SETTINGS,
                 energized ? PatternColors.SLATE_WOBBLY_PURPLE_COLOR : PatternColors.DEFAULT_PATTERN_COLOR,
-                tile.getBlockPos().hashCode(), ps, buffer, normal, null, light, 1);
+                seed, ps, buffer, normal, null, light, 1);
         ps.popPose();
     }
 
     private static final Vec3i[] BLOCK_FACINGS = {new Vec3i(0, -1, 1), new Vec3i(0, -1, 0), new Vec3i(-1, -1, 0), new Vec3i(-1, -1, 1)};
 
-    public static void renderPatternForAkashicBookshelf(BlockEntityAkashicBookshelf tile, HexPattern pattern, PoseStack ps, MultiBufferSource buffer, int light, BlockState bs)
+    public static void renderPatternForAkashicBookshelf(int seed, HexPattern pattern, PoseStack ps, SubmitNodeCollector buffer, int light, BlockState bs)
     {
 
         int facing = bs.getValue(BlockAkashicBookshelf.FACING).get2DDataValue();
@@ -117,10 +117,8 @@ public class WorldlyPatternRenderHelpers {
         ps.translate(tV.getX(), tV.getY(), tV.getZ());
         ps.mulPose(Axis.YP.rotationDegrees(WALL_ROTATIONS[facing % 4]));
 
-        int actualLight = LevelRenderer.getLightColor(tile.getLevel(), tile.getBlockPos().relative(bs.getValue(BlockAkashicBookshelf.FACING)));
-
         renderPattern(pattern, WORLDLY_SETTINGS , PatternColors.DEFAULT_PATTERN_COLOR,
-                tile.getBlockPos().hashCode(), ps, buffer, WALL_NORMALS[facing % 4].multiply(-1, -1, -1), -0.02f, actualLight, 1);
+                seed, ps, buffer, WALL_NORMALS[facing % 4].multiply(-1, -1, -1), -0.02f, light, 1);
         ps.popPose();
     }
 
@@ -128,7 +126,7 @@ public class WorldlyPatternRenderHelpers {
      * Renders a pattern in world space based on the given transform requirements
      */
     public static void renderPattern(HexPattern pattern, PatternSettings patSets, PatternColors patColors,
-        double seed, PoseStack ps, MultiBufferSource bufSource, Vec3 normal, @Nullable Float zOffset,
+        double seed, PoseStack ps, SubmitNodeCollector bufSource, Vec3 normal, @Nullable Float zOffset,
         int light, int blockSize)
     {
 
@@ -145,9 +143,10 @@ public class WorldlyPatternRenderHelpers {
 
         PoseStack noNormalInv = new PoseStack();
         noNormalInv.scale(1, 1, -1);
-        ps.mulPoseMatrix(noNormalInv.last().pose());
+        ps.mulPose(noNormalInv.last().pose());
 
-        PatternRenderer.renderPattern(pattern, ps, new PatternRenderer.WorldlyBits(bufSource, light, normal),
+        PatternRenderer.renderPattern(pattern, ps,
+                new PatternRenderer.WorldlyBits(new WorldMeshSink(bufSource, ps, light, normal)),
                 patSets, patColors, seed, blockSize * 512);
 
         ps.popPose();

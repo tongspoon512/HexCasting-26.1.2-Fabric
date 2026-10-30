@@ -3,11 +3,10 @@ package at.petrak.hexcasting.xplat;
 import at.petrak.hexcasting.api.HexAPI;
 import at.petrak.hexcasting.api.client.ClientCastingStack;
 import at.petrak.hexcasting.common.msgs.IMessage;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.item.ItemPropertyFunction;
 import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -27,14 +26,9 @@ public interface IClientXplatAbstractions {
 
     <T extends Entity> void registerEntityRenderer(EntityType<? extends T> type, EntityRendererProvider<T> renderer);
 
-    void registerItemProperty(Item item, ResourceLocation id, ItemPropertyFunction func);
+    void registerItemProperty(Item item, Identifier id, ItemPropertyFunction func);
 
     ClientCastingStack getClientCastingStack(Player player);
-
-    // On Forge, these are already exposed; on Farbc we do a mixin
-    void setFilterSave(AbstractTexture texture, boolean filter, boolean mipmap);
-
-    void restoreLastFilter(AbstractTexture texture);
 
     boolean fabricAdditionalQuenchFrustumCheck(AABB aabb);
 

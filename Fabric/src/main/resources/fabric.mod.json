@@ -9,7 +9,7 @@
   ],
   "contact": {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/hexcasting",
-    "sources": "https://github.com/gamma-delta/HexMod"
+    "sources": "https://github.com/FallingColors/HexMod"
   },
   "license": "MIT",
   "icon": "logo.png",
@@ -36,9 +36,6 @@
     "jei_mod_plugin": [
       "at.petrak.hexcasting.interop.jei.HexJEIPlugin"
     ],
-    "emi": [
-      "at.petrak.hexcasting.interop.emi.HexEMIPlugin"
-    ],
     "modmenu": [
       "at.petrak.hexcasting.fabric.interop.ModMenuInterop"
     ]
@@ -49,23 +46,19 @@
   ],
   "accessWidener": "fabricasting.accesswidener",
   "depends": {
-    "minecraft": "=1.20.1",
-    "java": ">=17",
-    "fabricloader": ">=0.14",
-    "fabric": ">=0.84",
-    "fabric-language-kotlin": ">=1.13.7+kotlin.2.2.21",
-    "cardinal-components-base": "~5.2.1",
-    "cardinal-components-entity": "~5.2.1",
-    "cardinal-components-item": "~5.2.1",
-    "cardinal-components-block": "~5.2.1",
-    "paucal": ">=0.6.0-pre <0.7.0",
-    "cloth-config": "11.1.*",
-    "patchouli": ">=1.20.1-85",
-    "inline": ">=1.20.1-1.2.2"
+    "minecraft": "=26.1.2",
+    "java": ">=25",
+    "fabricloader": ">=0.20.1",
+    "fabric-api": ">=0.155.3",
+    "fabric-language-kotlin": ">=1.14.2+kotlin.2.4.21",
+    "cardinal-components-base": ">=8.0.0",
+    "cardinal-components-entity": ">=8.0.0",
+    "cardinal-components-item": ">=8.0.0",
+    "cardinal-components-block": ">=8.0.0",
+    "cloth-config": ">=26.1.154"
   },
   "suggests": {
-    "pehkui": ">=3.7.6",
-    "modmenu": ">=7.0.1"
+    "modmenu": ">=22.0.0"
   },
   "custom": {
     "cardinal-components": [

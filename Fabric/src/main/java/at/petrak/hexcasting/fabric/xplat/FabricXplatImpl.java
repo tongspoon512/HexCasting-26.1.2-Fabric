@@ -13,7 +13,14 @@ import at.petrak.hexcasting.api.casting.eval.sideeffects.EvalSound;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingVM;
 import at.petrak.hexcasting.api.casting.eval.vm.ContinuationFrame;
+import at.petrak.hexcasting.api.casting.iota.DoubleIota;
 import at.petrak.hexcasting.api.casting.iota.IotaType;
+import at.petrak.hexcasting.api.item.HexHolderItem;
+import at.petrak.hexcasting.api.item.IotaHolderItem;
+import at.petrak.hexcasting.api.item.MediaHolderItem;
+import at.petrak.hexcasting.api.item.PigmentItem;
+import at.petrak.hexcasting.api.item.VariantItem;
+import at.petrak.hexcasting.api.misc.MediaConstants;
 import at.petrak.hexcasting.api.mod.HexConfig;
 import at.petrak.hexcasting.api.mod.HexTags;
 import at.petrak.hexcasting.api.pigment.ColorProvider;
@@ -21,11 +28,18 @@ import at.petrak.hexcasting.api.pigment.FrozenPigment;
 import at.petrak.hexcasting.api.player.AltioraAbility;
 import at.petrak.hexcasting.api.player.FlightAbility;
 import at.petrak.hexcasting.api.player.Sentinel;
+import at.petrak.hexcasting.common.lib.HexBlocks;
+import at.petrak.hexcasting.common.lib.HexItems;
 import at.petrak.hexcasting.common.lib.HexRegistries;
 import at.petrak.hexcasting.common.msgs.IMessage;
 import at.petrak.hexcasting.fabric.cc.HexCardinalComponents;
+import at.petrak.hexcasting.fabric.cc.adimpl.CCItemIotaHolder;
+import at.petrak.hexcasting.fabric.cc.adimpl.CCHexHolder;
+import at.petrak.hexcasting.fabric.cc.adimpl.CCMediaHolder;
+import at.petrak.hexcasting.fabric.cc.adimpl.CCPigment;
+import at.petrak.hexcasting.fabric.cc.adimpl.CCVariantItem;
 import at.petrak.hexcasting.fabric.interop.trinkets.TrinketsApiInterop;
-import at.petrak.hexcasting.fabric.recipe.FabricUnsealedIngredient;
+import at.petrak.hexcasting.fabric.network.FabricPacketHandler;
 import at.petrak.hexcasting.interop.HexInterop;
 import at.petrak.hexcasting.interop.pehkui.PehkuiInterop;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
@@ -38,9 +52,7 @@ import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -49,11 +61,12 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.core.*;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -66,7 +79,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -79,7 +92,6 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import virtuoel.pehkui.api.ScaleTypes;
 
 import java.util.Collection;
 import java.util.List;
@@ -118,7 +130,7 @@ public class FabricXplatImpl implements IXplatAbstractions {
 
     @Override
     public void sendPacketToPlayer(ServerPlayer target, IMessage packet) {
-        ServerPlayNetworking.send(target, packet.getFabricId(), packet.toBuf());
+        FabricPacketHandler.sendToPlayer(target, packet);
     }
 
     @Override
@@ -132,15 +144,12 @@ public class FabricXplatImpl implements IXplatAbstractions {
     }
 
     private void sendPacketToPlayers(Collection<ServerPlayer> players, IMessage packet) {
-        var pkt = ServerPlayNetworking.createS2CPacket(packet.getFabricId(), packet.toBuf());
-        for (var p : players) {
-            p.connection.send(pkt);
-        }
+        FabricPacketHandler.sendToPlayers(players, packet);
     }
 
     @Override
     public Packet<ClientGamePacketListener> toVanillaClientboundPacket(IMessage message) {
-        return ServerPlayNetworking.createS2CPacket(message.getFabricId(), message.toBuf());
+        return FabricPacketHandler.toClientboundPacket(message);
     }
 
     @Override
@@ -237,21 +246,50 @@ public class FabricXplatImpl implements IXplatAbstractions {
     @Override
     public @Nullable
     ADMediaHolder findMediaHolder(ItemStack stack) {
-        var cc = HexCardinalComponents.MEDIA_HOLDER.maybeGet(stack);
-        return cc.orElse(null);
+        // 26.1: CCA v8 removed item components, so item addldata is built directly here.
+        var item = stack.getItem();
+        if (item instanceof MediaHolderItem) {
+            return new CCMediaHolder.ItemBased(stack);
+        }
+        if (item == HexItems.AMETHYST_DUST) {
+            return new CCMediaHolder.Static(() -> HexConfig.common().dustMediaAmount(),
+                ADMediaHolder.AMETHYST_DUST_PRIORITY, stack);
+        }
+        if (item == Items.AMETHYST_SHARD) {
+            return new CCMediaHolder.Static(() -> HexConfig.common().shardMediaAmount(),
+                ADMediaHolder.AMETHYST_SHARD_PRIORITY, stack);
+        }
+        if (item == HexItems.CHARGED_AMETHYST) {
+            return new CCMediaHolder.Static(() -> HexConfig.common().chargedCrystalMediaAmount(),
+                ADMediaHolder.CHARGED_AMETHYST_PRIORITY, stack);
+        }
+        if (item == HexItems.QUENCHED_SHARD.asItem()) {
+            return new CCMediaHolder.Static(() -> MediaConstants.QUENCHED_SHARD_UNIT,
+                ADMediaHolder.QUENCHED_SHARD_PRIORITY, stack);
+        }
+        if (item == HexBlocks.QUENCHED_ALLAY.asItem()) {
+            return new CCMediaHolder.Static(() -> MediaConstants.QUENCHED_BLOCK_UNIT,
+                ADMediaHolder.QUENCHED_ALLAY_PRIORITY, stack);
+        }
+        return null;
     }
 
     @Override
     public @Nullable ADMediaHolder findMediaHolder(ServerPlayer player) {
-        var cc = HexCardinalComponents.MEDIA_HOLDER.maybeGet(player);
-        return cc.orElse(null);
+        return null;
     }
 
     @Override
     public @Nullable
     ADIotaHolder findDataHolder(ItemStack stack) {
-        var cc = HexCardinalComponents.IOTA_HOLDER.maybeGet(stack);
-        return cc.orElse(null);
+        var item = stack.getItem();
+        if (item instanceof IotaHolderItem) {
+            return new CCItemIotaHolder.ItemBased(stack);
+        }
+        if (item == Items.PUMPKIN_PIE) {
+            return new CCItemIotaHolder.Static(stack, s -> new DoubleIota(Math.PI * s.getCount()));
+        }
+        return null;
     }
 
     @Override
@@ -264,25 +302,31 @@ public class FabricXplatImpl implements IXplatAbstractions {
     @Override
     public @Nullable
     ADHexHolder findHexHolder(ItemStack stack) {
-        var cc = HexCardinalComponents.HEX_HOLDER.maybeGet(stack);
-        return cc.orElse(null);
+        if (stack.getItem() instanceof HexHolderItem) {
+            return new CCHexHolder.ItemBased(stack);
+        }
+        return null;
     }
 
     @Override
     public @Nullable ADVariantItem findVariantHolder(ItemStack stack) {
-        var cc = HexCardinalComponents.VARIANT_ITEM.maybeGet(stack);
-        return cc.orElse(null);
+        if (stack.getItem() instanceof VariantItem) {
+            return new CCVariantItem.ItemBased(stack);
+        }
+        return null;
     }
 
     @Override
     public boolean isPigment(ItemStack stack) {
-        return HexCardinalComponents.PIGMENT.isProvidedBy(stack);
+        return stack.getItem() instanceof PigmentItem;
     }
 
     @Override
     public ColorProvider getColorProvider(FrozenPigment pigment) {
-        var cc = HexCardinalComponents.PIGMENT.maybeGet(pigment.item());
-        return cc.map(col -> col.provideColor(pigment.owner())).orElse(ColorProvider.MISSING);
+        if (pigment.item().getItem() instanceof PigmentItem) {
+            return new CCPigment.ItemBased(pigment.item()).provideColor(pigment.owner());
+        }
+        return ColorProvider.MISSING;
     }
 
     @Override
@@ -334,7 +378,8 @@ public class FabricXplatImpl implements IXplatAbstractions {
 
     @Override
     public Ingredient getUnsealedIngredient(ItemStack stack) {
-        return FabricUnsealedIngredient.of(stack);
+        // 26.1: Ingredient is a final HolderSet-backed type; match by item.
+        return Ingredient.of(stack.getItem());
     }
 
     // do a stupid hack from botania
@@ -342,23 +387,25 @@ public class FabricXplatImpl implements IXplatAbstractions {
         return Stream.of(items).map(ItemStack::new).toList();
     }
 
-    private static final List<List<ItemStack>> HARVEST_TOOLS_BY_LEVEL = List.of(
+    // 26.1 binds ItemStack data components during registry freeze, which happens after the
+    // xplat impl class is initialized, so these stacks have to be built lazily.
+    private static final Supplier<List<List<ItemStack>>> HARVEST_TOOLS_BY_LEVEL = Suppliers.memoize(() -> List.of(
         stacks(Items.WOODEN_PICKAXE, Items.WOODEN_AXE, Items.WOODEN_HOE, Items.WOODEN_SHOVEL, Items.WOODEN_SWORD),
         stacks(Items.STONE_PICKAXE, Items.STONE_AXE, Items.STONE_HOE, Items.STONE_SHOVEL, Items.STONE_SWORD),
         stacks(Items.IRON_PICKAXE, Items.IRON_AXE, Items.IRON_HOE, Items.IRON_SHOVEL, Items.IRON_SWORD),
         stacks(Items.DIAMOND_PICKAXE, Items.DIAMOND_AXE, Items.DIAMOND_HOE, Items.DIAMOND_SHOVEL, Items.DIAMOND_SWORD),
         stacks(Items.NETHERITE_PICKAXE, Items.NETHERITE_AXE, Items.NETHERITE_HOE, Items.NETHERITE_SHOVEL, Items.NETHERITE_SWORD)
-    );
+    ));
 
     @Override
-    public boolean isCorrectTierForDrops(Tier tier, BlockState bs) {
+    public boolean isCorrectTierForDrops(ToolMaterial tier, BlockState bs) {
         if (!bs.requiresCorrectToolForDrops()) {
             return true;
         }
 
         int level = HexConfig.server()
             .opBreakHarvestLevelBecauseForgeThoughtItWasAGoodIdeaToImplementHarvestTiersUsingAnHonestToGodTopoSort();
-        for (var tool : HARVEST_TOOLS_BY_LEVEL.get(level)) {
+        for (var tool : HARVEST_TOOLS_BY_LEVEL.get().get(level)) {
             if (tool.isCorrectToolForDrops(bs)) {
                 return true;
             }
@@ -369,18 +416,18 @@ public class FabricXplatImpl implements IXplatAbstractions {
 
     @Override
     public Item.Properties addEquipSlotFabric(EquipmentSlot slot) {
-        return new FabricItemSettings().equipmentSlot(s -> slot);
+        return new Item.Properties().equippable(slot);
     }
 
     private static final IXplatTags TAGS = new IXplatTags() {
         @Override
         public TagKey<Item> amethystDust() {
-            return HexTags.Items.create(new ResourceLocation("c", "amethyst_dusts"));
+            return HexTags.Items.create(Identifier.fromNamespaceAndPath("c", "amethyst_dusts"));
         }
 
         @Override
         public TagKey<Item> gems() {
-            return HexTags.Items.create(new ResourceLocation("c", "gems"));
+            return HexTags.Items.create(Identifier.fromNamespaceAndPath("c", "gems"));
         }
     };
 
@@ -391,11 +438,10 @@ public class FabricXplatImpl implements IXplatAbstractions {
 
     @Override
     public LootItemCondition.Builder isShearsCondition() {
-        return AnyOfCondition.anyOf(
-            MatchTool.toolMatches(ItemPredicate.Builder.item().of(Items.SHEARS)),
-            MatchTool.toolMatches(ItemPredicate.Builder.item().of(
-                HexTags.Items.create(new ResourceLocation("c", "shears"))))
-        );
+        // 26.1 resolves item tags against the datapack registry during datagen, so the Fabric
+        // convention tag c:shears is not available here; shears is a single vanilla item anyway.
+        return MatchTool.toolMatches(
+            ItemPredicate.Builder.item().of(BuiltInRegistries.ITEM, Items.SHEARS));
     }
 
     @Override
@@ -497,10 +543,8 @@ public class FabricXplatImpl implements IXplatAbstractions {
         player.setItemInHand(InteractionHand.MAIN_HAND, blockStack.copy());
         var success = UseItemCallback.EVENT.invoker().interact(player, world, InteractionHand.MAIN_HAND);
         player.setItemInHand(InteractionHand.MAIN_HAND, cached);
-        return success.getResult() == InteractionResult.PASS; // No other mod tried to consume this
+        return success == InteractionResult.PASS; // No other mod tried to consume this
     }
-
-    private static PehkuiInterop.ApiAbstraction PEHKUI_API = null;
 
     @Override
     public PehkuiInterop.ApiAbstraction getPehkuiApi() {
@@ -508,20 +552,9 @@ public class FabricXplatImpl implements IXplatAbstractions {
             throw new IllegalArgumentException("cannot get the pehkui api without pehkui");
         }
 
-        if (PEHKUI_API == null) {
-            PEHKUI_API = new PehkuiInterop.ApiAbstraction() {
-                @Override
-                public float getScale(Entity e) {
-                    return ScaleTypes.BASE.getScaleData(e).getScale();
-                }
-
-                @Override
-                public void setScale(Entity e, float scale) {
-                    ScaleTypes.BASE.getScaleData(e).setScale(scale);
-                }
-            };
-        }
-        return PEHKUI_API;
+        // TODO(26.1): pehkui has no build for this version yet (its 1.20-era jar links against
+        // intermediary names that no longer resolve), so scaling is unavailable for now.
+        throw new UnsupportedOperationException("pehkui is not available on 26.1 yet");
     }
 
 }

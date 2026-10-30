@@ -13,7 +13,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.ItemStack
@@ -48,7 +48,7 @@ fun vecFromNBT(tag: CompoundTag): Vec3 {
     return if (!tag.contains("x") || !tag.contains("y") || !tag.contains("z"))
         Vec3.ZERO
     else
-        Vec3(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"))
+        Vec3(tag.getDoubleOr("x", 0.0), tag.getDoubleOr("y", 0.0), tag.getDoubleOr("z", 0.0))
 }
 
 fun Vec2.serializeToNBT(): LongArrayTag =
@@ -285,9 +285,8 @@ fun <A> List<A>.zipWithDefault(array: ByteArray, default: (idx: Int) -> Byte): L
 
 // Copy the impl from forge
 fun ItemStack.serializeToNBT(): CompoundTag {
-    val out = CompoundTag()
-    this.save(out)
-    return out
+    // 26.1 dropped ItemStack#save; the codec round-trips through NBT instead.
+    return ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, this).orThrow as CompoundTag
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -303,13 +302,13 @@ fun <T : Tag> Tag.downcast(type: TagType<T>): T {
 }
 
 const val ERROR_COLOR = 0xff_f800f8.toInt()
-fun <T> isOfTag(registry: Registry<T>, key: ResourceKey<T>, tag: TagKey<T>): Boolean {
-    val maybeHolder = registry.getHolder(key)
+fun <T : Any> isOfTag(registry: Registry<T>, key: ResourceKey<T>, tag: TagKey<T>): Boolean {
+    val maybeHolder = registry.get(key)
     val holder = if (maybeHolder.isPresent) maybeHolder.get() else return false
     return holder.`is`(tag)
 }
 
-fun <T> isOfTag(registry: Registry<T>, loc: ResourceLocation, tag: TagKey<T>): Boolean {
+fun <T : Any> isOfTag(registry: Registry<T>, loc: Identifier, tag: TagKey<T>): Boolean {
     val key = ResourceKey.create(registry.key(), loc);
     return isOfTag(registry, key, tag)
 }

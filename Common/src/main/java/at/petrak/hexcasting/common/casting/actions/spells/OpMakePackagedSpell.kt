@@ -23,7 +23,8 @@ import java.util.function.Supplier;
 
 // TODO: How to handle in circles
 class OpMakePackagedSpell(val isValid: Predicate<ItemStack>, val expectedTypeDesc: Supplier<Component>, val cost: Long) : SpellAction {
-    constructor(itemType: ItemPackagedHex, cost: Long) : this({s -> s.`is`(itemType)}, itemType::getDescription, cost) {}
+    // 26.1 removed Item#getDescription; the old impl was translatable(getDescriptionId()).
+    constructor(itemType: ItemPackagedHex, cost: Long) : this({s -> s.`is`(itemType)}, { Component.translatable(itemType.descriptionId) }, cost) {}
     
     override val argc = 2
     override fun execute(
@@ -85,7 +86,7 @@ class OpMakePackagedSpell(val isValid: Predicate<ItemStack>, val expectedTypeDes
 
                 itemEntity.item = entityStack
                 if (entityStack.isEmpty)
-                    itemEntity.kill()
+                    itemEntity.kill(env.world)
             }
         }
     }

@@ -35,7 +35,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -155,7 +155,7 @@ public interface IXplatAbstractions {
 
     // misc
 
-    boolean isCorrectTierForDrops(Tier tier, BlockState bs);
+    boolean isCorrectTierForDrops(ToolMaterial tier, BlockState bs);
 
     Ingredient getUnsealedIngredient(ItemStack stack);
 

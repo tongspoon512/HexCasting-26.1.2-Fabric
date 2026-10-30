@@ -1,14 +1,16 @@
 package at.petrak.hexcasting.fabric.cc;
 
 import at.petrak.hexcasting.api.player.Sentinel;
-import at.petrak.hexcasting.api.utils.HexUtils;
-import dev.onyxstudios.cca.api.v3.component.Component;
-import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
+import org.ladysnake.cca.api.v3.component.Component;
+import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 
@@ -18,6 +20,8 @@ public class CCSentinel implements Component, AutoSyncedComponent {
         TAG_EXTENDS_RANGE = "extends_range",
         TAG_POSITION = "position",
         TAG_DIMENSION = "dimension";
+
+    private static final Codec<ResourceKey<Level>> DIMENSION_CODEC = ResourceKey.codec(Registries.DIMENSION);
 
     private final Player owner;
     private @Nullable Sentinel sentinel = null;
@@ -36,13 +40,12 @@ public class CCSentinel implements Component, AutoSyncedComponent {
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag) {
-        var hasSentinel = tag.getBoolean(TAG_HAS_SENTINEL);
+    public void readData(ValueInput input) {
+        var hasSentinel = input.getBooleanOr(TAG_HAS_SENTINEL, false);
         if (hasSentinel) {
-            var extendsRange = tag.getBoolean(TAG_EXTENDS_RANGE);
-            var position = HexUtils.vecFromNBT(tag.getCompound(TAG_POSITION));
-            var dim = ResourceKey.create(Registries.DIMENSION,
-                new ResourceLocation(tag.getString(TAG_DIMENSION)));
+            var extendsRange = input.getBooleanOr(TAG_EXTENDS_RANGE, false);
+            var position = input.read(TAG_POSITION, Vec3.CODEC).orElse(Vec3.ZERO);
+            var dim = input.read(TAG_DIMENSION, DIMENSION_CODEC).orElse(null);
             this.sentinel = new Sentinel(extendsRange, position, dim);
         } else {
             this.sentinel = null;
@@ -50,12 +53,12 @@ public class CCSentinel implements Component, AutoSyncedComponent {
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag) {
-        tag.putBoolean(TAG_HAS_SENTINEL, this.sentinel != null);
+    public void writeData(ValueOutput output) {
+        output.putBoolean(TAG_HAS_SENTINEL, this.sentinel != null);
         if (this.sentinel != null) {
-            tag.putBoolean(TAG_EXTENDS_RANGE, this.sentinel.extendsRange());
-            tag.put(TAG_POSITION, HexUtils.serializeToNBT(this.sentinel.position()));
-            tag.putString(TAG_DIMENSION, this.sentinel.dimension().location().toString());
+            output.putBoolean(TAG_EXTENDS_RANGE, this.sentinel.extendsRange());
+            output.store(TAG_POSITION, Vec3.CODEC, this.sentinel.position());
+            output.store(TAG_DIMENSION, DIMENSION_CODEC, this.sentinel.dimension());
         }
     }
 }

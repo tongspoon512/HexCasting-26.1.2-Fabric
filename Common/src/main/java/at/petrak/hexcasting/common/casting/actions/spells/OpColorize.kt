@@ -8,7 +8,7 @@ import at.petrak.hexcasting.api.casting.mishaps.MishapBadOffhandItem
 import at.petrak.hexcasting.api.misc.MediaConstants
 import at.petrak.hexcasting.api.pigment.FrozenPigment
 import at.petrak.hexcasting.xplat.IXplatAbstractions
-import net.minecraft.Util
+import net.minecraft.util.Util
 import net.minecraft.world.item.ItemStack
 
 object OpColorize : SpellAction {
@@ -38,7 +38,7 @@ object OpColorize : SpellAction {
     private data class Spell(val stack: ItemStack) : RenderedSpell {
         override fun cast(env: CastingEnvironment) {
             val copy = stack.copy()
-            if (env.withdrawItem({ ItemStack.isSameItemSameTags(copy, it) }, 1, true))
+            if (env.withdrawItem({ ItemStack.isSameItemSameComponents(copy, it) }, 1, true))
                 env.setPigment(FrozenPigment(copy, env.castingEntity?.uuid ?: Util.NIL_UUID))
         }
     }

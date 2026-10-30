@@ -3,10 +3,12 @@ package at.petrak.hexcasting.fabric.cc;
 import at.petrak.hexcasting.api.casting.eval.env.StaffCastEnv;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingVM;
-import dev.onyxstudios.cca.api.v3.component.Component;
+import org.ladysnake.cca.api.v3.component.Component;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 public class CCStaffcastImage implements Component {
@@ -25,7 +27,7 @@ public class CCStaffcastImage implements Component {
     public CastingVM getVM(InteractionHand hand) {
         var img = this.lazyLoadedTag.isEmpty()
             ? new CastingImage()
-            : CastingImage.loadFromNbt(this.lazyLoadedTag, this.owner.serverLevel());
+            : CastingImage.loadFromNbt(this.lazyLoadedTag, this.owner.level());
         var env = new StaffCastEnv(this.owner, hand);
         return new CastingVM(img, env);
     }
@@ -38,12 +40,12 @@ public class CCStaffcastImage implements Component {
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag) {
-        this.lazyLoadedTag = tag.getCompound(TAG_VM);
+    public void readData(ValueInput input) {
+        this.lazyLoadedTag = input.read(TAG_VM, CompoundTag.CODEC).orElseGet(CompoundTag::new);
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag) {
-        tag.put(TAG_VM, this.lazyLoadedTag);
+    public void writeData(ValueOutput output) {
+        output.store(TAG_VM, CompoundTag.CODEC, this.lazyLoadedTag);
     }
 }

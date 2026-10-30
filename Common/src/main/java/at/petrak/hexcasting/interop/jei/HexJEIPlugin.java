@@ -6,7 +6,6 @@ import at.petrak.hexcasting.common.casting.actions.spells.OpMakeBattery;
 import at.petrak.hexcasting.common.items.ItemStaff;
 import at.petrak.hexcasting.common.lib.HexItems;
 import at.petrak.hexcasting.common.recipe.BrainsweepRecipe;
-import at.petrak.hexcasting.common.recipe.HexRecipeStuffRegistry;
 import at.petrak.hexcasting.interop.utils.PhialRecipeStackBuilder;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -15,18 +14,20 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
 @JeiPlugin
 public class HexJEIPlugin implements IModPlugin {
-    private static final ResourceLocation UID = modLoc(HexAPI.MOD_ID);
+    private static final Identifier UID = modLoc(HexAPI.MOD_ID);
 
     public static final RecipeType<BrainsweepRecipe> BRAINSWEEPING =
         RecipeType.create(HexAPI.MOD_ID, "brainsweeping", BrainsweepRecipe.class);
@@ -39,7 +40,7 @@ public class HexJEIPlugin implements IModPlugin {
 
     @NotNull
     @Override
-    public ResourceLocation getPluginUid() {
+    public Identifier getPluginUid() {
         return UID;
     }
 
@@ -56,8 +57,17 @@ public class HexJEIPlugin implements IModPlugin {
     public void registerRecipes(@NotNull IRecipeRegistration registration) {
         Level level = Minecraft.getInstance().level;
         if (level != null) {
-            registration.addRecipes(BRAINSWEEPING,
-                level.getRecipeManager().getAllRecipesFor(HexRecipeStuffRegistry.BRAINSWEEP_TYPE));
+            // 26.1 no longer syncs the full recipe list to the client, so only an integrated-server
+            // RecipeManager can be enumerated here.
+            var brainsweeps = new ArrayList<BrainsweepRecipe>();
+            if (level.recipeAccess() instanceof RecipeManager manager) {
+                for (var holder : manager.getRecipes()) {
+                    if (holder.value() instanceof BrainsweepRecipe recipe) {
+                        brainsweeps.add(recipe);
+                    }
+                }
+            }
+            registration.addRecipes(BRAINSWEEPING, brainsweeps);
         }
 
         if (PhialRecipeStackBuilder.shouldAddRecipe()) {

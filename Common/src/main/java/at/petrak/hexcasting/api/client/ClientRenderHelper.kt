@@ -2,16 +2,17 @@
 package at.petrak.hexcasting.api.client
 
 import at.petrak.hexcasting.client.ClientTickCounter
+import at.petrak.hexcasting.client.render.MeshCollector
+import at.petrak.hexcasting.client.render.WorldMeshSink
 import at.petrak.hexcasting.client.render.drawLineSeq
 import at.petrak.hexcasting.client.render.findDupIndices
 import at.petrak.hexcasting.client.render.makeZappy
 import at.petrak.hexcasting.client.render.screenCol
 import at.petrak.hexcasting.xplat.IClientXplatAbstractions
 import at.petrak.hexcasting.xplat.IXplatAbstractions
-import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.client.renderer.SubmitNodeCollector
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import kotlin.math.abs
@@ -20,7 +21,7 @@ import kotlin.math.floor
 import kotlin.math.sin
 
 
-fun renderCastingStack(ps: PoseStack, player: Player, pticks: Float) {
+fun renderCastingStack(ps: PoseStack, collector: SubmitNodeCollector, player: Player, pticks: Float) {
     val stack = IClientXplatAbstractions.INSTANCE.getClientCastingStack(player)
 
     for (k in 0 until stack.getPatterns().size) {
@@ -36,10 +37,6 @@ fun renderCastingStack(ps: PoseStack, player: Player, pticks: Float) {
         ps.translate(0.0, floor((k / 8.0)), 0.0)
         ps.translate(0.0, sin((player.level().gameTime + pticks) / (7.0 + k / 8.0)), 0.0)
 
-        val oldShader = RenderSystem.getShader()
-        RenderSystem.setShader { GameRenderer.getPositionColorShader() }
-        RenderSystem.enableDepthTest()
-        RenderSystem.disableCull()
         val com1 = pattern.getCenter(1f)
         val lines1 = pattern.toLines(1f, Vec2.ZERO)
         var maxDx = -1f
@@ -77,10 +74,14 @@ fun renderCastingStack(ps: PoseStack, player: Player, pticks: Float) {
         }
         val newARGB = newAlpha shl 24 or rgbOnly
         val inner: Int = screenCol(newARGB)
-        drawLineSeq(ps.last().pose(), zappy, 0.35f, 0f, newARGB, newARGB)
-        drawLineSeq(ps.last().pose(), zappy, 0.14f, 0.01f, inner, inner)
+        // The casting stack floats in the world above the caster, so it goes through the world submit queue
+        // rather than the GUI; full brightness keeps it readable in the dark.
+        val mesh = MeshCollector()
+        val sink = WorldMeshSink(collector, ps, 0xF000F0, null)
+        drawLineSeq(ps.last().pose(), zappy, 0.35f, 0f, newARGB, newARGB, mesh)
+        drawLineSeq(ps.last().pose(), zappy, 0.14f, 0.01f, inner, inner, mesh)
+        mesh.submitTo(sink)
+
         ps.popPose()
-        RenderSystem.setShader { oldShader }
-        RenderSystem.enableCull()
     }
 }

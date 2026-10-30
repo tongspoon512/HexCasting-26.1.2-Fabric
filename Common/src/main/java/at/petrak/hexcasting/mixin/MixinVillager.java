@@ -1,7 +1,7 @@
 package at.petrak.hexcasting.mixin;
 
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,11 +19,14 @@ public class MixinVillager {
         }
     }
 
-    @Inject(method = "setUnhappy", at = @At("HEAD"), cancellable = true)
-    private void preventUnhappiness(CallbackInfo ci) {
-        var self = (Villager) (Object) this;
-        if (IXplatAbstractions.INSTANCE.isBrainswept(self)) {
-            ci.cancel();
+    // 26.1 removed Villager#setUnhappy; the angry-villager particles are now only broadcast through event 13.
+    @Inject(method = "handleEntityEvent", at = @At("HEAD"), cancellable = true)
+    private void preventUnhappiness(byte id, CallbackInfo ci) {
+        if (id == 13) {
+            var self = (Villager) (Object) this;
+            if (IXplatAbstractions.INSTANCE.isBrainswept(self)) {
+                ci.cancel();
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 package at.petrak.hexcasting.client.model;
 
-import net.minecraft.client.model.ElytraModel;
+import net.minecraft.client.model.object.equipment.ElytraModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 

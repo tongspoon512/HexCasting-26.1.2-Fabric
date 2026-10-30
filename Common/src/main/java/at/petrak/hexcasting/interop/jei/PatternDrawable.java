@@ -9,10 +9,11 @@ import at.petrak.hexcasting.client.render.PatternSettings;
 import at.petrak.hexcasting.client.render.PatternSettings.PositionSettings;
 import at.petrak.hexcasting.client.render.PatternSettings.StrokeSettings;
 import at.petrak.hexcasting.client.render.PatternSettings.ZappySettings;
+import at.petrak.hexcasting.interop.utils.PatternDrawingUtil;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import mezz.jei.api.gui.drawable.IDrawable;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 
 public class PatternDrawable implements IDrawable {
     private final int width;
@@ -23,11 +24,11 @@ public class PatternDrawable implements IDrawable {
 
     private PatternSettings patSets;
 
-    public PatternDrawable(ResourceLocation pattern, int w, int h) {
+    public PatternDrawable(Identifier pattern, int w, int h) {
         var regi = IXplatAbstractions.INSTANCE.getActionRegistry();
         var entry = regi.get(pattern);
         this.strokeOrder = !HexUtils.isOfTag(regi, pattern, HexTags.Actions.PER_WORLD_PATTERN);
-        this.pat = entry.prototype();
+        this.pat = regi.getValue(pattern).prototype();
         this.width = w;
         this.height = h;
         this.patSets = new PatternSettings("pattern_drawable_" + w + "_" + h,
@@ -60,14 +61,9 @@ public class PatternDrawable implements IDrawable {
     }
 
     @Override
-    public void draw(GuiGraphics graphics, int x, int y) {
-        var ps = graphics.pose();
-        ps.pushPose();
-        ps.translate(x, y + 1, 0);
-        PatternRenderer.renderPattern(pat, graphics.pose(), patSets,
+    public void draw(GuiGraphicsExtractor graphics, int x, int y) {
+        PatternDrawingUtil.renderPattern(graphics, pat, patSets,
                 new PatternColors(0xc8_0c0a0c, 0xff_333030).withDotColors(0x80_666363, 0),
-                0, 10
-        );
-        ps.popPose();
+                0, 10, x, y + 1f);
     }
 }

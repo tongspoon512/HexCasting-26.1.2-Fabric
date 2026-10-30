@@ -5,10 +5,10 @@ import at.petrak.hexcasting.api.casting.iota.GarbageIota
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.pigment.FrozenPigment
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.DyeColor
 
-class MishapLocationInWrongDimension(val properDimension: ResourceLocation) : Mishap() {
+class MishapLocationInWrongDimension(val properDimension: Identifier) : Mishap() {
     override fun accentColor(env: CastingEnvironment, errorCtx: Context): FrozenPigment =
         dyeColor(DyeColor.MAGENTA)
 
@@ -19,6 +19,6 @@ class MishapLocationInWrongDimension(val properDimension: ResourceLocation) : Mi
     override fun errorMessage(env: CastingEnvironment, errorCtx: Context): Component =
         error(
             "wrong_dimension", properDimension.toString(),
-            env.world.dimension().location().toString()
+            env.world.dimension().identifier().toString()
         )
 }

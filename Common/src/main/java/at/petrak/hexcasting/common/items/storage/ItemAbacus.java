@@ -6,18 +6,22 @@ import at.petrak.hexcasting.api.casting.iota.IotaType;
 import at.petrak.hexcasting.api.item.IotaHolderItem;
 import at.petrak.hexcasting.api.utils.NBTHelper;
 import at.petrak.hexcasting.common.lib.HexSounds;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ItemAbacus extends Item implements IotaHolderItem {
     public static final String TAG_VALUE = "value";
@@ -49,11 +53,11 @@ public class ItemAbacus extends Item implements IotaHolderItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+    public InteractionResult use(Level world, Player player, InteractionHand hand) {
         var stack = player.getItemInHand(hand);
         if (player.isShiftKeyDown()) {
             double oldNum = NBTHelper.getDouble(stack, TAG_VALUE);
-            stack.removeTagKey(TAG_VALUE);
+            CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.remove(TAG_VALUE));
 
             player.playSound(HexSounds.ABACUS_SHAKE, 1f, 1f);
 
@@ -61,17 +65,20 @@ public class ItemAbacus extends Item implements IotaHolderItem {
             if (oldNum == 69) {
                 key += ".nice";
             }
-            player.displayClientMessage(Component.translatable(key), true);
+            player.sendOverlayMessage(Component.translatable(key));
 
-            return InteractionResultHolder.sidedSuccess(stack, world.isClientSide);
+            return world.isClientSide() ? InteractionResult.SUCCESS.heldItemTransformedTo(stack)
+                : InteractionResult.CONSUME.heldItemTransformedTo(stack);
         } else {
-            return InteractionResultHolder.pass(stack);
+            return InteractionResult.PASS;
         }
     }
 
     @Override
-    public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents,
-        TooltipFlag pIsAdvanced) {
-        IotaHolderItem.appendHoverText(this, pStack, pTooltipComponents, pIsAdvanced);
+    public void appendHoverText(ItemStack pStack, TooltipContext pContext, TooltipDisplay pDisplay,
+        Consumer<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
+        var components = new java.util.ArrayList<Component>();
+        IotaHolderItem.appendHoverText(this, pStack, components, pIsAdvanced);
+        components.forEach(pTooltipComponents);
     }
 }

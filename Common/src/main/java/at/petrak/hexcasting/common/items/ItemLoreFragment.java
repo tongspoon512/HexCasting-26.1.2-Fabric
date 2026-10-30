@@ -1,15 +1,15 @@
 package at.petrak.hexcasting.common.items;
 
 import at.petrak.hexcasting.common.lib.HexSounds;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -22,7 +22,7 @@ import java.util.List;
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
 public class ItemLoreFragment extends Item {
-    public static final List<ResourceLocation> NAMES = List.of(new ResourceLocation[]{
+    public static final List<Identifier> NAMES = List.of(new Identifier[]{
         modLoc("lore/cardamom1"),
         modLoc("lore/cardamom2"),
         modLoc("lore/cardamom3"),
@@ -40,20 +40,20 @@ public class ItemLoreFragment extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         player.playSound(HexSounds.READ_LORE_FRAGMENT, 1f, 1f);
 
         var handStack = player.getItemInHand(usedHand);
         if (!(player instanceof ServerPlayer splayer)) {
             handStack.shrink(1);
-            return InteractionResultHolder.success(handStack);
+            return InteractionResult.SUCCESS.heldItemTransformedTo(handStack);
         }
 
-        Advancement unfoundLore = null;
+        AdvancementHolder unfoundLore = null;
         var shuffled = new ArrayList<>(NAMES);
         Collections.shuffle(shuffled);
         for (var advID : shuffled) {
-            var adv = splayer.server.getAdvancements().getAdvancement(advID);
+            var adv = splayer.level().getServer().getAdvancements().get(advID);
             if (adv == null) {
                 continue; // uh oh
             }
@@ -65,7 +65,7 @@ public class ItemLoreFragment extends Item {
         }
 
         if (unfoundLore == null) {
-            splayer.displayClientMessage(Component.translatable("item.hexcasting.lore_fragment.all"), true);
+            splayer.sendOverlayMessage(Component.translatable("item.hexcasting.lore_fragment.all"));
             splayer.giveExperiencePoints(20);
             level.playSound(null, player.position().x, player.position().y, player.position().z,
                 HexSounds.READ_LORE_FRAGMENT, SoundSource.PLAYERS, 1f, 1f);
@@ -78,6 +78,6 @@ public class ItemLoreFragment extends Item {
         splayer.awardStat(Stats.ITEM_USED.get(this));
         handStack.shrink(1);
 
-        return InteractionResultHolder.success(handStack);
+        return InteractionResult.SUCCESS.heldItemTransformedTo(handStack);
     }
 }

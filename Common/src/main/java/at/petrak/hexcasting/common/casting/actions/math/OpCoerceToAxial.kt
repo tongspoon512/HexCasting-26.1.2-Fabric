@@ -7,6 +7,7 @@ import at.petrak.hexcasting.api.casting.getNumOrVec
 import at.petrak.hexcasting.api.casting.iota.Iota
 import net.minecraft.core.Direction
 import net.minecraft.world.phys.Vec3
+import kotlin.math.abs
 import kotlin.math.sign
 
 object OpCoerceToAxial : ConstMediaAction {
@@ -20,8 +21,18 @@ object OpCoerceToAxial : ConstMediaAction {
         }, { vec ->
             if (vec == Vec3.ZERO)
                 vec.asActionResult
-            else
-                Vec3.atLowerCornerOf(Direction.getNearest(vec.x, vec.y, vec.z).normal).asActionResult
+            else {
+                // 26.1 dropped the double overload of Direction.getNearest; pick the dominant axis directly.
+                val ax = abs(vec.x)
+                val ay = abs(vec.y)
+                val az = abs(vec.z)
+                val dir = when {
+                    ax >= ay && ax >= az -> if (vec.x >= 0) Direction.EAST else Direction.WEST
+                    ay >= az -> if (vec.y >= 0) Direction.UP else Direction.DOWN
+                    else -> if (vec.z >= 0) Direction.SOUTH else Direction.NORTH
+                }
+                dir.unitVec3.asActionResult
+            }
         })
     }
 }

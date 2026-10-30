@@ -109,7 +109,7 @@ public class PatternIota extends Iota {
                     inParens ? HexTags.Actions.REQUIRES_ENLIGHTENMENT_IN_PARENS : HexTags.Actions.REQUIRES_ENLIGHTENMENT);
 
                 castedName = () -> HexAPI.instance().getActionI18n(key, reqsEnlightenment);
-                action = Objects.requireNonNull(IXplatAbstractions.INSTANCE.getActionRegistry().get(key)).action();
+                action = Objects.requireNonNull(IXplatAbstractions.INSTANCE.getActionRegistry().getValue(key)).action();
 
                 if (reqsEnlightenment && !vm.getEnv().isEnlightened()) {
                     // this gets caught down below

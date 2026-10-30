@@ -1,18 +1,20 @@
 package at.petrak.hexcasting.interop.inline;
 
 import at.petrak.hexcasting.client.render.*;
+import at.petrak.hexcasting.interop.utils.PatternDrawingUtil;
 import com.samsthenerd.inline.api.client.GlowHandling;
 import com.samsthenerd.inline.api.client.InlineRenderer;
+import com.samsthenerd.inline.api.client.TextRenderingContext;
 import com.samsthenerd.inline.impl.InlineStyle;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class InlinePatternRenderer implements InlineRenderer<InlinePatternData> {
 
     public static final InlinePatternRenderer INSTANCE = new InlinePatternRenderer();
 
-    public ResourceLocation getId(){
+    public Identifier getId(){
         return InlinePatternData.rendererId;
     }
 
@@ -54,19 +56,18 @@ public class InlinePatternRenderer implements InlineRenderer<InlinePatternData> 
 
     public static final int INLINE_TEXTURE_RES = 16; // 128px so it looks good and pretty on up close signs and whatnot
 
-    public int render(InlinePatternData data, GuiGraphics drawContext, int index, Style style, int codepoint, TextRenderingContext trContext){
+    public int render(InlinePatternData data, GuiGraphicsExtractor drawContext, int index, Style style, int codepoint, TextRenderingContext trContext){
         if(trContext.isGlowy()) return charWidth(data, style, codepoint);
-        int glowyParentColor = ((InlineStyle) style).getComponent(InlineStyle.GLOWY_PARENT_COMP);
+        int glowyParentColor = InlineStyle.getComponent(style, InlineStyle.GLOWY_PARENT_COMP);
         boolean isGlowy = glowyParentColor != -1;
-        drawContext.pose().pushPose();
-        drawContext.pose().translate(isGlowy ? -1f : 0, isGlowy ? -1.5f : -0.5f, 0f);
         int color = trContext.usableColor();
-        PatternRenderer.renderPattern(data.pattern, drawContext.pose(), new PatternRenderer.WorldlyBits(drawContext.bufferSource(), trContext.light(), null),
+        var pose = drawContext.pose();
+        PatternDrawingUtil.renderPattern(drawContext, data.pattern,
                 isGlowy ? INLINE_SETTINGS_GLOWY : INLINE_SETTINGS,
                 isGlowy ? new PatternColors(color, 0xFF_000000 | glowyParentColor) : PatternColors.singleStroke(color),
-                0, INLINE_TEXTURE_RES);
+                0, INLINE_TEXTURE_RES,
+                pose.m20() + (isGlowy ? -1f : 0), pose.m21() + (isGlowy ? -1.5f : -0.5f));
 
-        drawContext.pose().popPose();
         return charWidth(data, style, codepoint);
     }
 

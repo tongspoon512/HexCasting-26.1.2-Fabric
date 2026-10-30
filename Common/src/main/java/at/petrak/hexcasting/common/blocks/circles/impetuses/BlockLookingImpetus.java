@@ -26,7 +26,7 @@ public class BlockLookingImpetus extends BlockAbstractImpetus {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState,
         BlockEntityType<T> type) {
-        if (!pLevel.isClientSide) {
+        if (!pLevel.isClientSide()) {
             return createTickerHelper(type, HexBlockEntities.IMPETUS_LOOK_TILE,
                 BlockEntityLookingImpetus::serverTick);
         } else {

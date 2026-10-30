@@ -4,20 +4,26 @@ import at.petrak.hexcasting.api.misc.MediaConstants;
 import at.petrak.hexcasting.common.items.magic.ItemMediaBattery;
 import at.petrak.hexcasting.common.lib.HexItems;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
 import vazkii.patchouli.api.IVariable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * > no this is a "literally copy these files/parts of file into your mod"
@@ -26,16 +32,36 @@ import java.util.stream.Collectors;
  * -- Hubry Vazcord
  */
 public class PatchouliUtils {
+    /**
+     * Placeholder for a slotted ingredient that the recipe doesn't actually use.
+     */
+    public static final Ingredient EMPTY = Ingredient.of(Stream.<ItemLike>empty());
+
     @SuppressWarnings("unchecked")
-    public static <T extends Recipe<C>, C extends Container> T getRecipe(RecipeType<T> type, ResourceLocation id) {
+    public static <T extends Recipe<?>> T getRecipe(RecipeType<T> type, Identifier id) {
         // PageDoubleRecipeRegistry
         if (Minecraft.getInstance().level == null) {
             return null;
-        } else {
-            var manager = Minecraft.getInstance().level.getRecipeManager();
-            return (T) manager.byKey(id)
-                .filter((recipe) -> recipe.getType() == type).orElse(null);
         }
+        // 26.1 no longer ships the full recipe list to the client; only the integrated server's
+        // RecipeManager can still be enumerated.
+        if (!(Minecraft.getInstance().level.recipeAccess() instanceof RecipeManager manager)) {
+            return null;
+        }
+        for (var holder : manager.getRecipes()) {
+            if (holder.id().identifier().equals(id) && holder.value().getType().equals(type)) {
+                return (T) holder.value();
+            }
+        }
+        return null;
+    }
+
+    public static ItemStack getResultItem(CraftingRecipe recipe, Level level) {
+        var displays = recipe.display();
+        if (displays.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        return displays.getFirst().result().resolveForFirstStack(SlotDisplayContext.fromLevel(level));
     }
 
     /**
@@ -49,7 +75,7 @@ public class PatchouliUtils {
      */
     public static IVariable interweaveIngredients(List<Ingredient> ingredients, int longestIngredientSize) {
         if (ingredients.size() == 1) {
-            return IVariable.wrapList(Arrays.stream(ingredients.get(0).getItems()).map(IVariable::from).collect(
+            return IVariable.wrapList(itemStacks(ingredients.get(0)).stream().map(IVariable::from).collect(
                 Collectors.toList()));
         }
 
@@ -57,7 +83,7 @@ public class PatchouliUtils {
         List<ItemStack[]> stacks = new ArrayList<>();
         for (Ingredient ingredient : ingredients) {
             if (ingredient != null && !ingredient.isEmpty()) {
-                stacks.add(ingredient.getItems());
+                stacks.add(itemStacks(ingredient).toArray(new ItemStack[0]));
             } else {
                 stacks.add(empty);
             }
@@ -76,7 +102,11 @@ public class PatchouliUtils {
      */
     public static IVariable interweaveIngredients(List<Ingredient> ingredients) {
         return interweaveIngredients(ingredients,
-            ingredients.stream().mapToInt(ingr -> ingr.getItems().length).max().orElse(1));
+            ingredients.stream().mapToInt(ingr -> (int) ingr.items().count()).max().orElse(1));
+    }
+
+    private static List<ItemStack> itemStacks(Ingredient ingredient) {
+        return ingredient.items().map(Holder::value).map(ItemStack::new).toList();
     }
 
     /**

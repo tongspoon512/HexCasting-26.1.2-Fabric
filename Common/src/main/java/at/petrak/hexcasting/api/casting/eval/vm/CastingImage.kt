@@ -110,30 +110,28 @@ data class CastingImage(
         fun loadFromNbt(tag: CompoundTag, world: ServerLevel): CastingImage {
             return try {
                 val stack = mutableListOf<Iota>()
-                val stackTag = tag.getList(TAG_STACK, Tag.TAG_COMPOUND)
+                // 26.1's CompoundTag member getters return Optional and shadow the NBTHelper extensions, so the
+                // *OrEmpty members are used directly here.
+                val stackTag = tag.getListOrEmpty(TAG_STACK)
                 for (subtag in stackTag) {
                     val datum = IotaType.deserialize(subtag.asCompound, world)
                     stack.add(datum)
                 }
 
-                val userData = if (tag.contains(TAG_USERDATA)) {
-                    tag.getCompound(TAG_USERDATA)
-                } else {
-                    CompoundTag()
-                }
+                val userData = tag.getCompoundOrEmpty(TAG_USERDATA)
 
                 val parenthesized = mutableListOf<ParenthesizedIota>()
-                val parenTag = tag.getCompound(TAG_PARENTHESIZED)
-                val parenIotasTag = parenTag.getList(TAG_IOTAS, Tag.TAG_COMPOUND)
-                val parenEscapedTag = parenTag.getByteArray(TAG_ESCAPED)
+                val parenTag = tag.getCompoundOrEmpty(TAG_PARENTHESIZED)
+                val parenIotasTag = parenTag.getListOrEmpty(TAG_IOTAS)
+                val parenEscapedTag = parenTag.getByteArray(TAG_ESCAPED).orElse(ByteArray(0))
 
                 for ((subtag, isEscapedByte) in parenIotasTag.zipWithDefault(parenEscapedTag) { _ -> 0 }) {
                     parenthesized.add(ParenthesizedIota(IotaType.deserialize(subtag.downcast(CompoundTag.TYPE), world), isEscapedByte != 0.toByte()))
                 }
 
-                val parenCount = tag.getInt(TAG_PAREN_COUNT)
-                val escapeNext = tag.getBoolean(TAG_ESCAPE_NEXT)
-                val opsUsed = tag.getLong(TAG_OPS_CONSUMED)
+                val parenCount = tag.getInt(TAG_PAREN_COUNT, 0)
+                val escapeNext = tag.getBoolean(TAG_ESCAPE_NEXT, false)
+                val opsUsed = tag.getLong(TAG_OPS_CONSUMED, 0L)
 
                 CastingImage(stack, parenCount, parenthesized, escapeNext, opsUsed, userData)
             } catch (exn: Exception) {

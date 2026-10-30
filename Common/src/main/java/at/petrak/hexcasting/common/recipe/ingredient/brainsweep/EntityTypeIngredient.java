@@ -6,7 +6,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
@@ -62,11 +62,11 @@ public class EntityTypeIngredient extends BrainsweepeeIngredient {
     }
 
     public static EntityTypeIngredient deserialize(JsonObject obj) {
-        var typeLoc = ResourceLocation.tryParse(GsonHelper.getAsString(obj, "entityType"));
+        var typeLoc = Identifier.tryParse(GsonHelper.getAsString(obj, "entityType"));
         if (typeLoc == null || !BuiltInRegistries.ENTITY_TYPE.containsKey(typeLoc)) {
             throw new IllegalArgumentException("unknown entity type " + typeLoc);
         }
-        return new EntityTypeIngredient(BuiltInRegistries.ENTITY_TYPE.get(typeLoc));
+        return new EntityTypeIngredient(BuiltInRegistries.ENTITY_TYPE.getValue(typeLoc));
     }
 
     public static EntityTypeIngredient read(FriendlyByteBuf buf) {

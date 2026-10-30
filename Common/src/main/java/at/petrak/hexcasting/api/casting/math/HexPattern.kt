@@ -3,7 +3,10 @@ package at.petrak.hexcasting.api.casting.math
 import at.petrak.hexcasting.api.utils.NBTBuilder
 import at.petrak.hexcasting.api.utils.coordToPx
 import at.petrak.hexcasting.api.utils.findCenter
+import at.petrak.hexcasting.api.utils.getByte
 import at.petrak.hexcasting.api.utils.getSafe
+import at.petrak.hexcasting.api.utils.hasByteArray
+import at.petrak.hexcasting.api.utils.hasNumber
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.nbt.CompoundTag
@@ -140,14 +143,14 @@ data class HexPattern(val startDir: HexDir, val angles: MutableList<HexAngle> = 
 
         @JvmStatic
         fun isPattern(tag: CompoundTag): Boolean {
-            return tag.contains(TAG_START_DIR, Tag.TAG_ANY_NUMERIC.toInt())
-                && tag.contains(TAG_ANGLES, Tag.TAG_BYTE_ARRAY.toInt())
+            return tag.hasNumber(TAG_START_DIR)
+                && tag.hasByteArray(TAG_ANGLES)
         }
 
         @JvmStatic
         fun fromNBT(tag: CompoundTag): HexPattern {
-            val startDir = HexDir.values().getSafe(tag.getByte(TAG_START_DIR))
-            val angles = tag.getByteArray(TAG_ANGLES).map(HexAngle.values()::getSafe)
+            val startDir = HexDir.values().getSafe(tag.getByte(TAG_START_DIR, 0))
+            val angles = tag.getByteArray(TAG_ANGLES).orElse(ByteArray(0)).map(HexAngle.values()::getSafe)
             return HexPattern(startDir, angles.toMutableList())
         }
 

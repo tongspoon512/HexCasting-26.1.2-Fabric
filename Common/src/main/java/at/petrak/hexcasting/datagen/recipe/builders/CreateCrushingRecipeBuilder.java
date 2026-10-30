@@ -1,23 +1,20 @@
 package at.petrak.hexcasting.datagen.recipe.builders;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 // Largely adapted from the following classes:
 // https://github.com/Creators-of-Create/Create/blob/82be76d8934af03b4e52cad6a9f74a4175ba7b05/src/main/java/com/simibubi/create/content/contraptions/processing/ProcessingOutput.java
@@ -31,7 +28,7 @@ public class CreateCrushingRecipeBuilder implements RecipeBuilder {
     private int processingTime = 100;
 
     @Override
-    public @NotNull CreateCrushingRecipeBuilder unlockedBy(@NotNull String name, @NotNull CriterionTriggerInstance trigger) {
+    public @NotNull CreateCrushingRecipeBuilder unlockedBy(@NotNull String name, @NotNull Criterion<?> trigger) {
         return this;
     }
 
@@ -48,10 +45,6 @@ public class CreateCrushingRecipeBuilder implements RecipeBuilder {
 
     public CreateCrushingRecipeBuilder withInput(ItemLike item) {
         return withInput(Ingredient.of(item));
-    }
-
-    public CreateCrushingRecipeBuilder withInput(ItemStack stack) {
-        return withInput(Ingredient.of(stack));
     }
 
     public CreateCrushingRecipeBuilder withInput(Ingredient ingredient) {
@@ -98,66 +91,14 @@ public class CreateCrushingRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public @NotNull Item getResult() {
-        return Items.AIR; // Irrelevant, we implement serialization ourselves
+    public ResourceKey<Recipe<?>> defaultId() {
+        return ResourceKey.create(Registries.RECIPE,
+            Identifier.fromNamespaceAndPath("create", "crushing/compat"));
     }
 
+    // 26.1 no longer has FinishedRecipe, so datagen can only emit vanilla Recipe objects. Create's
+    // processing recipes are not representable that way, so these compat recipes are not written.
     @Override
-    public void save(@NotNull Consumer<FinishedRecipe> consumer, @NotNull ResourceLocation resourceLocation) {
-        consumer.accept(new CrushingRecipe(resourceLocation));
+    public void save(RecipeOutput output, ResourceKey<Recipe<?>> id) {
     }
-
-    public class CrushingRecipe implements FinishedRecipe {
-
-        private final ResourceLocation id;
-
-        public CrushingRecipe(ResourceLocation id) {
-            this.id = id;
-        }
-
-        @Override
-        public void serializeRecipeData(@NotNull JsonObject json) {
-            json.addProperty("type", "create:crushing");
-
-            if (!group.isEmpty()) {
-                json.addProperty("group", group);
-            }
-
-            JsonArray jsonIngredients = new JsonArray();
-            JsonArray jsonOutputs = new JsonArray();
-
-            jsonIngredients.add(input.toJson());
-
-            results.forEach(o -> jsonOutputs.add(o.serialize()));
-
-            json.add("ingredients", jsonIngredients);
-            json.add("results", jsonOutputs);
-
-            int processingDuration = processingTime;
-            if (processingDuration > 0) {
-                json.addProperty("processingTime", processingDuration);
-            }
-        }
-
-        @Override
-        public @NotNull ResourceLocation getId() {
-            return id;
-        }
-
-        @Override
-        public @NotNull RecipeSerializer<?> getType() {
-            return RecipeSerializer.SHAPELESS_RECIPE; // Irrelevant, we implement serialization ourselves
-        }
-
-        @Override
-        public JsonObject serializeAdvancement() {
-            return null;
-        }
-
-        @Override
-        public ResourceLocation getAdvancementId() {
-            return null;
-        }
-    }
-
 }

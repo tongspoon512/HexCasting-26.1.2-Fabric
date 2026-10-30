@@ -1,6 +1,7 @@
 package at.petrak.hexcasting.fabric.datagen;
 
 import at.petrak.hexcasting.api.HexAPI;
+import at.petrak.hexcasting.datagen.HexAdvancements;
 import at.petrak.hexcasting.datagen.HexLootTables;
 import at.petrak.hexcasting.datagen.IXplatIngredients;
 import at.petrak.hexcasting.datagen.recipe.HexplatRecipes;
@@ -8,23 +9,25 @@ import at.petrak.hexcasting.datagen.recipe.builders.FarmersDelightToolIngredient
 import at.petrak.hexcasting.datagen.tag.HexActionTagProvider;
 import at.petrak.hexcasting.datagen.tag.HexBlockTagProvider;
 import at.petrak.hexcasting.datagen.tag.HexItemTagProvider;
-import at.petrak.hexcasting.fabric.recipe.FabricModConditionalIngredient;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import com.google.gson.JsonObject;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
-import net.minecraft.core.registries.Registries;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.advancements.AdvancementProvider;
 import net.minecraft.data.loot.LootTableProvider;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.*;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public class HexFabricDataGenerators implements DataGeneratorEntrypoint {
     @Override
@@ -34,7 +37,18 @@ public class HexFabricDataGenerators implements DataGeneratorEntrypoint {
         var pack = gen.createPack();
         var xtags = IXplatAbstractions.INSTANCE.tags();
 
-        pack.addProvider((FabricDataGenerator.Pack.Factory<HexplatRecipes>) x -> new HexplatRecipes(x, INGREDIENTS, HexFabricConditionsBuilder::new));
+        pack.addProvider((FabricDataGenerator.Pack.RegistryDependentFactory<FabricRecipeProvider>)
+            (output, registries) -> new FabricRecipeProvider(output, registries) {
+                @Override
+                protected RecipeProvider createRecipeProvider(HolderLookup.Provider provider, RecipeOutput recipeOutput) {
+                    return new HexplatRecipes(provider, recipeOutput, INGREDIENTS, HexFabricConditionsBuilder::new);
+                }
+
+                @Override
+                public String getName() {
+                    return "Hexcasting Recipes";
+                }
+            });
 
         var btagProviderWrapper = new BlockTagProviderWrapper(); // CURSED
         pack.addProvider((output, lookup) -> {
@@ -44,10 +58,16 @@ public class HexFabricDataGenerators implements DataGeneratorEntrypoint {
         pack.addProvider((output, lookup) -> new HexItemTagProvider(output, lookup, btagProviderWrapper.provider, xtags));
 
         pack.addProvider(HexActionTagProvider::new);
+        pack.addProvider((FabricDataGenerator.Pack.Factory<HexItemModelDefinitionProvider>)
+            HexItemModelDefinitionProvider::new);
 
-        pack.addProvider((FabricDataGenerator.Pack.Factory<LootTableProvider>) (output) -> new LootTableProvider(
-                output, Set.of(), List.of(new LootTableProvider.SubProviderEntry(HexLootTables::new, LootContextParamSets.ALL_PARAMS))
-        ));
+        pack.addProvider((output, lookup) ->
+            new AdvancementProvider(output, lookup, List.of(new HexAdvancements())));
+
+        pack.addProvider((FabricDataGenerator.Pack.RegistryDependentFactory<LootTableProvider>) (output, registries) ->
+            new LootTableProvider(output, Set.of(),
+                List.of(new LootTableProvider.SubProviderEntry(HexLootTables::new, LootContextParamSets.ALL_PARAMS)),
+                registries));
     }
 
     private static class BlockTagProviderWrapper {
@@ -55,12 +75,10 @@ public class HexFabricDataGenerators implements DataGeneratorEntrypoint {
     }
 
     private static final IXplatIngredients INGREDIENTS = new IXplatIngredients() {
+        // 26.1: Ingredient is a final HolderSet-backed type, so the old item+tag unions collapse to the vanilla item.
         @Override
         public Ingredient glowstoneDust() {
-            return new Ingredient(Stream.of(
-                new Ingredient.ItemValue(new ItemStack(Items.GLOWSTONE_DUST)),
-                new Ingredient.TagValue(tag("glowstone_dusts"))
-            ));
+            return Ingredient.of(Items.GLOWSTONE_DUST);
         }
 
         @Override
@@ -71,72 +89,46 @@ public class HexFabricDataGenerators implements DataGeneratorEntrypoint {
 
         @Override
         public Ingredient ironNugget() {
-            return new Ingredient(Stream.of(
-                new Ingredient.ItemValue(new ItemStack(Items.IRON_NUGGET)),
-                new Ingredient.TagValue(tag("iron_nuggets"))
-            ));
+            return Ingredient.of(Items.IRON_NUGGET);
         }
 
         @Override
         public Ingredient goldNugget() {
-            return new Ingredient(Stream.of(
-                new Ingredient.ItemValue(new ItemStack(Items.GOLD_NUGGET)),
-                new Ingredient.TagValue(tag("gold_nuggets"))
-            ));
+            return Ingredient.of(Items.GOLD_NUGGET);
         }
 
         @Override
         public Ingredient copperIngot() {
-            return new Ingredient(Stream.of(
-                new Ingredient.ItemValue(new ItemStack(Items.COPPER_INGOT)),
-                new Ingredient.TagValue(tag("copper_ingots"))
-            ));
+            return Ingredient.of(Items.COPPER_INGOT);
         }
 
         @Override
         public Ingredient ironIngot() {
-            return new Ingredient(Stream.of(
-                new Ingredient.ItemValue(new ItemStack(Items.IRON_INGOT)),
-                new Ingredient.TagValue(tag("iron_ingots"))
-            ));
+            return Ingredient.of(Items.IRON_INGOT);
         }
 
         @Override
         public Ingredient goldIngot() {
-            return new Ingredient(Stream.of(
-                new Ingredient.ItemValue(new ItemStack(Items.GOLD_INGOT)),
-                new Ingredient.TagValue(tag("gold_ingots"))
-            ));
+            return Ingredient.of(Items.GOLD_INGOT);
         }
 
         @Override
         public EnumMap<DyeColor, Ingredient> dyes() {
             var out = new EnumMap<DyeColor, Ingredient>(DyeColor.class);
             for (var col : DyeColor.values()) {
-                out.put(col, new Ingredient(Stream.of(
-                    new Ingredient.ItemValue(new ItemStack(DyeItem.byColor(col))),
-                    new Ingredient.TagValue(
-                        TagKey.create(Registries.ITEM,
-                            new ResourceLocation("c", col.getSerializedName() + "_dye"))),
-                    new Ingredient.TagValue(
-                        TagKey.create(Registries.ITEM,
-                            new ResourceLocation("c", col.getSerializedName() + "_dyes"))
-                    ))));
+                out.put(col, Ingredient.of(dyeItem(col)));
             }
             return out;
         }
 
         @Override
         public Ingredient stick() {
-            return new Ingredient(Stream.of(
-                new Ingredient.ItemValue(new ItemStack(Items.STICK)),
-                new Ingredient.TagValue(tag("wood_sticks"))
-            ));
+            return Ingredient.of(Items.STICK);
         }
 
         @Override
         public Ingredient whenModIngredient(Ingredient defaultIngredient, String modid, Ingredient modIngredient) {
-            return FabricModConditionalIngredient.of(defaultIngredient, modid, modIngredient);
+            return IXplatAbstractions.INSTANCE.isModPresent(modid) ? modIngredient : defaultIngredient;
         }
 
         private final FarmersDelightToolIngredient AXE_INGREDIENT = () -> {
@@ -157,11 +149,24 @@ public class HexFabricDataGenerators implements DataGeneratorEntrypoint {
         }
     };
 
-    private static TagKey<Item> tag(String s) {
-        return tag("c", s);
-    }
-
-    private static TagKey<Item> tag(String namespace, String s) {
-        return TagKey.create(Registries.ITEM, new ResourceLocation(namespace, s));
+    private static Item dyeItem(DyeColor color) {
+        return switch (color) {
+            case WHITE -> Items.WHITE_DYE;
+            case ORANGE -> Items.ORANGE_DYE;
+            case MAGENTA -> Items.MAGENTA_DYE;
+            case LIGHT_BLUE -> Items.LIGHT_BLUE_DYE;
+            case YELLOW -> Items.YELLOW_DYE;
+            case LIME -> Items.LIME_DYE;
+            case PINK -> Items.PINK_DYE;
+            case GRAY -> Items.GRAY_DYE;
+            case LIGHT_GRAY -> Items.LIGHT_GRAY_DYE;
+            case CYAN -> Items.CYAN_DYE;
+            case PURPLE -> Items.PURPLE_DYE;
+            case BLUE -> Items.BLUE_DYE;
+            case BROWN -> Items.BROWN_DYE;
+            case GREEN -> Items.GREEN_DYE;
+            case RED -> Items.RED_DYE;
+            case BLACK -> Items.BLACK_DYE;
+        };
     }
 }

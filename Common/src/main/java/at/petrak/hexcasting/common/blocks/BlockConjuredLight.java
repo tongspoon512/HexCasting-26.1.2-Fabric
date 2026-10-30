@@ -9,7 +9,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -42,7 +44,7 @@ public class BlockConjuredLight extends BlockConjured implements SimpleWaterlogg
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, @Nonnull BlockGetter reader, @Nonnull BlockPos pos) {
+    public boolean propagatesSkylightDown(BlockState state) {
         return !state.getValue(WATERLOGGED);
     }
 
@@ -61,13 +63,14 @@ public class BlockConjuredLight extends BlockConjured implements SimpleWaterlogg
 
     @Nonnull
     @Override
-    public BlockState updateShape(BlockState state, @Nonnull Direction facing, @Nonnull BlockState facingState,
-        @Nonnull LevelAccessor level, @Nonnull BlockPos pos, @Nonnull BlockPos facingPos) {
+    public BlockState updateShape(BlockState state, @Nonnull LevelReader level, @Nonnull ScheduledTickAccess ticks,
+        @Nonnull BlockPos pos, @Nonnull Direction facing, @Nonnull BlockPos facingPos,
+        @Nonnull BlockState facingState, @Nonnull RandomSource random) {
         if (state.getValue(WATERLOGGED)) {
-            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
 
-        return super.updateShape(state, facing, facingState, level, pos, facingPos);
+        return super.updateShape(state, level, ticks, pos, facing, facingPos, facingState, random);
     }
 
     @Override

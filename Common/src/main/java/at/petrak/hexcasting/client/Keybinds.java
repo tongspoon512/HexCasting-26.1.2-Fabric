@@ -2,22 +2,25 @@ package at.petrak.hexcasting.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
 public class Keybinds {
     public static final String CATEGORY = "category.hexcasting.binds";
+    public static final KeyMapping.Category CATEGORY_OBJ =
+        KeyMapping.Category.register(Identifier.fromNamespaceAndPath("hexcasting", "binds"));
 
     public static KeyMapping spellbookPrev = new KeyMapping(
             "key.hexcasting.spellbook_prev",
             InputConstants.UNKNOWN.getValue(),
-            CATEGORY
+            CATEGORY_OBJ
     );
 
     public static KeyMapping spellbookNext = new KeyMapping(
             "key.hexcasting.spellbook_next",
             InputConstants.UNKNOWN.getValue(),
-            CATEGORY
+            CATEGORY_OBJ
     );
 
     public static List<KeyMapping> ALL_BINDS = List.of(spellbookPrev, spellbookNext);

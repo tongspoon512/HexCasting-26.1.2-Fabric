@@ -6,8 +6,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +31,7 @@ public class ItemAncientCypher extends ItemCypher {
 
     @Override
     public Component getName(ItemStack pStack) {
-        var descID = this.getDescriptionId(pStack);
+        var descID = this.getDescriptionId();
         var hexName = NBTHelper.getString(pStack, TAG_HEX_NAME);
         if (hexName != null) {
             return Component.translatable(descID + ".preset", Component.translatable(hexName));
@@ -39,10 +41,10 @@ public class ItemAncientCypher extends ItemCypher {
     }
 
     @Override
-    public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents,
-        TooltipFlag pIsAdvanced) {
+    public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, TooltipDisplay pDisplay,
+        java.util.function.Consumer<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         // display media fullness as usual
-        super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
+        super.appendHoverText(pStack, pContext, pDisplay, pTooltipComponents, pIsAdvanced);
 
         // also show contained spell
         var patternsTag = NBTHelper.getList(pStack, TAG_PATTERNS, Tag.TAG_COMPOUND);
@@ -53,7 +55,7 @@ public class ItemAncientCypher extends ItemCypher {
                 var iotaComponent = IotaType.getDisplay(iotaTagC).copy();
                 storedHex.append(iotaComponent.withStyle(ChatFormatting.DARK_PURPLE));
             }
-            pTooltipComponents.add(storedHex);
+            pTooltipComponents.accept(storedHex);
         }
     }
 }

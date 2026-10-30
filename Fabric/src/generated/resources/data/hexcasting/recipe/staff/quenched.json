@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "S": "minecraft:stick",
+    "W": "hexcasting:quenched_allay_shard"
+  },
+  "pattern": [
+    " SA",
+    " WS",
+    "S  "
+  ],
+  "result": {
+    "id": "hexcasting:staff/quenched"
+  }
+}

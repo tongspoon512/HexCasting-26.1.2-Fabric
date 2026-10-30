@@ -6,16 +6,16 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import at.petrak.hexcasting.xplat.Platform;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.data.tags.KeyTagProvider;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 
 import java.util.concurrent.CompletableFuture;
 
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
-public class HexActionTagProvider extends TagsProvider<ActionRegistryEntry> {
+public class HexActionTagProvider extends KeyTagProvider<ActionRegistryEntry> {
     public HexActionTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider) {
         super(output, IXplatAbstractions.INSTANCE.getActionRegistry().key(), provider);
     }
@@ -43,7 +43,7 @@ public class HexActionTagProvider extends TagsProvider<ActionRegistryEntry> {
             // instead of `.../tags/hexcasting/action`.
             // So we pull this bullshit
             var fakeKey = ResourceKey.<ActionRegistryEntry>createRegistryKey(
-                new ResourceLocation("foobar", "hexcasting/tags/action"));
+                Identifier.fromNamespaceAndPath("foobar", "hexcasting/tags/action"));
             return TagKey.create(fakeKey, real.location());
         } else {
             return real;

@@ -1,7 +1,6 @@
 package at.petrak.hexcasting.fabric.mixin.client;
 
 import at.petrak.hexcasting.client.particles.ConjureParticle;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleRenderType;
 import org.spongepowered.asm.mixin.Final;
@@ -12,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(ParticleEngine.class)
@@ -23,8 +23,11 @@ public class FabricParticleEngineMixin {
 
     @Inject(at = @At("RETURN"), method = "<clinit>")
     private static void addTypes(CallbackInfo ci) {
-        RENDER_ORDER = ImmutableList.<ParticleRenderType>builder().addAll(RENDER_ORDER)
-            .add(ConjureParticle.CONJURE_RENDER_TYPE, ConjureParticle.CONJURE_RENDER_TYPE)
-            .build();
+        // Fabric API turns RENDER_ORDER into a mutable ArrayList at the same injection point and
+        // sorts it in place later, so keep the list mutable instead of wrapping it in an
+        // ImmutableList.
+        var order = new ArrayList<ParticleRenderType>(RENDER_ORDER);
+        order.add(ConjureParticle.CONJURE_RENDER_TYPE);
+        RENDER_ORDER = order;
     }
 }

@@ -1,0 +1,12 @@
+{
+  "hexdoc.hexcasting.title": "Heksonomikon",
+  "hexdoc.pattern.show": "Kliknij, aby pokazać zaklęcie",
+  "hexdoc.pattern.hide": "Kliknij, aby ukryć zaklęcie",
+  "hexdoc.pattern.multiplier": "${speedScale()}x",
+  "hexdoc.villager_requirements.professional": "Osadnik musi być {level} {profession}, lub wyżej",
+  "hexdoc.villager_requirements.any": "Osadnik musi być {level}, lub wyżej",
+  "block.hexcasting.slate": "Gładka płyta",
+  "tag.item.c.brown_dye": "Brązowe Barwniki",
+  "tag.item.c.glowstone_dusts": "Jasnopył",
+  "tag.item.c.wood_sticks": "Drewniane Patyki"
+}

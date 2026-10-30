@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class BlockEntityLookingImpetus extends BlockEntityAbstractImpetus {
     public static final int MAX_LOOK_AMOUNT = 30;
@@ -36,7 +37,8 @@ public class BlockEntityLookingImpetus extends BlockEntityAbstractImpetus {
         int prevLookAmt = self.lookAmount;
         int range = 20;
         var players = level.getEntitiesOfClass(ServerPlayer.class,
-            new AABB(pos.offset(-range, -range, -range), pos.offset(range, range, range)));
+            new AABB(Vec3.atLowerCornerOf(pos.offset(-range, -range, -range)),
+                Vec3.atLowerCornerOf(pos.offset(range, range, range))));
 
         ServerPlayer looker = null;
         for (var player : players) {
@@ -92,6 +94,6 @@ public class BlockEntityLookingImpetus extends BlockEntityAbstractImpetus {
     @Override
     protected void loadModData(CompoundTag tag) {
         super.loadModData(tag);
-        this.lookAmount = tag.getInt(TAG_LOOK_AMOUNT);
+        this.lookAmount = tag.getIntOr(TAG_LOOK_AMOUNT, 0);
     }
 }

@@ -1,7 +1,7 @@
 package at.petrak.hexcasting.mixin;
 
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
-import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.item.trading.MerchantOffers;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

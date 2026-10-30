@@ -10,23 +10,16 @@ import com.google.common.base.Suppliers;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -55,18 +48,18 @@ public interface HexAPI {
      * Special handlers should be calling {@link SpecialHandler#getName()}
      */
     default String getActionI18nKey(ResourceKey<ActionRegistryEntry> action) {
-        return "hexcasting.action.%s".formatted(action.location().toString());
+        return "hexcasting.action.%s".formatted(action.identifier().toString());
     }
 
     default String getSpecialHandlerI18nKey(ResourceKey<SpecialHandler.Factory<?>> action) {
-        return "hexcasting.special.%s".formatted(action.location().toString());
+        return "hexcasting.special.%s".formatted(action.identifier().toString());
     }
 
     /**
      * @deprecated Used to translate the names of patterns outside the standard Action system, none of which exist anymore.
      */
     @Deprecated(since = "0.11.4")
-    default String getRawHookI18nKey(ResourceLocation name) {
+    default String getRawHookI18nKey(Identifier name) {
         return "hexcasting.rawhook.%s".formatted(name);
     }
 
@@ -84,7 +77,7 @@ public interface HexAPI {
      * @deprecated Used to translate the names of patterns outside the standard Action system, none of which exist anymore.
      */
     @Deprecated(since = "0.11.4")
-    default Component getRawHookI18n(ResourceLocation name) {
+    default Component getRawHookI18n(Identifier name) {
         return Component.translatable(getRawHookI18nKey(name)).withStyle(ChatFormatting.LIGHT_PURPLE);
     }
 
@@ -177,54 +170,6 @@ public interface HexAPI {
         return FrozenPigment.DEFAULT.get();
     }
 
-    ArmorMaterial DUMMY_ARMOR_MATERIAL = new ArmorMaterial() {
-        @Override
-        public int getDurabilityForType(ArmorItem.Type type) {
-            return 0;
-        }
-
-        @Override
-        public int getDefenseForType(ArmorItem.Type type) {
-            return 0;
-        }
-
-        @Override
-        public int getEnchantmentValue() {
-            return 0;
-        }
-
-        @NotNull
-        @Override
-        public SoundEvent getEquipSound() {
-            return SoundEvents.ARMOR_EQUIP_LEATHER;
-        }
-
-        @NotNull
-        @Override
-        public Ingredient getRepairIngredient() {
-            return Ingredient.EMPTY;
-        }
-
-        @Override
-        public String getName() {
-            return "missingno";
-        }
-
-        @Override
-        public float getToughness() {
-            return 0;
-        }
-
-        @Override
-        public float getKnockbackResistance() {
-            return 0;
-        }
-    };
-
-    default ArmorMaterial robesMaterial() {
-        return DUMMY_ARMOR_MATERIAL;
-    }
-
     /**
      * Location in the userdata of the ravenmind
      */
@@ -240,7 +185,7 @@ public interface HexAPI {
         return INSTANCE.get();
     }
 
-    static ResourceLocation modLoc(String s) {
-        return new ResourceLocation(MOD_ID, s);
+    static Identifier modLoc(String s) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, s);
     }
 }

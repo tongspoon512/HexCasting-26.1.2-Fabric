@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class PlayerBasedMishapEnv extends MishapEnvironment {
     public PlayerBasedMishapEnv(ServerPlayer player) {
-        super(player.serverLevel(), player);
+        super(player.level(), player);
     }
 
     @Override

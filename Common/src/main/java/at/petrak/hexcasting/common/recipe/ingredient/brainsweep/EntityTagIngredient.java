@@ -10,7 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
@@ -31,10 +31,10 @@ public class EntityTagIngredient extends BrainsweepeeIngredient {
 
     @Override
     public boolean test(Entity entity, ServerLevel level) {
-        return entity.getType().is(this.entityTypeTag);
+        return entity.getType().builtInRegistryHolder().is(this.entityTypeTag);
     }
 
-    private static String tagKey(ResourceLocation tagLoc) {
+    private static String tagKey(Identifier tagLoc) {
         return "tag."
             + tagLoc.getNamespace()
             + "."
@@ -52,7 +52,7 @@ public class EntityTagIngredient extends BrainsweepeeIngredient {
 
     @Override
     public List<Component> getTooltip(boolean advanced) {
-        ResourceLocation loc = this.entityTypeTag.location();
+        Identifier loc = this.entityTypeTag.location();
         String key = tagKey(loc);
         boolean moddersDidAGoodJob = I18n.exists(key);
 
@@ -72,13 +72,12 @@ public class EntityTagIngredient extends BrainsweepeeIngredient {
 
     @Override
     public List<Entity> exampleEntities(Level level) {
-        var someEntityTysHolder = BuiltInRegistries.ENTITY_TYPE.getTag(this.entityTypeTag);
-        if (someEntityTysHolder.isEmpty()) return List.of();
-        var someEntityTys = someEntityTysHolder.get();
-
-        return someEntityTys.stream()
-                .map(someTy -> getCachedExampleEntity(someTy.value(), level))
-                .toList();
+        var someEntityTysHolder = BuiltInRegistries.ENTITY_TYPE.getTagOrEmpty(this.entityTypeTag);
+        var out = new ArrayList<Entity>();
+        for (var holder : someEntityTysHolder) {
+            out.add(getCachedExampleEntity(holder.value(), level));
+        }
+        return out;
     }
 
     @Override
@@ -93,11 +92,11 @@ public class EntityTagIngredient extends BrainsweepeeIngredient {
 
     @Override
     public void write(FriendlyByteBuf buf) {
-        buf.writeResourceLocation(this.entityTypeTag.location());
+        buf.writeIdentifier(this.entityTypeTag.location());
     }
 
     public static EntityTagIngredient deserialize(JsonObject obj) {
-        var tagLoc = ResourceLocation.tryParse(GsonHelper.getAsString(obj, "tag"));
+        var tagLoc = Identifier.tryParse(GsonHelper.getAsString(obj, "tag"));
         if (tagLoc == null) {
             throw new IllegalArgumentException("unknown tag " + obj);
         }
@@ -106,7 +105,7 @@ public class EntityTagIngredient extends BrainsweepeeIngredient {
     }
 
     public static EntityTagIngredient read(FriendlyByteBuf buf) {
-        var typeLoc = buf.readResourceLocation();
+        var typeLoc = buf.readIdentifier();
         var type = TagKey.create(Registries.ENTITY_TYPE, typeLoc);
         return new EntityTagIngredient(type);
     }

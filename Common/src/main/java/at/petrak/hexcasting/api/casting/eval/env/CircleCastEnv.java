@@ -16,7 +16,7 @@ import at.petrak.hexcasting.api.pigment.FrozenPigment;
 import at.petrak.hexcasting.common.lib.HexAttributes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -69,7 +69,7 @@ public class CircleCastEnv extends CastingEnvironment {
     public void precheckAction(PatternShapeMatch match) throws Mishap {
         super.precheckAction(match);
 
-        ResourceLocation key = actionKey(match);
+        Identifier key = actionKey(match);
 
         if (!HexConfig.server().isActionAllowedInCircles(key)) {
             throw new MishapDisallowedSpell("disallowed_circle", key);
@@ -132,7 +132,7 @@ public class CircleCastEnv extends CastingEnvironment {
     public boolean isVecInRangeEnvironment(Vec3 vec) {
         var caster = this.execState.getCaster(this.world);
         if (caster != null) {
-            double sentinelRadius = caster.getAttributeValue(HexAttributes.SENTINEL_RADIUS);
+            double sentinelRadius = caster.getAttributeValue(HexAttributes.holder(HexAttributes.SENTINEL_RADIUS));
             if (vec.distanceToSqr(caster.position()) <= caster.getBbHeight() * caster.getBbHeight()) {
                 return true;
             }

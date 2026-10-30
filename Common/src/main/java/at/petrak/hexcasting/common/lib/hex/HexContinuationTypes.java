@@ -7,7 +7,7 @@ import at.petrak.hexcasting.api.casting.eval.vm.FrameFinishEval;
 import at.petrak.hexcasting.api.casting.eval.vm.FrameForEach;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.LinkedHashMap;
@@ -27,13 +27,13 @@ public class HexContinuationTypes {
             KEY_TYPE = HexAPI.MOD_ID + ":type",
             KEY_DATA = HexAPI.MOD_ID + ":data";
 
-    public static void registerContinuations(BiConsumer<ContinuationFrame.Type<?>, ResourceLocation> r) {
+    public static void registerContinuations(BiConsumer<ContinuationFrame.Type<?>, Identifier> r) {
         for (var e : CONTINUATIONS.entrySet()) {
             r.accept(e.getValue(), e.getKey());
         }
     }
 
-    private static final Map<ResourceLocation, ContinuationFrame.Type<?>> CONTINUATIONS = new LinkedHashMap<>();
+    private static final Map<Identifier, ContinuationFrame.Type<?>> CONTINUATIONS = new LinkedHashMap<>();
 
     public static final ContinuationFrame.Type<FrameEvaluate> EVALUATE = continuation("evaluate", FrameEvaluate.TYPE);
     public static final ContinuationFrame.Type<FrameForEach> FOREACH = continuation("foreach", FrameForEach.TYPE);

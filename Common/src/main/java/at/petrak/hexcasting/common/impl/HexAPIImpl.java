@@ -6,23 +6,16 @@ import at.petrak.hexcasting.api.pigment.FrozenPigment;
 import at.petrak.hexcasting.api.player.Sentinel;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ShulkerBullet;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -113,55 +106,5 @@ public class HexAPIImpl implements HexAPI {
     @Override
     public FrozenPigment getColorizer(Player player) {
         return IXplatAbstractions.INSTANCE.getPigment(player);
-    }
-
-    ArmorMaterial ARMOR_MATERIAL = new ArmorMaterial() {
-
-        @Override
-        public int getDurabilityForType(ArmorItem.Type type) {
-            return 0;
-        }
-
-        @Override
-        public int getDefenseForType(ArmorItem.Type type) {
-            return 0;
-        }
-
-        @Override
-        public int getEnchantmentValue() {
-            return 0;
-        }
-
-        @NotNull
-        @Override
-        public SoundEvent getEquipSound() {
-            return SoundEvents.ARMOR_EQUIP_LEATHER;
-        }
-
-        @NotNull
-        @Override
-        public Ingredient getRepairIngredient() {
-            return Ingredient.EMPTY;
-        }
-
-        @Override
-        public String getName() {
-            return "robes";
-        }
-
-        @Override
-        public float getToughness() {
-            return 0;
-        }
-
-        @Override
-        public float getKnockbackResistance() {
-            return 0;
-        }
-    };
-
-    @Override
-    public ArmorMaterial robesMaterial() {
-        return ARMOR_MATERIAL;
     }
 }

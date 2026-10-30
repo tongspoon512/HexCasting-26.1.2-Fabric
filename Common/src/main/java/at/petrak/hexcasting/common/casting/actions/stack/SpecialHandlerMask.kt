@@ -16,7 +16,7 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList
 import it.unimi.dsi.fastutil.booleans.BooleanList
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 class SpecialHandlerMask(val mask: BooleanList) : SpecialHandler {
     override fun act(): Action {
@@ -83,6 +83,6 @@ class SpecialHandlerMask(val mask: BooleanList) : SpecialHandler {
     }
 
     companion object {
-        public val NAME: ResourceLocation = modLoc("mask")
+        public val NAME: Identifier = modLoc("mask")
     }
 }

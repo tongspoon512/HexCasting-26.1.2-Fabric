@@ -2,7 +2,7 @@ package at.petrak.hexcasting.interop.patchouli;
 
 import com.google.gson.annotations.SerializedName;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import vazkii.patchouli.api.IComponentRenderContext;
 import vazkii.patchouli.api.ICustomComponent;
@@ -34,7 +34,7 @@ public class CustomComponentTooltip implements ICustomComponent {
     }
 
     @Override
-    public void render(GuiGraphics graphics, IComponentRenderContext context, float pticks, int mouseX, int mouseY) {
+    public void render(GuiGraphicsExtractor graphics, IComponentRenderContext context, float pticks, int mouseX, int mouseY) {
         if (context.isAreaHovered(mouseX, mouseY, x, y, width, height)) {
             context.setHoverTooltipComponents(tooltip);
         }

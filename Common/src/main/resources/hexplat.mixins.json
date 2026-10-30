@@ -1,12 +1,12 @@
 {
   "minVersion": "0.8",
   "required": true,
-  "compatibilityLevel": "JAVA_17",
-  "refmap": "hexcasting.mixins.refmap.json",
+  "compatibilityLevel": "JAVA_25",
   "package": "at.petrak.hexcasting.mixin",
   "mixins": [
     "MixinAbstractVillager",
     "MixinMob",
+    "MixinPotionBrewing",
     "MixinRaider",
     "MixinVillager",
     "MixinWanderingTrader",
@@ -15,19 +15,19 @@
     "accessor.AccessorEntity",
     "accessor.AccessorLivingEntity",
     "accessor.AccessorLootTable",
-    "accessor.AccessorPotionBrewing",
     "accessor.AccessorUseOnContext",
-    "accessor.AccessorVillager",
-    "accessor.CriteriaTriggersAccessor"
+    "accessor.AccessorVillager"
   ],
   "client": [
     "accessor.client.AccessorBlockEntityRenderDispatcher",
-    "accessor.client.AccessorCompositeRenderType",
-    "accessor.client.AccessorEmptyTextureStateShard",
+    "accessor.client.AccessorGuiGraphicsExtractor",
+    "accessor.client.AccessorLivingEntityRenderer",
     "accessor.client.AccessorMouseHandler",
-    "accessor.client.AccessorRenderStateShard",
-    "accessor.client.AccessorRenderType",
+    "accessor.client.AccessorScrollWheelHandler",
+    "client.MixinAvatarRenderer",
+    "client.MixinAvatarRenderState",
     "client.MixinClientLevel",
-    "client.MixinPlayerRenderer"
+    "client.MixinFontInline",
+    "client.MixinGuiTextRenderStateInline"
   ]
 }

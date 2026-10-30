@@ -6,7 +6,7 @@ import dev.emi.emi.api.render.EmiRender;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.screen.tooltip.IngredientTooltipComponent;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import org.apache.commons.compress.utils.Lists;
 
@@ -69,7 +69,7 @@ public class MediaEmiStack implements EmiIngredient{
 
     // Taken from ListEmiIngredient
     @Override
-    public void render(GuiGraphics draw, int x, int y, float delta, int flags){
+    public void render(GuiGraphicsExtractor draw, int x, int y, float delta, int flags){
         int item = (int) (System.currentTimeMillis() / 1000 % ingredients.size());
         EmiIngredient current = ingredients.get(item);
         if ((flags & RENDER_ICON) != 0) {

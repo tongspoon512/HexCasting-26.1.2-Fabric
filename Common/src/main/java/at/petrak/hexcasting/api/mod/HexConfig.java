@@ -3,9 +3,8 @@ package at.petrak.hexcasting.api.mod;
 import at.petrak.hexcasting.api.HexAPI;
 import at.petrak.hexcasting.api.misc.MediaConstants;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.Tiers;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
@@ -57,11 +56,20 @@ public class HexConfig {
       
         boolean staticActiveSlates();
 
+        /**
+         * Multiplier on the distance between adjacent hex grid dots in the spellcasting screen.
+         * 1.0 is the vanilla sizing; larger values spread the grid out, smaller values tighten it.
+         */
+        default double gridSpacing() {
+            return DEFAULT_GRID_SPACING;
+        }
+
         boolean DEFAULT_CTRL_TOGGLES_OFF_STROKE_ORDER = false;
         boolean DEFAULT_DISABLE_INWORLD_SCROLLING = false;
         boolean DEFAULT_INVERT_SPELLBOOK_SCROLL = false;
         boolean DEFAULT_INVERT_ABACUS_SCROLL = false;
         double DEFAULT_GRID_SNAP_THRESHOLD = 0.5;
+        double DEFAULT_GRID_SPACING = 1.25;
         boolean DEFAULT_CLICKING_TOGGLES_DRAWING = false;
         boolean DEFAULT_ALWAYS_SHOW_LIST_COMMAS = false;
         boolean DEFAULT_ADVANCED_TOOLTIPS_SHOWS_IOTA_NBT = false;
@@ -75,11 +83,11 @@ public class HexConfig {
 
         int maxSpellCircleLength();
 
-        boolean isActionAllowed(ResourceLocation actionID);
+        boolean isActionAllowed(Identifier actionID);
 
-        boolean isActionAllowedInCircles(ResourceLocation actionID);
+        boolean isActionAllowedInCircles(Identifier actionID);
 
-        double getActionCostScaling(ResourceLocation actionID);
+        double getActionCostScaling(Identifier actionID);
 
         double globalCostScaling();
 
@@ -108,23 +116,60 @@ public class HexConfig {
 
         boolean DEFAULT_TRUE_NAME_HAS_AMBIT = true;
 
-        default Tier opBreakHarvestLevel() {
+        // --- HexDebug personal media pool ---
+        boolean DEFAULT_PERSONAL_MEDIA_POOL = true;
+        int DEFAULT_PERSONAL_MEDIA_MAX = (int) (10 * MediaConstants.CRYSTAL_UNIT);
+        int DEFAULT_PERSONAL_MEDIA_REGEN_STEP = (int) MediaConstants.SHARD_UNIT;
+        int DEFAULT_PERSONAL_MEDIA_REGEN_INTERVAL = 20;
+        boolean DEFAULT_PERSONAL_MEDIA_AFTER_ENLIGHTENED = true;
+        boolean DEFAULT_ENABLES_MIND_ENV_ACTIONS = true;
+        boolean DEFAULT_BYPASSES_SILENCED_ENV_RESTRICTIONS = false;
+
+        default ToolMaterial opBreakHarvestLevel() {
             return switch (this.opBreakHarvestLevelBecauseForgeThoughtItWasAGoodIdeaToImplementHarvestTiersUsingAnHonestToGodTopoSort()) {
-                case 0 -> Tiers.WOOD;
-                case 1 -> Tiers.STONE;
-                case 2 -> Tiers.IRON;
-                case 3 -> Tiers.DIAMOND;
-                case 4 -> Tiers.NETHERITE;
+                case 0 -> ToolMaterial.WOOD;
+                case 1 -> ToolMaterial.STONE;
+                case 2 -> ToolMaterial.IRON;
+                case 3 -> ToolMaterial.DIAMOND;
+                case 4 -> ToolMaterial.NETHERITE;
                 default -> throw new RuntimeException("please only return a value in 0<=x<=4");
             };
+        }
+
+        default boolean personalMediaPool() {
+            return DEFAULT_PERSONAL_MEDIA_POOL;
+        }
+
+        default int personalMediaMax() {
+            return DEFAULT_PERSONAL_MEDIA_MAX;
+        }
+
+        default int personalMediaRegenStep() {
+            return DEFAULT_PERSONAL_MEDIA_REGEN_STEP;
+        }
+
+        default int personalMediaRegenInterval() {
+            return DEFAULT_PERSONAL_MEDIA_REGEN_INTERVAL;
+        }
+
+        default boolean personalMediaAfterEnlightened() {
+            return DEFAULT_PERSONAL_MEDIA_AFTER_ENLIGHTENED;
+        }
+
+        default boolean enablesMindEnvActions() {
+            return DEFAULT_ENABLES_MIND_ENV_ACTIONS;
+        }
+
+        default boolean bypassesSilencedEnvRestrictions() {
+            return DEFAULT_BYPASSES_SILENCED_ENV_RESTRICTIONS;
         }
     }
 
     // Simple extensions for resource location configs
-    public static boolean anyMatch(List<? extends String> keys, ResourceLocation key) {
+    public static boolean anyMatch(List<? extends String> keys, Identifier key) {
         for (String s : keys) {
-            if (ResourceLocation.isValidResourceLocation(s)) {
-                var rl = new ResourceLocation(s);
+            var rl = Identifier.tryParse(s);
+            if (rl != null) {
                 if (rl.equals(key)) {
                     return true;
                 }
@@ -133,11 +178,11 @@ public class HexConfig {
         return false;
     }
 
-    public static boolean noneMatch(List<? extends String> keys, ResourceLocation key) {
+    public static boolean noneMatch(List<? extends String> keys, Identifier key) {
         return !anyMatch(keys, key);
     }
 
-    public static boolean anyMatchResLoc(List<? extends ResourceLocation> keys, ResourceLocation key) {
+    public static boolean anyMatchResLoc(List<? extends Identifier> keys, Identifier key) {
         return keys.stream().anyMatch(key::equals);
     }
 

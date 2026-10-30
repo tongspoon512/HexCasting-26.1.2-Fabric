@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
@@ -99,9 +100,9 @@ public abstract class BrainsweepeeIngredient {
     private static Map<EntityType<?>, Entity> cachedExampleEntity = new HashMap<>();
     protected static Entity getCachedExampleEntity(EntityType<?> type, Level level) {
         // don't cache for server levels (if any) to prevent wrong side
-        if (!level.isClientSide) {
-            return type.create(level);
+        if (!level.isClientSide()) {
+            return type.create(level, EntitySpawnReason.COMMAND);
         }
-        return cachedExampleEntity.computeIfAbsent(type, t -> t.create(level));
+        return cachedExampleEntity.computeIfAbsent(type, t -> t.create(level, EntitySpawnReason.COMMAND));
     }
 }

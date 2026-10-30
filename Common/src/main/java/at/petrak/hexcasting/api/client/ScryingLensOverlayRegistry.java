@@ -7,7 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
  * Client-side only.
  */
 public final class ScryingLensOverlayRegistry {
-    private static final ConcurrentMap<ResourceLocation, OverlayBuilder> ID_LOOKUP = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Identifier, OverlayBuilder> ID_LOOKUP = new ConcurrentHashMap<>();
     // vectors are thread-safe!
     private static final List<Pair<OverlayPredicate, OverlayBuilder>> PREDICATE_LOOKUP = new Vector<>();
 
@@ -44,7 +44,7 @@ public final class ScryingLensOverlayRegistry {
      *
      * @throws IllegalArgumentException if the block ID is already registered.
      */
-    public static void addDisplayer(ResourceLocation blockID, OverlayBuilder displayer) {
+    public static void addDisplayer(Identifier blockID, OverlayBuilder displayer) {
         if (ID_LOOKUP.containsKey(blockID)) {
             throw new IllegalArgumentException("Already have a displayer for " + blockID);
         }

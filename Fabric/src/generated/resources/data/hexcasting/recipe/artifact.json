@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": "hexcasting:charged_amethyst",
+    "D": "#minecraft:creeper_drop_music_discs",
+    "F": "minecraft:gold_ingot"
+  },
+  "pattern": [
+    " F ",
+    "FAF",
+    " D "
+  ],
+  "result": {
+    "id": "hexcasting:artifact"
+  }
+}

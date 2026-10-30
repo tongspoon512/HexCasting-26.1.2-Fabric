@@ -6,7 +6,7 @@ import at.petrak.hexcasting.common.casting.arithmetic.*;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,20 +20,20 @@ public class HexArithmetics {
 
     public static ArithmeticEngine getEngine() {
         if (ENGINE == null) {
-            ENGINE = new ArithmeticEngine(REGISTRY.holders().map(Holder.Reference::value).collect(Collectors.toList()));
+            ENGINE = new ArithmeticEngine(REGISTRY.listElements().map(Holder.Reference::value).collect(Collectors.toList()));
         }
         return ENGINE;
     }
 
     public static final Registry<Arithmetic> REGISTRY = IXplatAbstractions.INSTANCE.getArithmeticRegistry();
 
-    public static void register(BiConsumer<Arithmetic, ResourceLocation> r) {
+    public static void register(BiConsumer<Arithmetic, Identifier> r) {
         for (var e : ARITHMETICS.entrySet()) {
             r.accept(e.getValue(), e.getKey());
         }
     }
 
-    private static final Map<ResourceLocation, Arithmetic> ARITHMETICS = new LinkedHashMap<>();
+    private static final Map<Identifier, Arithmetic> ARITHMETICS = new LinkedHashMap<>();
 
     public static DoubleArithmetic DOUBLE = make("double", DoubleArithmetic.INSTANCE);
     public static Vec3Arithmetic VEC3 = make("vec3", Vec3Arithmetic.INSTANCE);

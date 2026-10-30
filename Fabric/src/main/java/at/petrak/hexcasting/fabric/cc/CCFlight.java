@@ -1,13 +1,15 @@
 package at.petrak.hexcasting.fabric.cc;
 
 import at.petrak.hexcasting.api.player.FlightAbility;
-import at.petrak.hexcasting.api.utils.HexUtils;
-import dev.onyxstudios.cca.api.v3.component.Component;
+import org.ladysnake.cca.api.v3.component.Component;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class CCFlight implements Component {
@@ -17,6 +19,8 @@ public class CCFlight implements Component {
         TAG_DIMENSION = "dimension",
         TAG_ORIGIN = "origin",
         TAG_RADIUS = "radius";
+
+    private static final Codec<ResourceKey<Level>> DIMENSION_CODEC = ResourceKey.codec(Registries.DIMENSION);
 
     private final ServerPlayer owner;
     @Nullable
@@ -37,28 +41,27 @@ public class CCFlight implements Component {
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag) {
-        var allowed = tag.getBoolean(TAG_ALLOWED);
+    public void readData(ValueInput input) {
+        var allowed = input.getBooleanOr(TAG_ALLOWED, false);
         if (!allowed) {
             this.flight = null;
         } else {
-            var timeLeft = tag.getInt(TAG_TIME_LEFT);
-            var dim = ResourceKey.create(Registries.DIMENSION,
-                new ResourceLocation(tag.getString(TAG_DIMENSION)));
-            var origin = HexUtils.vecFromNBT(tag.getCompound(TAG_ORIGIN));
-            var radius = tag.getDouble(TAG_RADIUS);
+            var timeLeft = input.getIntOr(TAG_TIME_LEFT, 0);
+            var dim = input.read(TAG_DIMENSION, DIMENSION_CODEC).orElse(null);
+            var origin = input.read(TAG_ORIGIN, Vec3.CODEC).orElse(Vec3.ZERO);
+            var radius = input.getDoubleOr(TAG_RADIUS, 0);
             this.flight = new FlightAbility(timeLeft, dim, origin, radius);
         }
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag) {
-        tag.putBoolean(TAG_ALLOWED, this.flight != null);
+    public void writeData(ValueOutput output) {
+        output.putBoolean(TAG_ALLOWED, this.flight != null);
         if (this.flight != null) {
-            tag.putInt(TAG_TIME_LEFT, this.flight.timeLeft());
-            tag.putString(TAG_DIMENSION, this.flight.dimension().location().toString());
-            tag.put(TAG_ORIGIN, HexUtils.serializeToNBT(this.flight.origin()));
-            tag.putDouble(TAG_RADIUS, this.flight.radius());
+            output.putInt(TAG_TIME_LEFT, this.flight.timeLeft());
+            output.store(TAG_DIMENSION, DIMENSION_CODEC, this.flight.dimension());
+            output.store(TAG_ORIGIN, Vec3.CODEC, this.flight.origin());
+            output.putDouble(TAG_RADIUS, this.flight.radius());
         }
     }
 }

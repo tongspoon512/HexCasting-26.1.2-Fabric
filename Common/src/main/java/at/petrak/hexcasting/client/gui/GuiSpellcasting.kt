@@ -22,12 +22,13 @@ import at.petrak.hexcasting.common.lib.HexSounds
 import at.petrak.hexcasting.common.lib.hex.HexActions
 import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternC2S
 import at.petrak.hexcasting.xplat.IClientXplatAbstractions
-import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.PoseStack
+
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import net.minecraft.client.gui.navigation.ScreenRectangle
 import net.minecraft.client.gui.screens.Screen
-import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.client.input.KeyEvent
+import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.nbt.CompoundTag
@@ -36,6 +37,7 @@ import net.minecraft.util.FormattedCharSequence
 import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.phys.Vec2
+import org.joml.Matrix4f
 import kotlin.math.*
 
 // TODO winfy: fix this class to use ExecutionClientView
@@ -56,6 +58,19 @@ class GuiSpellcasting constructor(
     private var ambianceSoundInstance: GridSoundInstance? = null
 
     private val randSrc = SoundInstance.createUnseededRandom()
+
+    /**
+     * When set, finished patterns are handed to this callback instead of being sent to the server.
+     * Used when this grid is embedded in another screen (e.g. the splicing table).
+     */
+    var patternSink: ((HexPattern) -> Unit)? = null
+
+    /**
+     * When set, the pattern mesh is clipped to this rectangle (in screen coordinates).
+     * Embedded grids (e.g. the splicing table) use this so guide dots and strokes cannot
+     * bleed outside their visible frame.
+     */
+    var meshScissor: ScreenRectangle? = null
 
     init {
         for ((pattern, origin) in patterns) {
@@ -126,15 +141,38 @@ class GuiSpellcasting constructor(
 
     override fun init() {
         val minecraft = Minecraft.getInstance()
-        val soundManager = minecraft.soundManager
-        soundManager.stop(HexSounds.CASTING_AMBIANCE.location, null)
+        // the grid always needs a sound instance to source the drawing feedback sounds from;
+        // embedded grids (splicing table) just don't play the ambient loop
         val player = minecraft.player
         if (player != null) {
             this.ambianceSoundInstance = GridSoundInstance(player)
-            soundManager.play(this.ambianceSoundInstance!!)
+            if (patternSink == null) {
+                val soundManager = minecraft.soundManager
+                soundManager.stop(HexSounds.CASTING_AMBIANCE.location, null)
+                soundManager.play(this.ambianceSoundInstance!!)
+            }
         }
 
         this.calculateIotaDisplays()
+    }
+
+    /** Configure this grid to be rendered inside another screen instead of as a standalone screen. */
+    fun embed(width: Int, height: Int) {
+        this.width = width
+        this.height = height
+        this.init()
+    }
+
+    /** Clear the drawn patterns from the visual grid (does not touch the splicer list). */
+    fun clearGrid() {
+        this.patterns.clear()
+        this.usedSpots.clear()
+    }
+
+    fun hasPatternInProgress(): Boolean = this.drawState !is PatternDrawState.BetweenPatterns
+
+    fun cancelDrawing() {
+        this.drawState = PatternDrawState.BetweenPatterns
     }
 
     override fun tick() {
@@ -142,22 +180,22 @@ class GuiSpellcasting constructor(
         val player = minecraft.player
         if (player != null) {
             val heldItem = player.getItemInHand(handOpenedWith)
-            if (heldItem.isEmpty || !heldItem.`is`(HexTags.Items.STAVES) || player.getAttributeValue(HexAttributes.FEEBLE_MIND) > 0)
+            if (heldItem.isEmpty || !heldItem.`is`(HexTags.Items.STAVES) || player.getAttributeValue(HexAttributes.holder(HexAttributes.FEEBLE_MIND)) > 0)
                 closeForReal()
         }
     }
 
-    override fun mouseClicked(mxOut: Double, myOut: Double, pButton: Int): Boolean {
-        if (super.mouseClicked(mxOut, myOut, pButton)) {
+    override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
+        if (super.mouseClicked(event, doubleClick)) {
             return true
         }
         if (HexConfig.client().clickingTogglesDrawing()) {
             return if (this.drawState is PatternDrawState.BetweenPatterns)
-                drawStart(mxOut, myOut)
+                drawStart(event.x, event.y)
             else
                 drawEnd()
         }
-        return drawStart(mxOut, myOut)
+        return drawStart(event.x, event.y)
     }
 
     private fun drawStart(mxOut: Double, myOut: Double): Boolean {
@@ -192,13 +230,13 @@ class GuiSpellcasting constructor(
             drawMove(mxOut, myOut)
     }
 
-    override fun mouseDragged(mxOut: Double, myOut: Double, pButton: Int, pDragX: Double, pDragY: Double): Boolean {
-        if (super.mouseDragged(mxOut, myOut, pButton, pDragX, pDragY)) {
+    override fun mouseDragged(event: MouseButtonEvent, pDragX: Double, pDragY: Double): Boolean {
+        if (super.mouseDragged(event, pDragX, pDragY)) {
             return true
         }
         if (HexConfig.client().clickingTogglesDrawing())
             return false
-        return drawMove(mxOut, myOut)
+        return drawMove(event.x, event.y)
     }
 
     private fun drawMove(mxOut: Double, myOut: Double): Boolean {
@@ -274,8 +312,8 @@ class GuiSpellcasting constructor(
         return false
     }
 
-    override fun mouseReleased(mx: Double, my: Double, pButton: Int): Boolean {
-        if (super.mouseReleased(mx, my, pButton)) {
+    override fun mouseReleased(event: MouseButtonEvent): Boolean {
+        if (super.mouseReleased(event)) {
             return true
         }
         if (HexConfig.client().clickingTogglesDrawing())
@@ -298,21 +336,26 @@ class GuiSpellcasting constructor(
 
                 this.usedSpots.addAll(pat.positions(start))
 
-                IClientXplatAbstractions.INSTANCE.sendPacketToServer(
-                    MsgNewSpellPatternC2S(
-                        this.handOpenedWith,
-                        pat,
-                        this.patterns
+                val sink = this.patternSink
+                if (sink != null) {
+                    sink(pat)
+                } else {
+                    IClientXplatAbstractions.INSTANCE.sendPacketToServer(
+                        MsgNewSpellPatternC2S(
+                            this.handOpenedWith,
+                            pat,
+                            this.patterns
+                        )
                     )
-                )
+                }
             }
         }
 
         return false
     }
 
-    override fun mouseScrolled(pMouseX: Double, pMouseY: Double, pDelta: Double): Boolean {
-        super.mouseScrolled(pMouseX, pMouseY, pDelta)
+    override fun mouseScrolled(pMouseX: Double, pMouseY: Double, scrollX: Double, pDelta: Double): Boolean {
+        super.mouseScrolled(pMouseX, pMouseY, scrollX, pDelta)
 
         val mouseHandler = Minecraft.getInstance().mouseHandler
 
@@ -333,15 +376,15 @@ class GuiSpellcasting constructor(
         return true
     }
 
-    override fun keyPressed(key: Int, scancode: Int, modifiers: Int): Boolean {
-        if (super.keyPressed(key, scancode, modifiers)) return true
+    override fun keyPressed(event: KeyEvent): Boolean {
+        if (super.keyPressed(event)) return true
 
         // because of how mouse scrolling works (scrolling upward moves the page down), a positive
         // delta value makes the book flip backward while a negative one makes it flip forward
-        if (Keybinds.spellbookPrev.matches(key, scancode)) {
+        if (Keybinds.spellbookPrev.matches(event)) {
             ShiftScrollListener.onScroll(1.0, false, false)
             return true
-        } else if (Keybinds.spellbookNext.matches(key, scancode)) {
+        } else if (Keybinds.spellbookNext.matches(event)) {
             ShiftScrollListener.onScroll(-1.0, false, false)
             return true
         }
@@ -363,19 +406,16 @@ class GuiSpellcasting constructor(
     }
 
 
-    override fun render(graphics: GuiGraphics, pMouseX: Int, pMouseY: Int, pPartialTick: Float) {
-        super.render(graphics, pMouseX, pMouseY, pPartialTick)
+    override fun extractRenderState(graphics: GuiGraphicsExtractor, pMouseX: Int, pMouseY: Int, pPartialTick: Float) {
+        super.extractRenderState(graphics, pMouseX, pMouseY, pPartialTick)
 
         this.ambianceSoundInstance?.mousePosX = pMouseX / this.width.toDouble()
         this.ambianceSoundInstance?.mousePosY = pMouseX / this.width.toDouble()
 
-        val ps = graphics.pose() // TODO: Determine if this is still necessary.
-
-        val mat = ps.last().pose()
-        val prevShader = RenderSystem.getShader()
-        RenderSystem.setShader(GameRenderer::getPositionColorShader)
-        RenderSystem.disableDepthTest()
-        RenderSystem.disableCull()
+        // The GUI's pose is a 2D affine transform; pattern geometry is already in screen pixels, so the
+        // mesh transform stays identity and the render state picks up the pose itself.
+        val mat = Matrix4f()
+        val mesh = MeshCollector()
 
         // Draw guide dots around the cursor
         val mousePos = Vec2(pMouseX.toFloat(), pMouseY.toFloat())
@@ -401,11 +441,11 @@ class GuiSpellcasting constructor(
                     Mth.lerp(scaledDist, 0.4f, 0.5f),
                     Mth.lerp(scaledDist, 0.8f, 1.0f),
                     Mth.lerp(scaledDist, 0.7f, 0.9f),
-                    scaledDist
+                    scaledDist,
+                    mesh
                 )
             }
         }
-        RenderSystem.defaultBlendFunc()
 
         for ((idx, elts) in this.patterns.withIndex()) {
             val (pat, origin, valid) = elts
@@ -422,7 +462,8 @@ class GuiSpellcasting constructor(
                 if (valid.success) 0.2f else 0.9f,
                 DEFAULT_READABILITY_OFFSET,
                 1f,
-                idx.toDouble()
+                idx.toDouble(),
+                mesh
             )
         }
 
@@ -454,86 +495,86 @@ class GuiSpellcasting constructor(
                 0.1f,
                 DEFAULT_READABILITY_OFFSET,
                 1f,
-                this.patterns.size.toDouble())
+                this.patterns.size.toDouble(),
+                mesh)
         }
 
-        RenderSystem.enableDepthTest()
+        HexGuiRender.submitMesh(graphics, mesh, this.meshScissor)
 
         val mc = Minecraft.getInstance()
         val font = mc.font
-        ps.pushPose()
-        ps.translate(10.0, 10.0, 0.0)
+        val matrix = graphics.pose()
+        matrix.pushMatrix()
+        matrix.translate(10f, 10f)
 
 //        if (this.parenCount > 0) {
 //            val boxHeight = (this.parenDescs.size + 1f) * 10f
-//            RenderSystem.setShader(GameRenderer::getPositionColorShader)
-//            RenderSystem.defaultBlendFunc()
-//            drawBox(ps, 0f, 0f, (this.width * LHS_IOTAS_ALLOCATION + 5).toFloat(), boxHeight, 7.5f)
-//            ps.translate(0.0, 0.0, 1.0)
+//            drawBox(graphics, 0f, 0f, (this.width * LHS_IOTAS_ALLOCATION + 5).toFloat(), boxHeight, 7.5f)
+//            matrix.translate(0f, 0f)
 //
 //            val time = ClientTickCounter.getTotal() * 0.16f
 //            val opacity = (Mth.map(cos(time), -1f, 1f, 200f, 255f)).toInt()
 //            val color = 0x00_ffffff or (opacity shl 24)
-//            RenderSystem.setShader { prevShader }
 //            for (desc in this.parenDescs) {
-//                font.draw(ps, desc, 10f, 7f, color)
-//                ps.translate(0.0, 10.0, 0.0)
+//                graphics.text(font, desc, 10, 7, color)
+//                matrix.translate(0f, 10f)
 //            }
-//            ps.translate(0.0, 15.0, 0.0)
+//            matrix.translate(0f, 15f)
 //        }
 
         if (this.stackDescs.isNotEmpty()) {
             val boxHeight = (this.stackDescs.size + 1f) * 10f
-            RenderSystem.setShader(GameRenderer::getPositionColorShader)
-            RenderSystem.enableBlend()
-            drawBox(ps, 0f, 0f, (this.width * LHS_IOTAS_ALLOCATION + 5).toFloat(), boxHeight)
-            ps.translate(0.0, 0.0, 1.0)
-            RenderSystem.setShader { prevShader }
+            drawBox(graphics, 0f, 0f, (this.width * LHS_IOTAS_ALLOCATION + 5).toFloat(), boxHeight)
+            matrix.pushMatrix()
+            matrix.translate(5f, 7f)
             for (desc in this.stackDescs) {
-                graphics.drawString(font, desc, 5, 7, -1) // TODO: Confirm this works
-                ps.translate(0.0, 10.0, 0.0)
+                graphics.text(font, desc, 0, 0, -1)
+                matrix.translate(0f, 10f)
             }
+            matrix.popMatrix()
         }
 
-        ps.popPose()
+        matrix.popMatrix()
         if (this.ravenmind != null) {
             val kotlinBad = this.ravenmind!!
-            ps.pushPose()
+            matrix.pushMatrix()
             val boxHeight = 15f
             val addlScale = 1.5f
-            ps.translate(this.width * (1.0 - RHS_IOTAS_ALLOCATION * addlScale) - 10, 10.0, 0.0)
-            RenderSystem.setShader(GameRenderer::getPositionColorShader)
-            RenderSystem.enableBlend()
+            matrix.translate((this.width * (1.0 - RHS_IOTAS_ALLOCATION * addlScale) - 10f).toFloat(), 10f)
             drawBox(
-                ps, 0f, 0f,
+                graphics, 0f, 0f,
                 (this.width * RHS_IOTAS_ALLOCATION * addlScale).toFloat(), boxHeight * addlScale,
             )
-            ps.translate(5.0, 5.0, 1.0)
-            ps.scale(addlScale, addlScale, 1f)
+            matrix.translate(5f, 5f)
+            matrix.scale(addlScale, addlScale)
 
             val time = ClientTickCounter.getTotal() * 0.2f
             val opacity = (Mth.map(sin(time), -1f, 1f, 150f, 255f)).toInt()
             val color = 0x00_ffffff or (opacity shl 24)
 
-            RenderSystem.setShader { prevShader }
-            graphics.drawString(font, kotlinBad, 0, 0, color) // TODO: Confirm this works
-            ps.popPose()
+            graphics.text(font, kotlinBad, 0, 0, color)
+            matrix.popMatrix()
         }
-
-        RenderSystem.setShader { prevShader }
     }
 
     // why the hell is this default true
     override fun isPauseScreen(): Boolean = false
 
+    /**
+     * 施法界面不绘制任何背景（不压暗、不模糊），让世界画面直接透出来。
+     */
+    override fun extractBackground(graphics: GuiGraphicsExtractor, pMouseX: Int, pMouseY: Int, pPartialTick: Float) {
+    }
+
     /** Distance between adjacent hex centers */
     fun hexSize(): Float {
-        val scaleModifier = Minecraft.getInstance().player!!.getAttributeValue(HexAttributes.GRID_ZOOM)
+        val scaleModifier = Minecraft.getInstance().player!!.getAttributeValue(HexAttributes.holder(HexAttributes.GRID_ZOOM))
+        val spacing = Mth.clamp(HexConfig.client().gridSpacing(), 0.5, 2.0)
 
         // Originally, we allowed 32 dots across. Assuming a 1920x1080 screen this allowed like 500-odd area.
         // Let's be generous and give them 512.
         val baseScale = sqrt(this.width.toDouble() * this.height / 512.0)
-        return (baseScale / scaleModifier).toFloat()
+        return (baseScale * spacing / scaleModifier).toFloat()
     }
 
     fun coordsOffset(): Vec2 = Vec2(this.width.toFloat() * 0.5f, this.height.toFloat() * 0.5f)
@@ -559,11 +600,12 @@ class GuiSpellcasting constructor(
         const val LHS_IOTAS_ALLOCATION = 0.7
         const val RHS_IOTAS_ALLOCATION = 0.15
 
-        fun drawBox(ps: PoseStack, x: Float, y: Float, w: Float, h: Float, leftMargin: Float = 2.5f) {
-            RenderSystem.setShader(GameRenderer::getPositionColorShader)
-            RenderSystem.enableBlend()
-            renderQuad(ps, x, y, w, h, 0x50_303030)
-            renderQuad(ps, x + leftMargin, y + 2.5f, w - leftMargin - 2.5f, h - 5f, 0x50_303030)
+        fun drawBox(graphics: GuiGraphicsExtractor, x: Float, y: Float, w: Float, h: Float, leftMargin: Float = 2.5f) {
+            graphics.fill(x.toInt(), y.toInt(), (x + w).toInt(), (y + h).toInt(), 0x50_303030)
+            graphics.fill(
+                (x + leftMargin).toInt(), (y + 2.5f).toInt(),
+                (x + w - 2.5f).toInt(), (y + h - 5f).toInt(), 0x50_303030
+            )
         }
     }
 }

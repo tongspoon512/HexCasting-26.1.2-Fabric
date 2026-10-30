@@ -1,0 +1,16 @@
+{
+  "block.hexdebug.splicing_table": "Splicing Table",
+  "hexcasting.action.hexdebug:get_personal_media": "Mana Reflection",
+  "hexcasting.action.hexdebug:get_personal_media_max": "Arcane Reflection",
+  "hexcasting.action.hexdebug:mind_env/schedule": "Procrastination Strategy",
+  "hexcasting.action.hexdebug:mind_env/running_code": "Procrastination Reflection",
+  "hexdebug.attributes.personal_media": "Personal Media",
+  "hexdebug.attributes.personal_media_max": "Max Personal Media",
+  "hexdebug.attributes.personal_media_regen": "Personal Media Regeneration",
+  "text.hexdebug.splicing_table.button.view_left": "Move View Left",
+  "text.hexdebug.splicing_table.button.view_left_page": "Move View to Previous Page",
+  "text.hexdebug.splicing_table.button.view_left_full": "Move View to Start",
+  "text.hexdebug.splicing_table.button.view_right": "Move View Right",
+  "text.hexdebug.splicing_table.button.view_right_page": "Move View to Next Page",
+  "text.hexdebug.splicing_table.button.view_right_full": "Move View to End"
+}

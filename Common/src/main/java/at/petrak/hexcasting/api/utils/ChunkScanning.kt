@@ -8,7 +8,7 @@ import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.chunk.ChunkAccess
-import net.minecraft.world.level.chunk.ChunkStatus
+import net.minecraft.world.level.chunk.status.ChunkStatus
 
 /**
  * This is a helper class to efficiently scan chunks in ways Minecraft did not intend for. This is for only reading chunks, not writing
@@ -22,33 +22,33 @@ class ChunkScanning(var level: ServerLevel) {
      * @return Either the ChunkAccess gained, or null
      */
     fun cacheChunk(chunk: ChunkPos): ChunkAccess? {
-        val chunkLong = chunk.toLong()
+        val chunkLong = chunk.pack()
         // If we have the chunk already, we can skip fetching it
         val existing = chunks.get(chunkLong)
         if (existing != null){
             return existing
         }
-        val future = level.chunkSource.getChunkFuture(chunk.x,chunk.z, ChunkStatus.EMPTY,true).get()
-        if (future.left().isPresent){
-            val next = future.left().get()
+        val result = level.chunkSource.getChunkFuture(chunk.x, chunk.z, ChunkStatus.EMPTY, true).get()
+        val next = result.orElse(null)
+        if (next != null) {
             chunks.put(chunkLong, next)
             return next
         }
-        HexAPI.LOGGER.warn("Failed to get chunk at {}!",chunk)
+        HexAPI.LOGGER.warn("Failed to get chunk at {}!", chunk)
         return null
     }
 
     fun cacheChunk(chunk: Long): ChunkAccess? {
-        return cacheChunk(ChunkPos(chunk))
+        return cacheChunk(ChunkPos.unpack(chunk))
     }
 
     fun getBlock(blockPos: BlockPos): BlockState? {
-        val chunkPos = ChunkPos(blockPos).toLong()
+        val chunkPos = ChunkPos.pack(blockPos)
         return cacheChunk(chunkPos)?.getBlockState(blockPos)
     }
 
     fun getBlockEntity(blockPos: BlockPos): BlockEntity? {
-        val chunkPos = ChunkPos(blockPos).toLong()
+        val chunkPos = ChunkPos.pack(blockPos)
         return cacheChunk(chunkPos)?.getBlockEntity(blockPos)
     }
 
@@ -59,6 +59,6 @@ class ChunkScanning(var level: ServerLevel) {
 
     // Might not be needed
     fun containsChunk(chunk: ChunkPos): Boolean{
-        return chunks.contains(chunk.toLong())
+        return chunks.contains(chunk.pack())
     }
 }

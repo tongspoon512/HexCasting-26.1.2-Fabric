@@ -17,9 +17,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -27,6 +28,7 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.Level;
@@ -51,7 +53,7 @@ public class ItemScroll extends Item implements IotaHolderItem {
     public static final String TAG_PATTERN = "pattern";
     public static final String TAG_RECALC_WARNING = "recalc_warning";
     public static final String TAG_NEEDS_PURCHASE = "needs_purchase";
-    public static final ResourceLocation ANCIENT_PREDICATE = modLoc("ancient");
+    public static final Identifier ANCIENT_PREDICATE = modLoc("ancient");
 
     public final int blockSize;
 
@@ -120,20 +122,20 @@ public class ItemScroll extends Item implements IotaHolderItem {
         var scrollEntity = new EntityWallScroll(level, posInFront, direction, scrollStack, false, this.blockSize);
 
         // i guess
-        var stackTag = itemstack.getTag();
+        var stackTag = itemstack.get(net.minecraft.core.component.DataComponents.ENTITY_DATA);
         if (stackTag != null) {
             EntityType.updateCustomEntityTag(level, player, scrollEntity, stackTag);
         }
 
         if (scrollEntity.survives()) {
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 scrollEntity.playPlacementSound();
                 level.gameEvent(player, GameEvent.ENTITY_PLACE, posClicked);
                 level.addFreshEntity(scrollEntity);
             }
 
             itemstack.shrink(1);
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         } else {
             return InteractionResult.CONSUME;
         }
@@ -146,11 +148,11 @@ public class ItemScroll extends Item implements IotaHolderItem {
 
     @Override
     public Component getName(ItemStack pStack) {
-        var descID = this.getDescriptionId(pStack);
+        var descID = this.getDescriptionId();
         var ancientId = NBTHelper.getString(pStack, TAG_OP_ID);
         if (ancientId != null) {
             return Component.translatable(descID + ".of",
-                Component.translatable("hexcasting.action." + ResourceLocation.tryParse(ancientId)));
+                Component.translatable("hexcasting.action." + Identifier.tryParse(ancientId)));
         } else if (NBTHelper.hasCompound(pStack, TAG_PATTERN)) {
             var compound = NBTHelper.getCompound(pStack, TAG_PATTERN);
             var patternLabel = Component.literal("");
@@ -165,22 +167,22 @@ public class ItemScroll extends Item implements IotaHolderItem {
     }
 
     @Override
-    public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
+    public void inventoryTick(ItemStack pStack, ServerLevel pLevel, Entity pEntity, net.minecraft.world.entity.EquipmentSlot pSlot) {
         // the needs_purchase tag is used so you can't see the pattern on scrolls sold by a wandering trader
         // once you put the scroll into your inventory, this removes the tag to reveal the pattern
         if (NBTHelper.getBoolean(pStack, TAG_NEEDS_PURCHASE)) {
             NBTHelper.remove(pStack, TAG_NEEDS_PURCHASE);
         }
         // if op_id is set but there's no stored pattern, attempt to load the pattern on inv tick
-        if (NBTHelper.hasString(pStack, TAG_OP_ID) && !NBTHelper.hasCompound(pStack, TAG_PATTERN) && pEntity.getServer() != null) {
-            var opID = ResourceLocation.tryParse(NBTHelper.getString(pStack, TAG_OP_ID));
+        if (NBTHelper.hasString(pStack, TAG_OP_ID) && !NBTHelper.hasCompound(pStack, TAG_PATTERN) && pLevel.getServer() != null) {
+            var opID = Identifier.tryParse(NBTHelper.getString(pStack, TAG_OP_ID));
             if (opID == null) {
                 // if the provided op_id is invalid, remove it so we don't keep trying every tick
                 NBTHelper.remove(pStack, TAG_OP_ID);
                 return;
             }
             var patternKey = ResourceKey.create(IXplatAbstractions.INSTANCE.getActionRegistry().key(), opID);
-            var pat = PatternRegistryManifest.getCanonicalStrokesPerWorld(patternKey, pEntity.getServer().overworld());
+            var pat = PatternRegistryManifest.getCanonicalStrokesPerWorld(patternKey, pLevel.getServer().overworld());
             if (pat == null) {
                 // if pat is null, the per-world order hasn't been registered; remove the op_id and warn the player
                 NBTHelper.putString(pStack, TAG_RECALC_WARNING, NBTHelper.getString(pStack, TAG_OP_ID));
@@ -192,20 +194,20 @@ public class ItemScroll extends Item implements IotaHolderItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents,
-        TooltipFlag pIsAdvanced) {
+    public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, TooltipDisplay pDisplay,
+        java.util.function.Consumer<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         if (NBTHelper.getBoolean(pStack, TAG_NEEDS_PURCHASE)) {
             var needsPurchase = Component.translatable("hexcasting.tooltip.scroll.needs_purchase");
-            pTooltipComponents.add(needsPurchase.withStyle(ChatFormatting.GRAY));
+            pTooltipComponents.accept(needsPurchase.withStyle(ChatFormatting.GRAY));
         } else if (NBTHelper.hasString(pStack, TAG_RECALC_WARNING)) {
-            var spellName = Component.translatable("hexcasting.action." + ResourceLocation.tryParse(NBTHelper.getString(pStack, TAG_RECALC_WARNING)));
+            var spellName = Component.translatable("hexcasting.action." + Identifier.tryParse(NBTHelper.getString(pStack, TAG_RECALC_WARNING)));
             var line1 = Component.translatable("hexcasting.tooltip.scroll.recalc_warning.line1", spellName);
             var line2 = Component.translatable("hexcasting.tooltip.scroll.recalc_warning.line2");
-            pTooltipComponents.add(line1.withStyle(ChatFormatting.RED));
-            pTooltipComponents.add(line2.withStyle(ChatFormatting.RED));
+            pTooltipComponents.accept(line1.withStyle(ChatFormatting.RED));
+            pTooltipComponents.accept(line2.withStyle(ChatFormatting.RED));
         } else if (NBTHelper.hasString(pStack, TAG_OP_ID) && !NBTHelper.hasCompound(pStack, TAG_PATTERN)) {
             var notLoaded = Component.translatable("hexcasting.tooltip.scroll.pattern_not_loaded");
-            pTooltipComponents.add(notLoaded.withStyle(ChatFormatting.GRAY));
+            pTooltipComponents.accept(notLoaded.withStyle(ChatFormatting.GRAY));
         }
     }
 

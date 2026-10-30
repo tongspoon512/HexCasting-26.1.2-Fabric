@@ -16,7 +16,9 @@ public abstract class FabricClipContextMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/phys/shapes/CollisionContext;of" +
                             "(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/shapes/CollisionContext;"))
-    public CollisionContext hex$getCollisionContext(Entity entity) {
+    // 26.1 builds the collision context in the super() argument list, i.e. before this() runs,
+    // so the redirect handler has to be static.
+    private static CollisionContext hex$getCollisionContext(Entity entity) {
         if (entity == null)
             return CollisionContext.empty();
         return CollisionContext.of(entity);

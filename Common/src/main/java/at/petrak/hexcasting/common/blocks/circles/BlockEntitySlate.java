@@ -4,8 +4,11 @@ import at.petrak.hexcasting.api.block.HexBlockEntity;
 import at.petrak.hexcasting.api.casting.math.HexPattern;
 import at.petrak.hexcasting.common.lib.HexBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.component.TypedEntityData;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,22 +26,28 @@ public class BlockEntitySlate extends HexBlockEntity {
     protected void saveModData(CompoundTag tag) {
         if (this.pattern != null) {
             tag.put(TAG_PATTERN, this.pattern.serializeToNBT());
-        } else {
-            tag.put(TAG_PATTERN, new CompoundTag());
         }
     }
 
     @Override
     protected void loadModData(CompoundTag tag) {
-        if (tag.contains(TAG_PATTERN, Tag.TAG_COMPOUND)) {
-            CompoundTag patternTag = tag.getCompound(TAG_PATTERN);
-            if (HexPattern.isPattern(patternTag)) {
-                this.pattern = HexPattern.fromNBT(patternTag);
-            } else {
-                this.pattern = null;
-            }
+        var patternTag = tag.getCompound(TAG_PATTERN);
+        if (patternTag.isPresent() && HexPattern.isPattern(patternTag.get())) {
+            this.pattern = HexPattern.fromNBT(patternTag.get());
         } else {
             this.pattern = null;
+        }
+    }
+
+    // 26.1's copy_nbt loot function is gone; drops transfer block entity state through item components instead,
+    // so we expose our pattern as minecraft:block_entity_data (the same channel BlockItem uses to restore it on
+    // placement).
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder builder) {
+        super.collectImplicitComponents(builder);
+        if (this.pattern != null) {
+            builder.set(DataComponents.BLOCK_ENTITY_DATA,
+                TypedEntityData.<BlockEntityType<?>>of(HexBlockEntities.SLATE_TILE, this.serializeWithModData()));
         }
     }
 

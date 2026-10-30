@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "O": "minecraft:paper"
+  },
+  "pattern": [
+    "OOO",
+    "OOO",
+    "OOO"
+  ],
+  "result": {
+    "count": 8,
+    "id": "hexcasting:scroll_paper"
+  }
+}

@@ -4,24 +4,22 @@ import at.petrak.hexcasting.api.HexAPI;
 import at.petrak.hexcasting.api.mod.HexTags;
 import at.petrak.hexcasting.common.lib.HexItems;
 import at.petrak.hexcasting.xplat.IXplatTags;
+import at.petrak.paucal.api.datagen.PaucalBlockTagProvider;
 import at.petrak.paucal.api.datagen.PaucalItemTagProvider;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.data.tags.TagAppender;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
 
 import java.util.concurrent.CompletableFuture;
 
 public class HexItemTagProvider extends PaucalItemTagProvider {
     private final IXplatTags xtags;
 
-    public HexItemTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookup, TagsProvider<Block> pBlockTagsProvider, IXplatTags xtags) {
+    public HexItemTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookup, PaucalBlockTagProvider pBlockTagsProvider, IXplatTags xtags) {
         super(output, lookup, HexAPI.MOD_ID, pBlockTagsProvider);
         this.xtags = xtags;
     }
@@ -75,9 +73,9 @@ public class HexItemTagProvider extends PaucalItemTagProvider {
         this.copy(BlockTags.WOODEN_BUTTONS, ItemTags.WOODEN_BUTTONS);
     }
 
-    void add(TagAppender<Item> appender, Item... items) {
+    void add(TagAppender<Item, Item> appender, Item... items) {
         for (Item item : items) {
-            appender.add(BuiltInRegistries.ITEM.getResourceKey(item).orElseThrow());
+            appender.add(item);
         }
     }
 }

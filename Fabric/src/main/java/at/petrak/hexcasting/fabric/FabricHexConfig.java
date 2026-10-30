@@ -5,6 +5,9 @@ import at.petrak.hexcasting.api.mod.HexConfig;
 import at.petrak.hexcasting.common.loot.HexLootHandler;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
@@ -16,10 +19,11 @@ import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import me.shedaniel.autoconfig.serializer.PartitioningSerializer;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +48,17 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
     public static FabricHexConfig setup() {
         var gson = new GsonBuilder()
             .setPrettyPrinting()
-            .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
+            .registerTypeAdapter(Identifier.class, new TypeAdapter<Identifier>() {
+                @Override
+                public void write(JsonWriter out, Identifier value) throws IOException {
+                    out.value(value.toString());
+                }
+
+                @Override
+                public Identifier read(JsonReader in) throws IOException {
+                    return Identifier.parse(in.nextString());
+                }
+            })
             .create();
         AutoConfig.register(FabricHexConfig.class, PartitioningSerializer.wrap((cfg, clazz) ->
             new GsonConfigSerializer<>(cfg, clazz, gson)));
@@ -138,6 +152,8 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         @ConfigEntry.Gui.Tooltip
         private double gridSnapThreshold = DEFAULT_GRID_SNAP_THRESHOLD;
         @ConfigEntry.Gui.Tooltip
+        private double gridSpacing = DEFAULT_GRID_SPACING;
+        @ConfigEntry.Gui.Tooltip
         private boolean clickingTogglesDrawing = DEFAULT_CLICKING_TOGGLES_DRAWING;
         @ConfigEntry.Gui.Tooltip
         private boolean alwaysShowListCommas = DEFAULT_ALWAYS_SHOW_LIST_COMMAS;
@@ -149,6 +165,7 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         @Override
         public void validatePostLoad() throws ValidationException {
             this.gridSnapThreshold = Mth.clamp(this.gridSnapThreshold, 0.5, 1.0);
+            this.gridSpacing = Mth.clamp(this.gridSpacing, 0.5, 2.0);
         }
 
         @Override
@@ -174,6 +191,11 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         @Override
         public double gridSnapThreshold() {
             return gridSnapThreshold;
+        }
+
+        @Override
+        public double gridSpacing() {
+            return gridSpacing;
         }
 
         @Override
@@ -212,7 +234,7 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         private List<String> circleActionDenyList = List.of();
         @ConfigEntry.Gui.Tooltip
         private List<String> costRescaleListRaw = List.of();
-        private transient Object2DoubleMap<ResourceLocation> costRescaleMap;
+        private transient Object2DoubleMap<Identifier> costRescaleMap;
         @ConfigEntry.Gui.Tooltip
         private double globalCostScaling = DEFAULT_GLOBAL_COST_SCALING;
         @ConfigEntry.Gui.Tooltip
@@ -227,6 +249,22 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         @ConfigEntry.Gui.Tooltip
         private double traderScrollChance = DEFAULT_TRADER_SCROLL_CHANCE;
 
+        // --- HexDebug personal media pool ---
+        @ConfigEntry.Gui.Tooltip
+        private boolean personalMediaPool = DEFAULT_PERSONAL_MEDIA_POOL;
+        @ConfigEntry.Gui.Tooltip
+        private int personalMediaMax = DEFAULT_PERSONAL_MEDIA_MAX;
+        @ConfigEntry.Gui.Tooltip
+        private int personalMediaRegenStep = DEFAULT_PERSONAL_MEDIA_REGEN_STEP;
+        @ConfigEntry.Gui.Tooltip
+        private int personalMediaRegenInterval = DEFAULT_PERSONAL_MEDIA_REGEN_INTERVAL;
+        @ConfigEntry.Gui.Tooltip
+        private boolean personalMediaAfterEnlightened = DEFAULT_PERSONAL_MEDIA_AFTER_ENLIGHTENED;
+        @ConfigEntry.Gui.Tooltip
+        private boolean enablesMindEnvActions = DEFAULT_ENABLES_MIND_ENV_ACTIONS;
+        @ConfigEntry.Gui.Tooltip
+        private boolean bypassesSilencedEnvRestrictions = DEFAULT_BYPASSES_SILENCED_ENV_RESTRICTIONS;
+
         // ModMenu bad and doesn't like java objects in here so we do stupid string parsing
         @ConfigEntry.Gui.Tooltip
         private List<String> scrollInjectionsRaw = HexLootHandler.DEFAULT_SCROLL_INJECTS
@@ -234,26 +272,26 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
             .map(si -> si.injectee() + " " + si.countRange())
             .toList();
         @ConfigEntry.Gui.Excluded
-        private transient Object2IntMap<ResourceLocation> scrollInjections;
+        private transient Object2IntMap<Identifier> scrollInjections;
 
         // TODO: hook this up to the config, change Jankery, test, also test scroll injects on fabric
         @ConfigEntry.Gui.Tooltip
         private List<String> loreInjectionsRaw = HexLootHandler.DEFAULT_LORE_INJECTS
                 .stream()
-                .map(ResourceLocation::toString)
+                .map(Identifier::toString)
                 .toList();
         @ConfigEntry.Gui.Excluded
-        private transient List<ResourceLocation> loreInjections;
+        private transient List<Identifier> loreInjections;
         @ConfigEntry.Gui.Tooltip
         private double loreChance = HexLootHandler.DEFAULT_LORE_CHANCE;
 
         @ConfigEntry.Gui.Tooltip
         private List<String> cypherInjectionsRaw = HexLootHandler.DEFAULT_CYPHER_INJECTS
                 .stream()
-                .map(ResourceLocation::toString)
+                .map(Identifier::toString)
                 .toList();
         @ConfigEntry.Gui.Excluded
-        private transient List<ResourceLocation> cypherInjections;
+        private transient List<Identifier> cypherInjections;
         @ConfigEntry.Gui.Tooltip
         private double cypherChance = HexLootHandler.DEFAULT_CYPHER_CHANCE;
 
@@ -266,11 +304,15 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
             this.globalCostScaling = Math.max(this.globalCostScaling, 0);
             this.traderScrollChance = Mth.clamp(this.traderScrollChance, 0.0, 1.0);
 
+            this.personalMediaMax = Math.max(this.personalMediaMax, 0);
+            this.personalMediaRegenStep = Math.max(this.personalMediaRegenStep, 0);
+            this.personalMediaRegenInterval = Math.max(this.personalMediaRegenInterval, 1);
+
             this.costRescaleMap = new Object2DoubleOpenHashMap<>();
             try {
                 for (var auugh : this.costRescaleListRaw) {
                     String[] split = auugh.split(" ");
-                    ResourceLocation loc = new ResourceLocation(split[0]);
+                    Identifier loc = Identifier.parse(split[0]);
                     double scale = Double.parseDouble(split[1]);
                     this.costRescaleMap.put(loc, scale);
                 }
@@ -282,7 +324,7 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
             try {
                 for (var auugh : this.scrollInjectionsRaw) {
                     String[] split = auugh.split(" ");
-                    ResourceLocation loc = new ResourceLocation(split[0]);
+                    Identifier loc = Identifier.parse(split[0]);
                     int count = Integer.parseInt(split[1]);
                     this.scrollInjections.put(loc, count);
                 }
@@ -293,7 +335,7 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
             this.loreInjections = new ArrayList<>();
             try {
                 for (var table : this.loreInjectionsRaw) {
-                    ResourceLocation loc = new ResourceLocation(table);
+                    Identifier loc = Identifier.parse(table);
                     this.loreInjections.add(loc);
                 }
             } catch (Exception e) {
@@ -305,7 +347,7 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
             this.cypherInjections = new ArrayList<>();
             try {
                 for (var table : this.cypherInjectionsRaw) {
-                    ResourceLocation loc = new ResourceLocation(table);
+                    Identifier loc = Identifier.parse(table);
                     this.cypherInjections.add(loc);
                 }
             } catch (Exception e) {
@@ -331,17 +373,17 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         }
 
         @Override
-        public boolean isActionAllowed(ResourceLocation actionID) {
+        public boolean isActionAllowed(Identifier actionID) {
             return noneMatch(actionDenyList, actionID);
         }
 
         @Override
-        public boolean isActionAllowedInCircles(ResourceLocation actionID) {
+        public boolean isActionAllowedInCircles(Identifier actionID) {
             return noneMatch(circleActionDenyList, actionID);
         }
 
         @Override
-        public double getActionCostScaling(ResourceLocation actionID) {
+        public double getActionCostScaling(Identifier actionID) {
             return this.costRescaleMap.getOrDefault(actionID, 1.0);
         }
 
@@ -358,12 +400,47 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
 
         @Override
         public boolean canTeleportInThisDimension(ResourceKey<Level> dimension) {
-            return noneMatch(tpDimDenylist, dimension.location());
+            return noneMatch(tpDimDenylist, dimension.identifier());
         }
 
         @Override
         public boolean trueNameHasAmbit() {
             return doesTrueNameHaveAmbit;
+        }
+
+        @Override
+        public boolean personalMediaPool() {
+            return personalMediaPool;
+        }
+
+        @Override
+        public int personalMediaMax() {
+            return personalMediaMax;
+        }
+
+        @Override
+        public int personalMediaRegenStep() {
+            return personalMediaRegenStep;
+        }
+
+        @Override
+        public int personalMediaRegenInterval() {
+            return personalMediaRegenInterval;
+        }
+
+        @Override
+        public boolean personalMediaAfterEnlightened() {
+            return personalMediaAfterEnlightened;
+        }
+
+        @Override
+        public boolean enablesMindEnvActions() {
+            return enablesMindEnvActions;
+        }
+
+        @Override
+        public boolean bypassesSilencedEnvRestrictions() {
+            return bypassesSilencedEnvRestrictions;
         }
 
         public double traderScrollChance() {
@@ -373,11 +450,11 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         /**
          * Returns -1 if none is found
          */
-        public int scrollRangeForLootTable(ResourceLocation lootTable) {
+        public int scrollRangeForLootTable(Identifier lootTable) {
             return this.scrollInjections.getOrDefault(lootTable, -1);
         }
 
-        public boolean shouldInjectLore(ResourceLocation lootTable) {
+        public boolean shouldInjectLore(Identifier lootTable) {
             return anyMatchResLoc(this.loreInjections, lootTable);
         }
 
@@ -385,7 +462,7 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
             return loreChance;
         }
 
-        public boolean shouldInjectCyphers(ResourceLocation lootTable) {
+        public boolean shouldInjectCyphers(Identifier lootTable) {
             return anyMatchResLoc(this.cypherInjections, lootTable);
         }
 

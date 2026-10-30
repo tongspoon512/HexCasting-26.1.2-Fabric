@@ -1,16 +1,22 @@
 package at.petrak.hexcasting.api.advancements;
 
 import at.petrak.hexcasting.api.mod.HexConfig;
-import com.google.gson.JsonObject;
-import net.minecraft.advancements.critereon.*;
-import net.minecraft.resources.ResourceLocation;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.advancements.criterion.ContextAwarePredicate;
+import net.minecraft.advancements.criterion.MinMaxBounds;
+import net.minecraft.advancements.criterion.SimpleCriterionTrigger;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+
+import java.util.Optional;
 
 // https://github.com/TelepathicGrunt/Bumblezone/blob/latest-released/src/main/java/com/telepathicgrunt/the_bumblezone/advancements/CleanupStickyHoneyResidueTrigger.java
 // https://github.com/VazkiiMods/Botania/blob/b8706e2e0bba20f67f1e103559a4ce39d63d48f9/src/main/java/vazkii/botania/common/advancements/CorporeaRequestTrigger.java
 
+// 26.1: criterion triggers are codec-based and keyed by registry, not by a getId() on the trigger.
 public class OvercastTrigger extends SimpleCriterionTrigger<OvercastTrigger.Instance> {
-    private static final ResourceLocation ID = new ResourceLocation("hexcasting", "overcast");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("hexcasting", "overcast");
 
     private static final String TAG_MEDIA_GENERATED = "media_generated";
     private static final String TAG_HEALTH_USED = "health_used";
@@ -19,17 +25,8 @@ public class OvercastTrigger extends SimpleCriterionTrigger<OvercastTrigger.Inst
         "mojang_i_am_begging_and_crying_please_add_an_entity_health_criterion";
 
     @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
-    @Override
-    protected Instance createInstance(JsonObject json, ContextAwarePredicate predicate,
-        DeserializationContext pContext) {
-        return new Instance(predicate,
-            MinMaxBounds.Ints.fromJson(json.get(TAG_MEDIA_GENERATED)),
-            MinMaxBounds.Doubles.fromJson(json.get(TAG_HEALTH_USED)),
-            MinMaxBounds.Doubles.fromJson(json.get(TAG_HEALTH_LEFT)));
+    public Codec<Instance> codec() {
+        return Instance.CODEC;
     }
 
     public void trigger(ServerPlayer player, int mediaGenerated) {
@@ -40,40 +37,28 @@ public class OvercastTrigger extends SimpleCriterionTrigger<OvercastTrigger.Inst
         });
     }
 
-    public static class Instance extends AbstractCriterionTriggerInstance {
-        protected final MinMaxBounds.Ints mediaGenerated;
+    public record Instance(
+        Optional<ContextAwarePredicate> player,
+        MinMaxBounds.Ints mediaGenerated,
         // This is the *proporttion* of the health bar.
-        protected final MinMaxBounds.Doubles healthUsed;
+        MinMaxBounds.Doubles healthUsed,
         // DID YOU KNOW THERES ONE TO CHECK THE WORLD TIME, BUT NOT THE HEALTH!?
-        protected final MinMaxBounds.Doubles healthLeft;
+        MinMaxBounds.Doubles healthLeft
+    ) implements SimpleCriterionTrigger.SimpleInstance {
+        public static final Codec<Instance> CODEC = RecordCodecBuilder.create(i -> i.group(
+            ContextAwarePredicate.CODEC.optionalFieldOf("player").forGetter(Instance::player),
+            MinMaxBounds.Ints.CODEC.optionalFieldOf(TAG_MEDIA_GENERATED, MinMaxBounds.Ints.ANY)
+                .forGetter(Instance::mediaGenerated),
+            MinMaxBounds.Doubles.CODEC.optionalFieldOf(TAG_HEALTH_USED, MinMaxBounds.Doubles.ANY)
+                .forGetter(Instance::healthUsed),
+            MinMaxBounds.Doubles.CODEC.optionalFieldOf(TAG_HEALTH_LEFT, MinMaxBounds.Doubles.ANY)
+                .forGetter(Instance::healthLeft)
+        ).apply(i, Instance::new));
 
+        // convenience for datagen
         public Instance(ContextAwarePredicate predicate, MinMaxBounds.Ints mediaGenerated,
             MinMaxBounds.Doubles healthUsed, MinMaxBounds.Doubles healthLeft) {
-            super(OvercastTrigger.ID, predicate);
-            this.mediaGenerated = mediaGenerated;
-            this.healthUsed = healthUsed;
-            // DID YOU KNOW THERE'S ONE TO CHECK THE FUCKING C A T T Y P E BUT NOT THE HEALTH
-            this.healthLeft = healthLeft;
-        }
-
-        @Override
-        public ResourceLocation getCriterion() {
-            return ID;
-        }
-
-        @Override
-        public JsonObject serializeToJson(SerializationContext ctx) {
-            JsonObject json = super.serializeToJson(ctx);
-            if (!this.mediaGenerated.isAny()) {
-                json.add(TAG_MEDIA_GENERATED, this.mediaGenerated.serializeToJson());
-            }
-            if (!this.healthUsed.isAny()) {
-                json.add(TAG_HEALTH_USED, this.healthUsed.serializeToJson());
-            }
-            if (!this.healthLeft.isAny()) {
-                json.add(TAG_HEALTH_LEFT, this.healthLeft.serializeToJson());
-            }
-            return json;
+            this(Optional.of(predicate), mediaGenerated, healthUsed, healthLeft);
         }
 
         private boolean test(int mediaGeneratedIn, double healthUsedIn, float healthLeftIn) {

@@ -12,18 +12,16 @@ import at.petrak.hexcasting.api.pigment.FrozenPigment;
 import at.petrak.hexcasting.common.items.magic.ItemAncientCypher;
 import at.petrak.hexcasting.common.items.magic.ItemPackagedHex;
 import at.petrak.hexcasting.common.lib.HexItems;
-import at.petrak.hexcasting.common.lib.HexLootFunctions;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import net.minecraft.Util;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
@@ -36,7 +34,11 @@ import com.mojang.datafixers.util.Pair;
  * is used on both sides
  */
 public class AddHexToAncientCypherFunc extends LootItemConditionalFunction {
-    public AddHexToAncientCypherFunc(LootItemCondition[] lootItemConditions) {
+    public static final MapCodec<AddHexToAncientCypherFunc> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+        commonFields(inst).t1()
+    ).apply(inst, AddHexToAncientCypherFunc::new));
+
+    public AddHexToAncientCypherFunc(List<LootItemCondition> lootItemConditions) {
         super(lootItemConditions);
     }
 
@@ -61,7 +63,7 @@ public class AddHexToAncientCypherFunc extends LootItemConditionalFunction {
         tag.putLong(ItemAncientCypher.TAG_MAX_MEDIA, 32*MediaConstants.SHARD_UNIT);
         tag.putInt(VariantItem.TAG_VARIANT, rand.nextInt(8));
         
-        stack.getOrCreateTag().merge(tag);
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, existing -> existing.merge(tag));
 
         return stack;
     }
@@ -72,21 +74,8 @@ public class AddHexToAncientCypherFunc extends LootItemConditionalFunction {
     }
 
     @Override
-    public LootItemFunctionType getType() {
-        return HexLootFunctions.HEX_CYPHER;
-    }
-
-    public static class Serializer extends LootItemConditionalFunction.Serializer<AddHexToAncientCypherFunc> {
-        @Override
-        public void serialize(JsonObject json, AddHexToAncientCypherFunc value, JsonSerializationContext ctx) {
-            super.serialize(json, value, ctx);
-        }
-
-        @Override
-        public AddHexToAncientCypherFunc deserialize(JsonObject object, JsonDeserializationContext ctx,
-            LootItemCondition[] conditions) {
-            return new AddHexToAncientCypherFunc(conditions);
-        }
+    public MapCodec<? extends LootItemConditionalFunction> codec() {
+        return CODEC;
     }
 
     // TODO: make this datapackable

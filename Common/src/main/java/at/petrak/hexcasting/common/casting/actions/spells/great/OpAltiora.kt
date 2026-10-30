@@ -60,7 +60,7 @@ object OpAltiora : SpellAction {
 
                 val color = IXplatAbstractions.INSTANCE.getPigment(player)
                 ParticleSpray(player.position(), Vec3(0.0, -0.2, 0.0), 0.4, Math.PI * 0.5, count = 3)
-                    .sprayParticles(player.serverLevel(), color)
+                    .sprayParticles(player.level(), color)
             }
         }
     }

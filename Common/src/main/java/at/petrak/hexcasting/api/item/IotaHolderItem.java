@@ -11,7 +11,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -65,10 +65,10 @@ public interface IotaHolderItem {
         if (NBTHelper.hasString(stack, TAG_OVERRIDE_VISUALLY)) {
             var override = NBTHelper.getString(stack, TAG_OVERRIDE_VISUALLY);
 
-            if (override != null && ResourceLocation.isValidResourceLocation(override)) {
-                var key = new ResourceLocation(override);
+            var key = override == null ? null : Identifier.tryParse(override);
+            if (key != null) {
                 if (HexIotaTypes.REGISTRY.containsKey(key)) {
-                    var iotaType = HexIotaTypes.REGISTRY.get(key);
+                    var iotaType = HexIotaTypes.REGISTRY.getOptional(key).orElse(null);
                     if (iotaType != null) {
                         return iotaType.color();
                     }

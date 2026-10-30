@@ -1,15 +1,16 @@
 package at.petrak.hexcasting.client.gui;
 
 import at.petrak.hexcasting.api.casting.math.HexPattern;
+import at.petrak.hexcasting.client.render.HexGuiRender;
 import at.petrak.hexcasting.client.render.PatternColors;
 import at.petrak.hexcasting.client.render.PatternRenderer;
 import at.petrak.hexcasting.client.render.WorldlyPatternRenderHelpers;
 import at.petrak.hexcasting.common.misc.PatternTooltip;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,15 +23,15 @@ import static at.petrak.hexcasting.api.HexAPI.modLoc;
  * @see PatternTooltip the associated data for this
  */
 public class PatternTooltipComponent implements ClientTooltipComponent {
-    public static final ResourceLocation PRISTINE_BG = modLoc("textures/gui/scroll.png");
-    public static final ResourceLocation ANCIENT_BG = modLoc("textures/gui/scroll_ancient.png");
-    public static final ResourceLocation SLATE_BG = modLoc("textures/gui/slate.png");
+    public static final Identifier PRISTINE_BG = modLoc("textures/gui/scroll.png");
+    public static final Identifier ANCIENT_BG = modLoc("textures/gui/scroll_ancient.png");
+    public static final Identifier SLATE_BG = modLoc("textures/gui/slate.png");
 
     private static final float RENDER_SIZE = 128f;
     private static final int TEXTURE_SIZE = 48;
 
     private final HexPattern pattern;
-    private final ResourceLocation background;
+    private final Identifier background;
 
     public PatternTooltipComponent(PatternTooltip tt) {
         this.pattern = tt.pattern();
@@ -46,35 +47,31 @@ public class PatternTooltipComponent implements ClientTooltipComponent {
     }
 
     @Override
-    public void renderImage(Font font, int mouseX, int mouseY, GuiGraphics graphics) {
-        var ps = graphics.pose();
-
-        // far as i can tell "mouseX" and "mouseY" are actually the positions of the corner of the tooltip
-        ps.pushPose();
-        ps.translate(mouseX, mouseY, 500);
-        RenderSystem.enableBlend();
+    public void extractImage(Font font, int mouseX, int mouseY, int width, int height,
+        GuiGraphicsExtractor graphics) {
+        var guiPose = graphics.pose();
+        guiPose.pushMatrix();
+        guiPose.translate(mouseX, mouseY);
         renderBG(graphics, this.background);
+        guiPose.popMatrix();
 
-        // renderText happens *before* renderImage for some asinine reason
-        ps.translate(0, 0, 100);
+        // renderText happens *before* extractImage for some asinine reason
+        var ps = new PoseStack();
+        ps.translate(mouseX, mouseY, 0);
         ps.scale(RENDER_SIZE, RENDER_SIZE, 1);
 
-        PatternRenderer.renderPattern(pattern, ps, WorldlyPatternRenderHelpers.READABLE_SCROLL_SETTINGS,
+        PatternRenderer.renderPattern(pattern, ps, new PatternRenderer.WorldlyBits(HexGuiRender.guiSink(graphics)),
+                WorldlyPatternRenderHelpers.READABLE_SCROLL_SETTINGS,
                 (PatternRenderer.shouldDoStrokeGradient() ? PatternColors.DEFAULT_GRADIENT_COLOR : PatternColors.DEFAULT_PATTERN_COLOR)
                         .withDots(true, true),
                 0, 512);
-
-        ps.popPose();
     }
 
-    private static void renderBG(GuiGraphics graphics, ResourceLocation background) {
+    private static void renderBG(GuiGraphicsExtractor graphics, Identifier background) {
         graphics.blit(
             background, // texture
-            0, 0, // x, y
-            (int) RENDER_SIZE, (int) RENDER_SIZE, // renderWidth, renderHeight
-            0f, 0f, // u, v (textureCoords)
-            TEXTURE_SIZE, TEXTURE_SIZE, // regionWidth, regionHeight (texture sample dimensions)
-            TEXTURE_SIZE, TEXTURE_SIZE); // textureWidth, textureHeight (total dimensions of texture)
+            0, (int) RENDER_SIZE, 0, (int) RENDER_SIZE, // x1, x2, y1, y2
+            0f, 0f, 1f, 1f); // u0, v0, u1, v1
     }
 
     @Override
@@ -83,7 +80,7 @@ public class PatternTooltipComponent implements ClientTooltipComponent {
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(Font pFont) {
         return (int) RENDER_SIZE;
     }
 }

@@ -6,6 +6,7 @@ import at.petrak.hexcasting.api.casting.eval.ResolvedPatternType
 import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.iota.ListIota
 import at.petrak.hexcasting.api.utils.NBTBuilder
+import at.petrak.hexcasting.api.utils.getBoolean
 import at.petrak.hexcasting.api.utils.getList
 import at.petrak.hexcasting.api.utils.serializeToNBT
 import at.petrak.hexcasting.common.lib.hex.HexEvalSounds
@@ -63,10 +64,10 @@ data class FrameEvaluate(val list: SpellList, val isMetacasting: Boolean) : Cont
             override fun deserializeFromNBT(tag: CompoundTag, world: ServerLevel): FrameEvaluate {
                 return FrameEvaluate(
                     HexIotaTypes.LIST.deserialize(
-                        tag.getList("patterns", Tag.TAG_COMPOUND),
+                        tag.getListOrEmpty("patterns"),
                         world
                     )!!.list,
-                    tag.getBoolean("isMetacasting"))
+                    tag.getBoolean("isMetacasting", false))
             }
 
         }

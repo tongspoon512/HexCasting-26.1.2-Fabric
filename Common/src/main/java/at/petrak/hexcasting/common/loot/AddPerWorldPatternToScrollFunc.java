@@ -7,24 +7,21 @@ import at.petrak.hexcasting.api.utils.HexUtils;
 import at.petrak.hexcasting.api.utils.NBTHelper;
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest;
 import at.petrak.hexcasting.common.items.storage.ItemScroll;
-import at.petrak.hexcasting.common.lib.HexLootFunctions;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import net.minecraft.util.RandomSource;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Registry;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Slap a random per-world pattern on the scroll.
@@ -33,7 +30,11 @@ import java.util.ArrayList;
  * is used on both sides
  */
 public class AddPerWorldPatternToScrollFunc extends LootItemConditionalFunction {
-    public AddPerWorldPatternToScrollFunc(LootItemCondition[] lootItemConditions) {
+    public static final MapCodec<AddPerWorldPatternToScrollFunc> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+        commonFields(inst).t1()
+    ).apply(inst, AddPerWorldPatternToScrollFunc::new));
+
+    public AddPerWorldPatternToScrollFunc(List<LootItemCondition> lootItemConditions) {
         super(lootItemConditions);
     }
 
@@ -49,7 +50,7 @@ public class AddPerWorldPatternToScrollFunc extends LootItemConditionalFunction 
             }
         }
         var patternKey = perWorldKeys.get(rand.nextInt(perWorldKeys.size()));
-        var patternID = patternKey.location().toString();
+        var patternID = patternKey.identifier().toString();
         var pat = PatternRegistryManifest.getCanonicalStrokesPerWorld(patternKey, overworld);
         if (pat == null) {
             HexAPI.LOGGER.error("No per-world pattern found for action " + patternID + " while generating loot scroll! " +
@@ -68,20 +69,7 @@ public class AddPerWorldPatternToScrollFunc extends LootItemConditionalFunction 
     }
 
     @Override
-    public LootItemFunctionType getType() {
-        return HexLootFunctions.PATTERN_SCROLL;
-    }
-
-    public static class Serializer extends LootItemConditionalFunction.Serializer<AddPerWorldPatternToScrollFunc> {
-        @Override
-        public void serialize(JsonObject json, AddPerWorldPatternToScrollFunc value, JsonSerializationContext ctx) {
-            super.serialize(json, value, ctx);
-        }
-
-        @Override
-        public AddPerWorldPatternToScrollFunc deserialize(JsonObject object, JsonDeserializationContext ctx,
-            LootItemCondition[] conditions) {
-            return new AddPerWorldPatternToScrollFunc(conditions);
-        }
+    public MapCodec<? extends LootItemConditionalFunction> codec() {
+        return CODEC;
     }
 }

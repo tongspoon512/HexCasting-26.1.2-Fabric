@@ -43,7 +43,7 @@ public class PatternRegistryManifest {
 
         var registry = IXplatAbstractions.INSTANCE.getActionRegistry();
         for (var key : registry.registryKeySet()) {
-            var entry = registry.get(key);
+            var entry = registry.getOptional(key).orElse(null);
             if (entry == null)
                 continue;
 
@@ -71,7 +71,7 @@ public class PatternRegistryManifest {
     public static Pair<SpecialHandler, ResourceKey<SpecialHandler.Factory<?>>> matchPatternToSpecialHandler(HexPattern pat, CastingEnvironment environment) {
         var registry = IXplatAbstractions.INSTANCE.getSpecialHandlerRegistry();
         for (var key : registry.registryKeySet()) {
-            var factory = registry.get(key);
+            var factory = registry.getOptional(key).orElse(null);
             if (factory == null)
                 continue;
             var handler = factory.tryMatch(pat,environment);

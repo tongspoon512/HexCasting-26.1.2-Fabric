@@ -4,17 +4,18 @@ import at.petrak.hexcasting.api.addldata.ItemDelegatingEntityIotaHolder;
 import at.petrak.hexcasting.api.casting.iota.Iota;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class CCEntityIotaHolder implements CCIotaHolder {
     @Override
-    public void writeToNbt(@NotNull CompoundTag tag) {
+    public void writeData(ValueOutput output) {
         // NO-OP
     }
 
     @Override
-    public void readFromNbt(@NotNull CompoundTag tag) {
+    public void readData(ValueInput input) {
         // NO-OP
     }
 

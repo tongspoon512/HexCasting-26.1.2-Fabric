@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "#hexcasting:amethyst_blocks",
+  "result": {
+    "id": "hexcasting:amethyst_pillar"
+  }
+}

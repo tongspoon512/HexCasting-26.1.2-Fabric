@@ -7,7 +7,7 @@ import at.petrak.hexcasting.common.particles.ConjureParticleOptions;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
@@ -19,10 +19,10 @@ import static at.petrak.hexcasting.api.HexAPI.modLoc;
  * Sent server->client to spray particles everywhere.
  */
 public record MsgCastParticleS2C(ParticleSpray spray, FrozenPigment colorizer) implements IMessage {
-    public static final ResourceLocation ID = modLoc("cprtcl");
+    public static final Identifier ID = modLoc("cprtcl");
 
     @Override
-    public ResourceLocation getFabricId() {
+    public Identifier getFabricId() {
         return ID;
     }
 
@@ -37,7 +37,7 @@ public record MsgCastParticleS2C(ParticleSpray spray, FrozenPigment colorizer) i
         var fuzziness = buf.readDouble();
         var spread = buf.readDouble();
         var count = buf.readInt();
-        var tag = buf.readAnySizeNbt();
+        var tag = buf.readNbt();
         var colorizer = FrozenPigment.fromNBT(tag);
         return new MsgCastParticleS2C(
             new ParticleSpray(new Vec3(posX, posY, posZ), new Vec3(velX, velY, velZ), fuzziness, spread, count),

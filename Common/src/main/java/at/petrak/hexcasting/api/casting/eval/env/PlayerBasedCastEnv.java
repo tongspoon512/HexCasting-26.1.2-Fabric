@@ -23,7 +23,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -54,11 +54,11 @@ public abstract class PlayerBasedCastEnv extends CastingEnvironment {
     protected final InteractionHand castingHand;
 
     protected PlayerBasedCastEnv(ServerPlayer caster, InteractionHand castingHand) {
-        super(caster.serverLevel());
+        super(caster.level());
         this.caster = caster;
         this.castingHand = castingHand;
-        this.ambitRadius = caster.getAttributeValue(HexAttributes.AMBIT_RADIUS);
-        this.sentinelRadius = caster.getAttributeValue(HexAttributes.SENTINEL_RADIUS);
+        this.ambitRadius = caster.getAttributeValue(HexAttributes.holder(HexAttributes.AMBIT_RADIUS));
+        this.sentinelRadius = caster.getAttributeValue(HexAttributes.holder(HexAttributes.SENTINEL_RADIUS));
     }
 
     @Override
@@ -72,12 +72,12 @@ public abstract class PlayerBasedCastEnv extends CastingEnvironment {
     }
 
     @Override
-    protected double getCostModifier(@NotNull ResourceLocation loc) {
+    protected double getCostModifier(@NotNull Identifier loc) {
         var base = super.getCostModifier(loc);
         if (isOfTag(IXplatAbstractions.INSTANCE.getActionRegistry(), loc, HexTags.Actions.CANNOT_MODIFY_COST)) {
             return base;
         }
-        return base * this.caster.getAttributeValue(HexAttributes.MEDIA_CONSUMPTION_MODIFIER);
+        return base * this.caster.getAttributeValue(HexAttributes.holder(HexAttributes.MEDIA_CONSUMPTION_MODIFIER));
     }
 
     @Override
@@ -90,11 +90,11 @@ public abstract class PlayerBasedCastEnv extends CastingEnvironment {
             }
         }
         if (this.caster != null){
-            double ambitAttribute = this.caster.getAttributeValue(HexAttributes.AMBIT_RADIUS);
+            double ambitAttribute = this.caster.getAttributeValue(HexAttributes.holder(HexAttributes.AMBIT_RADIUS));
             if (this.ambitRadius != ambitAttribute){
                 this.ambitRadius = ambitAttribute;
             }
-            double sentinelAttribute = this.caster.getAttributeValue(HexAttributes.SENTINEL_RADIUS);
+            double sentinelAttribute = this.caster.getAttributeValue(HexAttributes.holder(HexAttributes.SENTINEL_RADIUS));
             if (this.sentinelRadius != sentinelAttribute){
                 this.sentinelRadius = sentinelAttribute;
             }
@@ -165,7 +165,7 @@ public abstract class PlayerBasedCastEnv extends CastingEnvironment {
             double healthToRemove = Math.max(costLeft / mediaToHealth, 0.5);
             if (simulate) {
                 long simulatedRemovedMedia = Mth.ceil(Math.min(this.caster.getHealth(), healthToRemove) * mediaToHealth);
-                if (this.caster.isInvulnerableTo(this.caster.damageSources().source(HexDamageTypes.OVERCAST))) {
+                if (this.caster.isInvulnerableTo(this.caster.level(), this.caster.damageSources().source(HexDamageTypes.OVERCAST))) {
                     simulatedRemovedMedia = 0;
                 }
                 costLeft -= simulatedRemovedMedia;
@@ -196,7 +196,7 @@ public abstract class PlayerBasedCastEnv extends CastingEnvironment {
     }
 
     protected boolean canOvercast() {
-        var adv = this.world.getServer().getAdvancements().getAdvancement(modLoc("y_u_no_cast_angy"));
+        var adv = this.world.getServer().getAdvancements().get(modLoc("y_u_no_cast_angy"));
         var advs = this.caster.getAdvancements();
         return advs.getOrStartProgress(adv).isDone();
     }

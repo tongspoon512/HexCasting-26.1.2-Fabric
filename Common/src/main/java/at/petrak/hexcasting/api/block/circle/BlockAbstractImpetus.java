@@ -16,13 +16,13 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 import java.util.EnumSet;
 
 // Facing dir is the direction it starts searching for slates in to start
 public abstract class BlockAbstractImpetus extends BlockCircleComponent implements EntityBlock {
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
 
     public BlockAbstractImpetus(Properties p_49795_) {
         super(p_49795_);
@@ -66,13 +66,12 @@ public abstract class BlockAbstractImpetus extends BlockCircleComponent implemen
     }
 
     @Override
-    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-        if (!pNewState.is(pState.getBlock())
-            && pLevel.getBlockEntity(pPos) instanceof BlockEntityAbstractImpetus impetus) {
+    protected void affectNeighborsAfterRemoval(BlockState pState, ServerLevel pLevel, BlockPos pPos, boolean pIsMoving) {
+        if (pLevel.getBlockEntity(pPos) instanceof BlockEntityAbstractImpetus impetus) {
             impetus.endExecution(); // TODO: Determine if this was important
             // TODO: Fix this, it should make all the glowy circle components stop glowing.
         }
-        super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
+        super.affectNeighborsAfterRemoval(pState, pLevel, pPos, pIsMoving);
     }
 
     @Override

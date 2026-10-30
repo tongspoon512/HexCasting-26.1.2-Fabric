@@ -6,7 +6,7 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,13 +16,13 @@ import java.util.function.Function;
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
 public class HexParticles {
-    public static void registerParticles(BiConsumer<ParticleType<?>, ResourceLocation> r) {
+    public static void registerParticles(BiConsumer<ParticleType<?>, Identifier> r) {
         for (var e : PARTICLES.entrySet()) {
             r.accept(e.getValue(), e.getKey());
         }
     }
 
-    private static final Map<ResourceLocation, ParticleType<?>> PARTICLES = new LinkedHashMap<>();
+    private static final Map<Identifier, ParticleType<?>> PARTICLES = new LinkedHashMap<>();
 
     public static final ConjureParticleOptions.Type CONJURE_PARTICLE = register(
         "conjure_particle", new ConjureParticleOptions.Type(false));

@@ -1,11 +1,12 @@
 package at.petrak.hexcasting.fabric.cc;
 
-import dev.onyxstudios.cca.api.v3.component.Component;
-import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import org.ladysnake.cca.api.v3.component.Component;
+import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class CCBrainswept implements Component, AutoSyncedComponent {
     public static final String TAG_BRAINSWEPT = "brainswept";
@@ -28,19 +29,19 @@ public class CCBrainswept implements Component, AutoSyncedComponent {
     }
 
     @Override
-    public void applySyncPacket(FriendlyByteBuf buf) {
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
         AutoSyncedComponent.super.applySyncPacket(buf);
         if (owner instanceof Mob mob && brainswept)
             mob.removeFreeWill();
     }
 
     @Override
-    public void readFromNbt(CompoundTag tag) {
-        this.brainswept = tag.getBoolean(TAG_BRAINSWEPT);
+    public void readData(ValueInput input) {
+        this.brainswept = input.getBooleanOr(TAG_BRAINSWEPT, false);
     }
 
     @Override
-    public void writeToNbt(CompoundTag tag) {
-        tag.putBoolean(TAG_BRAINSWEPT, this.brainswept);
+    public void writeData(ValueOutput output) {
+        output.putBoolean(TAG_BRAINSWEPT, this.brainswept);
     }
 }

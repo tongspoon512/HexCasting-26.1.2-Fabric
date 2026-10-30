@@ -13,6 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -44,7 +45,7 @@ public class ScryingLensOverlays {
                 float gCol = Math.max(0.0F, Mth.sin((note / 24F + 0.33333334F) * Mth.TWO_PI) * 0.65F + 0.35F);
                 float bCol = Math.max(0.0F, Mth.sin((note / 24F + 0.6666667F) * Mth.TWO_PI) * 0.65F + 0.35F);
 
-                int noteColor = 0xFF_000000 | Mth.color(rCol, gCol, bCol);
+                int noteColor = ARGB.color(Math.round(rCol * 255), Math.round(gCol * 255), Math.round(bCol * 255));
 
                 var instrument = state.getValue(NoteBlock.INSTRUMENT);
 
@@ -71,7 +72,7 @@ public class ScryingLensOverlays {
 
         ScryingLensOverlayRegistry.addDisplayer(Blocks.COMPARATOR,
             (lines, state, pos, observer, world, direction) -> {
-                int comparatorValue = state.getAnalogOutputSignal(world, pos);
+                int comparatorValue = state.getAnalogOutputSignal(world, pos, direction);
                 lines.add(new Pair<>(
                     new ItemStack(Items.REDSTONE),
                     Component.literal(comparatorValue == -1 ? "" : String.valueOf(comparatorValue))

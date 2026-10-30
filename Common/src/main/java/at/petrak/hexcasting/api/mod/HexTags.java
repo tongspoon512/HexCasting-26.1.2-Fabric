@@ -3,7 +3,7 @@ package at.petrak.hexcasting.api.mod;
 import at.petrak.hexcasting.api.casting.ActionRegistryEntry;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -32,7 +32,7 @@ public class HexTags {
             return create(modLoc(name));
         }
 
-        public static TagKey<Item> create(ResourceLocation id) {
+        public static TagKey<Item> create(Identifier id) {
             return TagKey.create(Registries.ITEM, id);
         }
     }

@@ -1,0 +1,31 @@
+{
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "hexcasting:edified_door",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "half": "lower"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": 1.0,
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "hexcasting:edified_door"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "hexcasting:edified_door"
+}

@@ -1,24 +1,23 @@
 package at.petrak.hexcasting.fabric.mixin.client;
 
 import at.petrak.hexcasting.client.model.AltioraLayer;
-import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.player.AbstractClientPlayer;
+import at.petrak.hexcasting.mixin.accessor.client.AccessorLivingEntityRenderer;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(PlayerRenderer.class)
-public abstract class FabricPlayerRendererMixin extends LivingEntityRenderer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
-    public FabricPlayerRendererMixin(EntityRendererProvider.Context context, PlayerModel<AbstractClientPlayer> entityModel, float f) {
-        super(context, entityModel, f);
-    }
-
+@Mixin(AvatarRenderer.class)
+public abstract class FabricPlayerRendererMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void addAltiora(EntityRendererProvider.Context ctx, boolean bl, CallbackInfo ci) {
-        this.addLayer(new AltioraLayer<>((PlayerRenderer)(Object)this, ctx.getModelSet()));
+    private void addAltiora(EntityRendererProvider.Context ctx, boolean slim, CallbackInfo ci) {
+        @SuppressWarnings("unchecked")
+        var parent = (RenderLayerParent<AvatarRenderState, PlayerModel>) (Object) this;
+        ((AccessorLivingEntityRenderer) (Object) this).hex$addLayer(new AltioraLayer<>(parent, ctx.getModelSet()));
     }
 }

@@ -1,8 +1,7 @@
 {
   "minVersion": "0.8",
   "required": true,
-  "compatibilityLevel": "JAVA_17",
-  "refmap": "hexcasting.mixins.refmap.json",
+  "compatibilityLevel": "JAVA_25",
   "package": "at.petrak.hexcasting.fabric.mixin",
   "mixins": [
     "FabricAxeItemMixin",
@@ -13,16 +12,12 @@
     "FabricLivingEntityMixin",
     "FabricMixinReloadableServerResources",
     "FabricMobMixin",
-    "FabricPlayerMixin",
-    "FabricVillagerTurnIntoWitchMixin"
+    "FabricPlayerMixin"
   ],
   "client": [
-    "client.FabricAbstractTextureMixin",
-    "client.FabricLevelRendererMixin",
-    "client.FabricMixinGameRenderer",
-    "client.FabricModelManagerMixin",
     "client.FabricMouseHandlerMixin",
     "client.FabricParticleEngineMixin",
+    "client.FabricParticleResourcesMixin",
     "client.FabricPlayerRendererMixin"
   ]
 }

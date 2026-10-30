@@ -9,9 +9,11 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -26,6 +28,12 @@ public class ScrungledPatternsSave extends SavedData {
     public static final String TAG_SAVED_DATA = "hexcasting.per-world-patterns." + DATA_VERSION;
     private static final String TAG_DIR = "startDir";
     private static final String TAG_KEY = "key";
+
+    public static final SavedDataType<ScrungledPatternsSave> TYPE = new SavedDataType<>(
+        Identifier.parse(TAG_SAVED_DATA),
+        () -> new ScrungledPatternsSave(new HashMap<>()),
+        CompoundTag.CODEC.xmap(ScrungledPatternsSave::load, ScrungledPatternsSave::saveToTag),
+        DataFixTypes.SAVED_DATA_WORLD_CLOCKS);
 
     /**
      * Maps scrungled signatures to their keys.
@@ -60,13 +68,13 @@ public class ScrungledPatternsSave extends SavedData {
         return Pair.of(sig, this.lookup.get(sig));
     }
 
-    @Override
-    public CompoundTag save(CompoundTag tag) {
+    public CompoundTag saveToTag() {
+        var tag = new CompoundTag();
         // We don't save the reverse lookup cause we can reconstruct it when loading.
         this.lookup.forEach((sig, entry) -> {
             var inner = new CompoundTag();
             inner.putByte(TAG_DIR, (byte) entry.canonicalStartDir.ordinal());
-            inner.putString(TAG_KEY, entry.key().location().toString());
+            inner.putString(TAG_KEY, entry.key().identifier().toString());
             tag.put(sig, inner);
         });
         return tag;
@@ -76,14 +84,22 @@ public class ScrungledPatternsSave extends SavedData {
         var registryKey = IXplatAbstractions.INSTANCE.getActionRegistry().key();
 
         var map = new HashMap<String, PerWorldEntry>();
-        for (var sig : tag.getAllKeys()) {
-            var inner = tag.getCompound(sig);
+        for (var sig : tag.keySet()) {
+            var inner = tag.getCompound(sig).orElse(null);
+            if (inner == null) {
+                continue;
+            }
 
-            var rawDir = inner.getByte(TAG_DIR);
-            var rawKey = inner.getString(TAG_KEY);
+            var rawDir = inner.getByte(TAG_DIR).orElse((byte) 0);
+            var rawKey = inner.getString(TAG_KEY).orElse("");
+
+            var keyId = Identifier.tryParse(rawKey);
+            if (keyId == null) {
+                continue;
+            }
 
             var dir = HexDir.values()[rawDir];
-            var key = ResourceKey.create(registryKey, new ResourceLocation(rawKey));
+            var key = ResourceKey.create(registryKey, keyId);
 
             if (IXplatAbstractions.INSTANCE.getActionRegistry().containsKey(key))
                 map.put(sig, new PerWorldEntry(key, dir));
@@ -103,8 +119,8 @@ public class ScrungledPatternsSave extends SavedData {
         // I'm going to file that under "don't do that"
         // (the number literal phial incident won't happen though because we check for special handlers first now)
         for (var key : registry.registryKeySet()) {
-            var entry = registry.get(key);
-            if (HexUtils.isOfTag(registry, key, HexTags.Actions.PER_WORLD_PATTERN)) {
+            var entry = registry.getOptional(key).orElse(null);
+            if (entry != null && HexUtils.isOfTag(registry, key, HexTags.Actions.PER_WORLD_PATTERN)) {
                 var scrungledPat = EulerPathFinder.findAltDrawing(entry.prototype(), seed);
                 map.put(scrungledPat.anglesSignature(), new PerWorldEntry(key, scrungledPat.getStartDir()));
             }
@@ -116,10 +132,14 @@ public class ScrungledPatternsSave extends SavedData {
     }
 
     public static ScrungledPatternsSave open(ServerLevel overworld) {
-        return overworld.getDataStorage().computeIfAbsent(
-            ScrungledPatternsSave::load,
-            () -> ScrungledPatternsSave.createFromScratch(overworld.getSeed()),
-            TAG_SAVED_DATA);
+        var storage = overworld.getDataStorage();
+        var existing = storage.get(TYPE);
+        if (existing != null) {
+            return existing;
+        }
+        var created = createFromScratch(overworld.getSeed());
+        storage.set(TYPE, created);
+        return created;
     }
 
     public record PerWorldEntry(ResourceKey<ActionRegistryEntry> key, HexDir canonicalStartDir) {

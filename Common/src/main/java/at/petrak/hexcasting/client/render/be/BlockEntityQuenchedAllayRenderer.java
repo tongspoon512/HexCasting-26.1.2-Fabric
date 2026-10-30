@@ -6,51 +6,77 @@ import at.petrak.hexcasting.common.blocks.BlockQuenchedAllay;
 import at.petrak.hexcasting.common.blocks.entity.BlockEntityQuenchedAllay;
 import at.petrak.hexcasting.xplat.IClientXplatAbstractions;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
+import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.core.Registry;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
 
 // TODO: this doesn't cover the block being *behind* something. Is it possible to cleanly do that?
 // it would probably require some depth-texture bullshit that I don't want to worry about
-public class BlockEntityQuenchedAllayRenderer implements BlockEntityRenderer<BlockEntityQuenchedAllay> {
+public class BlockEntityQuenchedAllayRenderer
+    implements BlockEntityRenderer<BlockEntityQuenchedAllay, BlockEntityQuenchedAllayRenderer.State> {
+    public static class State extends BlockEntityRenderState {
+        public final BlockModelRenderState model = new BlockModelRenderState();
+        public boolean visible = true;
+    }
+
     private final BlockEntityRendererProvider.Context ctx;
 
     public BlockEntityQuenchedAllayRenderer(BlockEntityRendererProvider.Context ctx) {
         this.ctx = ctx;
     }
 
-    private static void doRender(BlockQuenchedAllay block, BlockRenderDispatcher dispatcher, PoseStack ps, MultiBufferSource bufSource,
-        int packedLight, int packedOverlay) {
-        var buffer = bufSource.getBuffer(RenderType.translucent());
-        var pose = ps.last();
-
-        var idx = Math.abs(GaslightingTracker.getGaslightingAmount() % BlockQuenchedAllay.VARIANTS);
-        var model = RegisterClientStuff.QUENCHED_ALLAY_VARIANTS.get(BuiltInRegistries.BLOCK.getKey(block)).get(idx);
-
-        dispatcher.getModelRenderer().renderModel(pose, buffer, null, model, 1f, 1f, 1f, packedLight, packedOverlay);
+    @Override
+    public State createRenderState() {
+        return new State();
     }
 
     @Override
-    public void render(BlockEntityQuenchedAllay blockEntity, float partialTick, PoseStack poseStack,
-        MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+    public void extractRenderState(BlockEntityQuenchedAllay blockEntity, State state, float partialTick,
+        Vec3 cameraPos, ModelFeatureRenderer.CrumblingOverlay crumbling) {
+        BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTick, cameraPos, crumbling);
+
         // https://github.com/MinecraftForge/MinecraftForge/blob/79dfdb0ace9694f9dd0f1d9e8c5c24a0ae2d77f8/patches/minecraft/net/minecraft/client/renderer/LevelRenderer.java.patch#L68
         // Forge fixes BEs rendering offscreen; Fabric doesn't!
         // So we do a special check on Fabric only
         var pos = blockEntity.getBlockPos();
-        var aabb = new AABB(pos.offset(-1, 0, -1), pos.offset(1, 1, 1));
-        if (IClientXplatAbstractions.INSTANCE.fabricAdditionalQuenchFrustumCheck(aabb)) {
-            doRender((BlockQuenchedAllay) blockEntity.getBlockState().getBlock(), this.ctx.getBlockRenderDispatcher(), poseStack, bufferSource, packedLight, packedOverlay);
+        var aabb = new AABB(pos.getX() - 1, pos.getY(), pos.getZ() - 1, pos.getX() + 1, pos.getY() + 1,
+            pos.getZ() + 1);
+        state.visible = IClientXplatAbstractions.INSTANCE.fabricAdditionalQuenchFrustumCheck(aabb);
+
+        BlockState bs = blockEntity.getBlockState();
+        var idx = Math.abs(GaslightingTracker.getGaslightingAmount() % BlockQuenchedAllay.VARIANTS);
+        List<BlockModel> variants =
+            RegisterClientStuff.QUENCHED_ALLAY_VARIANTS.get(BuiltInRegistries.BLOCK.getKey(bs.getBlock()));
+        BlockModel model = variants != null && idx < variants.size() ? variants.get(idx) : null;
+        if (model != null) {
+            model.update(state.model, bs, BlockDisplayContext.create(), state.blockPos.hashCode());
+        } else {
+            this.ctx.blockModelResolver().update(state.model, bs, BlockDisplayContext.create());
         }
     }
 
     @Override
-    public boolean shouldRenderOffScreen(BlockEntityQuenchedAllay blockEntity) {
-        return false;
+    public void submit(State state, PoseStack ps, SubmitNodeCollector collector, CameraRenderState camera) {
+        if (state.visible) {
+            state.model.submit(ps, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+        }
     }
 
+    @Override
+    public boolean shouldRenderOffScreen() {
+        return false;
+    }
 }

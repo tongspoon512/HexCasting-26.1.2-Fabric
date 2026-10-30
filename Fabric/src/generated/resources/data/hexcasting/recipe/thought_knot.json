@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "hexcasting:amethyst_dust",
+    "minecraft:string"
+  ],
+  "result": {
+    "id": "hexcasting:thought_knot"
+  }
+}

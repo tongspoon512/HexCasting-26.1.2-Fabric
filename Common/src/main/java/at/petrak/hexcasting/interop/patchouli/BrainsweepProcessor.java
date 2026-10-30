@@ -1,13 +1,14 @@
 package at.petrak.hexcasting.interop.patchouli;
 
 import at.petrak.hexcasting.common.recipe.BrainsweepRecipe;
-import at.petrak.hexcasting.common.recipe.HexRecipeStuffRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.TagValueOutput;
 import org.jetbrains.annotations.Nullable;
 import vazkii.patchouli.api.IComponentProcessor;
 import vazkii.patchouli.api.IVariable;
@@ -22,14 +23,14 @@ public class BrainsweepProcessor implements IComponentProcessor {
 
 	@Override
 	public void setup(Level level, IVariableProvider vars) {
-		var id = new ResourceLocation(vars.get("recipe").asString());
+		var id = Identifier.withDefaultNamespace(vars.get("recipe").asString());
 
-		var recman = level.getRecipeManager();
-		var brainsweepings = recman.getAllRecipesFor(HexRecipeStuffRegistry.BRAINSWEEP_TYPE);
-		for (var poisonApples : brainsweepings) {
-			if (poisonApples.getId().equals(id)) {
-				this.recipe = poisonApples;
-				break;
+		if (level.recipeAccess() instanceof RecipeManager recman) {
+			for (var holder : recman.getRecipes()) {
+				if (holder.value() instanceof BrainsweepRecipe recipe && holder.id().identifier().equals(id)) {
+					this.recipe = recipe;
+					break;
+				}
 			}
 		}
 	}
@@ -64,9 +65,9 @@ public class BrainsweepProcessor implements IComponentProcessor {
 						var bob = new StringBuilder();
 						bob.append(BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()));
 
-						var tag = new CompoundTag();
+						var tag = TagValueOutput.createWithoutContext(ProblemReporter.DISCARDING);
 						entity.save(tag);
-						bob.append(tag.toString());
+						bob.append(tag.buildResult().toString());
 						return IVariable.wrap(bob.toString());
 					}).toList();
 				}

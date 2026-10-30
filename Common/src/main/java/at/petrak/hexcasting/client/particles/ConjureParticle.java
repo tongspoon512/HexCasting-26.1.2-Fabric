@@ -1,39 +1,29 @@
 package at.petrak.hexcasting.client.particles;
 
-import at.petrak.hexcasting.api.HexAPI;
 import at.petrak.hexcasting.common.particles.ConjureParticleOptions;
-import at.petrak.hexcasting.xplat.IClientXplatAbstractions;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
-public class ConjureParticle extends TextureSheetParticle {
+public class ConjureParticle extends SingleQuadParticle {
     private static final Random RANDOM = new Random();
 
     private final SpriteSet sprites;
 
     ConjureParticle(ClientLevel pLevel, double x, double y, double z, double dx, double dy, double dz,
         SpriteSet pSprites, int color) {
-        super(pLevel, x, y, z, dx, dy, dz);
+        super(pLevel, x, y, z, dx, dy, dz, pSprites.first());
         this.quadSize *= 0.9f;
         this.setParticleSpeed(dx, dy, dz);
 
-        var r = FastColor.ARGB32.red(color);
-        var g = FastColor.ARGB32.green(color);
-        var b = FastColor.ARGB32.blue(color);
+        var r = ARGB.red(color);
+        var g = ARGB.green(color);
+        var b = ARGB.blue(color);
         this.setColor(r / 255f, g / 255f, b / 255f);
         this.setAlpha(0.3f);
 
@@ -50,10 +40,17 @@ public class ConjureParticle extends TextureSheetParticle {
         this.setSpriteFromAge(pSprites);
     }
 
-    public @NotNull ParticleRenderType getRenderType() {
+    @Override
+    public @NotNull ParticleRenderType getGroup() {
         return CONJURE_RENDER_TYPE;
     }
 
+    @Override
+    protected SingleQuadParticle.Layer getLayer() {
+        return SingleQuadParticle.Layer.bySprite(this.sprite);
+    }
+
+    @Override
     public void tick() {
         super.tick();
         this.setSpriteFromAge(this.sprites);
@@ -62,6 +59,7 @@ public class ConjureParticle extends TextureSheetParticle {
         this.quadSize *= 0.96f;
     }
 
+    @Override
     public void setSpriteFromAge(@NotNull SpriteSet pSprite) {
         if (!this.removed) {
             int age = this.age * 4;
@@ -83,42 +81,11 @@ public class ConjureParticle extends TextureSheetParticle {
         @Override
         public Particle createParticle(ConjureParticleOptions type, ClientLevel level,
             double pX, double pY, double pZ,
-            double pXSpeed, double pYSpeed, double pZSpeed) {
+            double pXSpeed, double pYSpeed, double pZSpeed, RandomSource random) {
             return new ConjureParticle(level, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed, this.sprite, type.color());
         }
     }
 
-    // https://github.com/VazkiiMods/Botania/blob/db85d778ab23f44c11181209319066d1f04a9e3d/Xplat/src/main/java/vazkii/botania/client/fx/FXWisp.java
-    private record ConjureRenderType() implements ParticleRenderType {
-        @Override
-        public void begin(BufferBuilder buf, TextureManager texMan) {
-            Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
-            RenderSystem.depthMask(false);
-            RenderSystem.enableBlend();
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
-
-            RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
-            var tex = texMan.getTexture(TextureAtlas.LOCATION_PARTICLES);
-            IClientXplatAbstractions.INSTANCE.setFilterSave(tex, true, false);
-            buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
-            RenderSystem.enableDepthTest();
-        }
-
-        @Override
-        public void end(Tesselator tess) {
-            tess.end();
-            IClientXplatAbstractions.INSTANCE.restoreLastFilter(
-                Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_PARTICLES)
-            );
-            RenderSystem.disableBlend();
-            RenderSystem.depthMask(true);
-        }
-
-        @Override
-        public String toString() {
-            return HexAPI.MOD_ID + ":conjure";
-        }
-    }
-
-    public static final ConjureRenderType CONJURE_RENDER_TYPE = new ConjureRenderType();
+    public static final ParticleRenderType CONJURE_RENDER_TYPE =
+        new ParticleRenderType("hexcasting:conjure");
 }

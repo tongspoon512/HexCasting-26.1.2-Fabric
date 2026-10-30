@@ -9,10 +9,11 @@ import at.petrak.hexcasting.client.render.PatternSettings;
 import at.petrak.hexcasting.client.render.PatternSettings.PositionSettings;
 import at.petrak.hexcasting.client.render.PatternSettings.StrokeSettings;
 import at.petrak.hexcasting.client.render.PatternSettings.ZappySettings;
+import at.petrak.hexcasting.interop.utils.PatternDrawingUtil;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import dev.emi.emi.api.render.EmiRenderable;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.resources.Identifier;
 
 public class PatternRendererEMI implements EmiRenderable {
 
@@ -27,11 +28,11 @@ public class PatternRendererEMI implements EmiRenderable {
     private final HexPattern pat;
     private PatternSettings patSets;
 
-    public PatternRendererEMI(ResourceLocation pattern, int w, int h) {
+    public PatternRendererEMI(Identifier pattern, int w, int h) {
         var regi = IXplatAbstractions.INSTANCE.getActionRegistry();
         var entry = regi.get(pattern);
         this.strokeOrder = HexUtils.isOfTag(regi, pattern, HexTags.Actions.PER_WORLD_PATTERN);
-        this.pat = entry.prototype();
+        this.pat = regi.getValue(pattern).prototype();
         this.width = w;
         this.height = h;
         this.patSets = new PatternSettings("pattern_drawable_" + w + "_" + h,
@@ -60,14 +61,9 @@ public class PatternRendererEMI implements EmiRenderable {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int x, int y, float delta) {
-        var ps = graphics.pose();
-        ps.pushPose();
-        ps.translate(xOffset + x, yOffset + y + 1, 0);
-        PatternRenderer.renderPattern(pat, graphics.pose(), patSets,
+    public void render(GuiGraphicsExtractor graphics, int x, int y, float delta) {
+        PatternDrawingUtil.renderPattern(graphics, pat, patSets,
                 new PatternColors(0xc8_0c0a0c, 0xff_333030).withDotColors(0x80_666363, 0),
-                0, 10
-        );
-        ps.popPose();
+                0, 10, xOffset + x, yOffset + y + 1f);
     }
 }

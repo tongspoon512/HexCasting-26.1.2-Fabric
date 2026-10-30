@@ -11,12 +11,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class ItemMediaHolder extends Item implements MediaHolderItem {
     public static final String TAG_MEDIA = "hexcasting:media";
@@ -87,13 +88,8 @@ public abstract class ItemMediaHolder extends Item implements MediaHolderItem {
     }
 
     @Override
-    public boolean canBeDepleted() {
-        return false;
-    }
-
-    @Override
-    public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents,
-        TooltipFlag pIsAdvanced) {
+    public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, TooltipDisplay pDisplay,
+        Consumer<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         var maxMedia = getMaxMedia(pStack);
         if (maxMedia > 0) {
             var media = getMedia(pStack);
@@ -109,11 +105,11 @@ public abstract class ItemMediaHolder extends Item implements MediaHolderItem {
             maxCapacity.withStyle(style -> style.withColor(HEX_COLOR));
             percentFull.withStyle(style -> style.withColor(color));
 
-            pTooltipComponents.add(
+            pTooltipComponents.accept(
                 Component.translatable("hexcasting.tooltip.media_amount.advanced",
                     mediamount, maxCapacity, percentFull));
         }
 
-        super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
+        super.appendHoverText(pStack, pContext, pDisplay, pTooltipComponents, pIsAdvanced);
     }
 }

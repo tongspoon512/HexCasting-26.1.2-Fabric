@@ -15,6 +15,8 @@ import at.petrak.hexcasting.client.render.be.BlockEntitySlateRenderer;
 import at.petrak.hexcasting.common.blocks.BlockQuenchedAllay;
 import at.petrak.hexcasting.common.blocks.akashic.BlockAkashicBookshelf;
 import at.petrak.hexcasting.common.blocks.akashic.BlockEntityAkashicBookshelf;
+import at.petrak.hexcasting.common.blocks.circles.BlockEntitySlate;
+import at.petrak.hexcasting.common.blocks.entity.BlockEntityQuenchedAllay;
 import at.petrak.hexcasting.common.entities.HexEntities;
 import at.petrak.hexcasting.common.items.ItemStaff;
 import at.petrak.hexcasting.common.items.magic.ItemMediaBattery;
@@ -24,15 +26,20 @@ import at.petrak.hexcasting.common.lib.HexBlockEntities;
 import at.petrak.hexcasting.common.lib.HexBlocks;
 import at.petrak.hexcasting.common.lib.HexItems;
 import at.petrak.hexcasting.xplat.IClientXplatAbstractions;
-import net.minecraft.client.color.block.BlockColor;
-import net.minecraft.client.color.item.ItemColor;
-import net.minecraft.client.renderer.RenderType;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.color.item.ItemTintSource;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -47,7 +54,7 @@ import java.util.function.*;
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
 public class RegisterClientStuff {
-    public static Map<ResourceLocation, List<BakedModel>> QUENCHED_ALLAY_VARIANTS = new HashMap<>();
+    public static Map<Identifier, List<BlockModel>> QUENCHED_ALLAY_VARIANTS = new HashMap<>();
     private static final Map<BlockQuenchedAllay, Boolean> QUENCHED_ALLAY_TYPES = Map.of(
             HexBlocks.QUENCHED_ALLAY, false,
             HexBlocks.QUENCHED_ALLAY_TILES, true,
@@ -118,23 +125,12 @@ public class RegisterClientStuff {
         registerGaslight4(HexBlocks.QUENCHED_ALLAY_BRICKS_SMALL.asItem());
         registerGaslight4(HexItems.QUENCHED_SHARD);
 
-        x.setRenderLayer(HexBlocks.CONJURED_LIGHT, RenderType.cutout());
-        x.setRenderLayer(HexBlocks.CONJURED_BLOCK, RenderType.cutout());
-        x.setRenderLayer(HexBlocks.EDIFIED_DOOR, RenderType.cutout());
-        x.setRenderLayer(HexBlocks.EDIFIED_TRAPDOOR, RenderType.cutout());
-        x.setRenderLayer(HexBlocks.AKASHIC_BOOKSHELF, RenderType.cutout());
-        x.setRenderLayer(HexBlocks.SCONCE, RenderType.cutout());
-
-        x.setRenderLayer(HexBlocks.AMETHYST_EDIFIED_LEAVES, RenderType.cutoutMipped());
-        x.setRenderLayer(HexBlocks.AVENTURINE_EDIFIED_LEAVES, RenderType.cutoutMipped());
-        x.setRenderLayer(HexBlocks.CITRINE_EDIFIED_LEAVES, RenderType.cutoutMipped());
-
-        x.setRenderLayer(HexBlocks.AKASHIC_RECORD, RenderType.translucent());
-        x.setRenderLayer(HexBlocks.QUENCHED_ALLAY, RenderType.translucent());
+        // 26.1 block render layers are selected through ChunkSectionLayer/material flags in the block model;
+        // IClientXplatAbstractions still exposes the old RenderType-based hook, so these calls are skipped.
 
         x.registerEntityRenderer(HexEntities.WALL_SCROLL, WallScrollRenderer::new);
 
-//        for (var tex : new ResourceLocation[]{
+//        for (var tex : new Identifier[]{
 //                PatternTooltipComponent.PRISTINE_BG,
 //                PatternTooltipComponent.ANCIENT_BG,
 //                PatternTooltipComponent.SLATE_BG
@@ -151,26 +147,34 @@ public class RegisterClientStuff {
                 Math.abs(GaslightingTracker.getGaslightingAmount() % 4));
     }
 
-    public static void registerColorProviders(BiConsumer<ItemColor, Item> itemColorRegistry,
-        BiConsumer<BlockColor, Block> blockColorRegistry) {
-        itemColorRegistry.accept(makeIotaStorageColorizer(HexItems.FOCUS::getColor), HexItems.FOCUS);
-        itemColorRegistry.accept(makeIotaStorageColorizer(HexItems.SPELLBOOK::getColor), HexItems.SPELLBOOK);
-        itemColorRegistry.accept(makeIotaStorageColorizer(HexItems.THOUGHT_KNOT::getColor), HexItems.THOUGHT_KNOT);
+    public static void registerColorProviders(BiConsumer<ItemTintSource, Item> itemTintRegistry,
+        BiConsumer<BlockTintSource, Block> blockTintRegistry) {
+        itemTintRegistry.accept(makeIotaStorageColorizer(HexItems.FOCUS::getColor), HexItems.FOCUS);
+        itemTintRegistry.accept(makeIotaStorageColorizer(HexItems.SPELLBOOK::getColor), HexItems.SPELLBOOK);
+        itemTintRegistry.accept(makeIotaStorageColorizer(HexItems.THOUGHT_KNOT::getColor), HexItems.THOUGHT_KNOT);
 
-        blockColorRegistry.accept((bs, level, pos, idx) -> {
-            if (!bs.getValue(BlockAkashicBookshelf.HAS_BOOKS) || level == null || pos == null) {
+        blockTintRegistry.accept(new BlockTintSource() {
+            @Override
+            public int color(BlockState bs) {
                 return 0xff_ffffff;
             }
-            var tile = level.getBlockEntity(pos);
-            if (!(tile instanceof BlockEntityAkashicBookshelf beas)) {
-                // this gets called for particles for some irritating reason
-                return 0xff_ffffff;
+
+            @Override
+            public int colorInWorld(BlockState bs, BlockAndTintGetter level, BlockPos pos) {
+                if (!bs.getValue(BlockAkashicBookshelf.HAS_BOOKS)) {
+                    return 0xff_ffffff;
+                }
+                var tile = level.getBlockEntity(pos);
+                if (!(tile instanceof BlockEntityAkashicBookshelf beas)) {
+                    // this gets called for particles for some irritating reason
+                    return 0xff_ffffff;
+                }
+                var iotaTag = beas.getIotaTag();
+                if (iotaTag == null) {
+                    return 0xff_ffffff;
+                }
+                return IotaType.getColor(iotaTag);
             }
-            var iotaTag = beas.getIotaTag();
-            if (iotaTag == null) {
-                return 0xff_ffffff;
-            }
-            return IotaType.getColor(iotaTag);
         }, HexBlocks.AKASHIC_BOOKSHELF);
     }
 
@@ -179,12 +183,18 @@ public class RegisterClientStuff {
      * <br>
      * 0 = base; 1 = overlay
      */
-    public static ItemColor makeIotaStorageColorizer(ToIntFunction<ItemStack> getColor) {
-        return (stack, idx) -> {
-            if (idx == 1) {
+    public static ItemTintSource makeIotaStorageColorizer(ToIntFunction<ItemStack> getColor) {
+        return new ItemTintSource() {
+            @Override
+            public int calculate(ItemStack stack, net.minecraft.client.multiplayer.ClientLevel level,
+                net.minecraft.world.entity.LivingEntity entity) {
                 return getColor.applyAsInt(stack);
             }
-            return 0xff_ffffff;
+
+            @Override
+            public MapCodec<? extends ItemTintSource> type() {
+                return MapCodec.unit(this);
+            }
         };
     }
 
@@ -222,7 +232,7 @@ public class RegisterClientStuff {
     private static void registerWandOverrides(ItemStaff item) {
         IClientXplatAbstractions.INSTANCE.registerItemProperty(item, ItemStaff.FUNNY_LEVEL_PREDICATE,
             (stack, level, holder, holderID) -> {
-                if (!stack.hasCustomHoverName()) {
+                if (!stack.has(DataComponents.CUSTOM_NAME)) {
                     return 0;
                 }
                 var name = stack.getHoverName().getString().toLowerCase(Locale.ROOT);
@@ -237,26 +247,33 @@ public class RegisterClientStuff {
     }
 
     public static void registerBlockEntityRenderers(@NotNull BlockEntityRendererRegisterererer registerer) {
-        registerer.registerBlockEntityRenderer(HexBlockEntities.SLATE_TILE, BlockEntitySlateRenderer::new);
+        registerer.registerBlockEntityRenderer(HexBlockEntities.SLATE_TILE,
+            (BlockEntityRendererProvider<BlockEntitySlate,
+                BlockEntitySlateRenderer.State>) BlockEntitySlateRenderer::new);
         registerer.registerBlockEntityRenderer(HexBlockEntities.AKASHIC_BOOKSHELF_TILE,
-            BlockEntityAkashicBookshelfRenderer::new);
+            (BlockEntityRendererProvider<BlockEntityAkashicBookshelf,
+                BlockEntityAkashicBookshelfRenderer.State>) BlockEntityAkashicBookshelfRenderer::new);
         registerer.registerBlockEntityRenderer(HexBlockEntities.QUENCHED_ALLAY_TILE,
-            BlockEntityQuenchedAllayRenderer::new);
+            (BlockEntityRendererProvider<BlockEntityQuenchedAllay,
+                BlockEntityQuenchedAllayRenderer.State>) BlockEntityQuenchedAllayRenderer::new);
         registerer.registerBlockEntityRenderer(HexBlockEntities.QUENCHED_ALLAY_TILES_TILE,
-                BlockEntityQuenchedAllayRenderer::new);
+            (BlockEntityRendererProvider<BlockEntityQuenchedAllay,
+                BlockEntityQuenchedAllayRenderer.State>) BlockEntityQuenchedAllayRenderer::new);
         registerer.registerBlockEntityRenderer(HexBlockEntities.QUENCHED_ALLAY_BRICKS_TILE,
-                BlockEntityQuenchedAllayRenderer::new);
+            (BlockEntityRendererProvider<BlockEntityQuenchedAllay,
+                BlockEntityQuenchedAllayRenderer.State>) BlockEntityQuenchedAllayRenderer::new);
         registerer.registerBlockEntityRenderer(HexBlockEntities.QUENCHED_ALLAY_BRICKS_SMALL_TILE,
-                BlockEntityQuenchedAllayRenderer::new);
+            (BlockEntityRendererProvider<BlockEntityQuenchedAllay,
+                BlockEntityQuenchedAllayRenderer.State>) BlockEntityQuenchedAllayRenderer::new);
     }
 
     @FunctionalInterface
     public interface BlockEntityRendererRegisterererer {
         <T extends BlockEntity> void registerBlockEntityRenderer(BlockEntityType<T> type,
-            BlockEntityRendererProvider<? super T> berp);
+            BlockEntityRendererProvider<? super T, ? extends BlockEntityRenderState> berp);
     }
 
-    public static void onModelRegister(ResourceManager recMan, Consumer<ResourceLocation> extraModels) {
+    public static void onModelRegister(ResourceManager recMan, Consumer<Identifier> extraModels) {
         for (var type : QUENCHED_ALLAY_TYPES.entrySet()) {
             var blockLoc = BuiltInRegistries.BLOCK.getKey(type.getKey());
             var locStart = "block/";
@@ -269,14 +286,14 @@ public class RegisterClientStuff {
         }
     }
 
-    public static void onModelBake(ModelBakery loader, Map<ResourceLocation, BakedModel> map) {
+    public static void onModelBake(ModelBakery loader, Map<Identifier, BlockModel> map) {
         for (var type : QUENCHED_ALLAY_TYPES.entrySet()) {
             var blockLoc = BuiltInRegistries.BLOCK.getKey(type.getKey());
             var locStart = "block/";
             if (type.getValue())
                 locStart += "deco/";
 
-            var list = new ArrayList<BakedModel>();
+            var list = new ArrayList<BlockModel>();
             for (int i = 0; i < BlockQuenchedAllay.VARIANTS; i++) {
                 var variantLoc = modLoc(locStart + blockLoc.getPath() + "_" + i);
                 var model = map.get(variantLoc);

@@ -21,11 +21,14 @@ import at.petrak.hexcasting.common.recipe.HexRecipeStuffRegistry
 import at.petrak.hexcasting.fabric.event.VillagerConversionCallback
 import at.petrak.hexcasting.fabric.loot.FabricHexLootModJankery
 import at.petrak.hexcasting.fabric.network.FabricPacketHandler
-import at.petrak.hexcasting.fabric.recipe.FabricModConditionalIngredient
 import at.petrak.hexcasting.fabric.storage.FabricImpetusStorage
+import gay.`object`.hexdebug.HexDebugRegistry
+import gay.`object`.hexdebug.actions.HexDebugActions
+import gay.`object`.hexdebug.actions.OpScheduleCall
+import gay.`object`.hexdebug.media.HexDebugAttributes
+import gay.`object`.hexdebug.media.PersonalMediaRegen
 import at.petrak.hexcasting.interop.HexInterop
 import at.petrak.hexcasting.xplat.IXplatAbstractions
-import io.github.tropheusj.serialization_hooks.ingredient.IngredientDeserializer
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
@@ -34,14 +37,16 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback
 import net.fabricmc.fabric.api.event.player.UseEntityCallback
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents
-import net.fabricmc.fabric.api.loot.v2.LootTableEvents
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry
+import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricDefaultAttributeRegistry
 import net.minecraft.commands.synchronization.SingletonArgumentInfo
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.InteractionResult
+import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.block.state.properties.BlockSetType
 import java.util.function.BiConsumer
@@ -96,14 +101,17 @@ object FabricHexInitializer : ModInitializer {
             }
         }
 
-        ServerTickEvents.END_WORLD_TICK.register(PlayerPositionRecorder::updateAllPlayers)
-        ServerTickEvents.END_WORLD_TICK.register(OpFlight::tickAllPlayers)
-        ServerTickEvents.END_WORLD_TICK.register(OpAltiora::checkAllPlayers)
+        ServerTickEvents.START_SERVER_TICK.register(OpScheduleCall::ProcessQueue)
+        ServerLifecycleEvents.SERVER_STARTING.register(OpScheduleCall::ResetQueue)
+        ServerTickEvents.END_LEVEL_TICK.register(PlayerPositionRecorder::updateAllPlayers)
+        ServerTickEvents.END_LEVEL_TICK.register(OpFlight::tickAllPlayers)
+        ServerTickEvents.END_LEVEL_TICK.register(OpAltiora::checkAllPlayers)
+        ServerTickEvents.END_LEVEL_TICK.register { level -> PersonalMediaRegen.tick(level) }
 
         CommandRegistrationCallback.EVENT.register { dp, _, _ -> HexCommands.register(dp) }
 
-        LootTableEvents.MODIFY.register { _, _, id, supplier, _ ->
-            FabricHexLootModJankery.lootLoad(id, supplier::withPool)
+        LootTableEvents.MODIFY.register { id, builder, _, _ ->
+            FabricHexLootModJankery.lootLoad(id.identifier()) { pool -> builder.withPool(pool) }
         }
 
         EntityElytraEvents.CUSTOM.register { target, _ ->
@@ -115,9 +123,12 @@ object FabricHexInitializer : ModInitializer {
             }
         }
 
-        ItemGroupEvents.MODIFY_ENTRIES_ALL.register { tab, entries ->
-            HexBlocks.registerBlockCreativeTab(entries::accept, tab)
-            HexItems.registerItemCreativeTab(entries, tab)
+        CreativeModeTabEvents.MODIFY_OUTPUT_ALL.register { tab, output ->
+            HexBlocks.registerBlockCreativeTab({ block: net.minecraft.world.level.block.Block -> output.accept(block) }, tab)
+            HexItems.registerItemCreativeTab(output, tab)
+            if (tab == HexCreativeTabs.HEX) {
+                output.accept(HexDebugRegistry.SPLICING_TABLE_ITEM)
+            }
         }
     }
 
@@ -133,10 +144,19 @@ object FabricHexInitializer : ModInitializer {
         HexBlocks.registerBlockItems(bind(BuiltInRegistries.ITEM))
         HexBlockEntities.registerTiles(bind(BuiltInRegistries.BLOCK_ENTITY_TYPE))
         HexItems.registerItems(bind(BuiltInRegistries.ITEM))
-        Registry.register(IngredientDeserializer.REGISTRY, FabricModConditionalIngredient.ID, FabricModConditionalIngredient.Deserializer.INSTANCE)
+
+        HexDebugRegistry.registerBlocks(bind(BuiltInRegistries.BLOCK))
+        HexDebugRegistry.registerBlockItems(bind(BuiltInRegistries.ITEM))
+        HexDebugRegistry.registerBlockEntities(bind(BuiltInRegistries.BLOCK_ENTITY_TYPE))
+        HexDebugRegistry.registerMenus(bind(BuiltInRegistries.MENU))
 
         HexEntities.registerEntities(bind(BuiltInRegistries.ENTITY_TYPE))
         HexAttributes.register(bind(BuiltInRegistries.ATTRIBUTE))
+        HexDebugAttributes.register(bind(BuiltInRegistries.ATTRIBUTE))
+        // 26.1 may bake the vanilla default attribute suppliers before mod initializers run, which
+        // leaves our attributes as unregistered direct holders. Rebuild the player supplier now that
+        // the attributes are really in the registry.
+        FabricDefaultAttributeRegistry.register(EntityType.PLAYER, Player.createAttributes())
         HexMobEffects.register(bind(BuiltInRegistries.MOB_EFFECT))
         HexPotions.register(bind(BuiltInRegistries.POTION))
 
@@ -149,6 +169,7 @@ object FabricHexInitializer : ModInitializer {
 
         HexIotaTypes.registerTypes(bind(IXplatAbstractions.INSTANCE.iotaTypeRegistry))
         HexActions.register(bind(IXplatAbstractions.INSTANCE.actionRegistry))
+        HexDebugActions.register(bind(IXplatAbstractions.INSTANCE.actionRegistry))
         HexSpecialHandlers.register(bind(IXplatAbstractions.INSTANCE.specialHandlerRegistry))
         HexArithmetics.register(bind(IXplatAbstractions.INSTANCE.arithmeticRegistry))
         HexContinuationTypes.registerContinuations(bind(IXplatAbstractions.INSTANCE.continuationTypeRegistry))
@@ -224,6 +245,6 @@ object FabricHexInitializer : ModInitializer {
         }
     }
 
-    private fun <T> bind(registry: Registry<in T>): BiConsumer<T, ResourceLocation> =
-        BiConsumer<T, ResourceLocation> { t, id -> Registry.register(registry, id, t) }
+    private fun <T : Any> bind(registry: Registry<T>): BiConsumer<T, Identifier> =
+        BiConsumer<T, Identifier> { t, id -> Registry.register(registry, id, t) }
 }

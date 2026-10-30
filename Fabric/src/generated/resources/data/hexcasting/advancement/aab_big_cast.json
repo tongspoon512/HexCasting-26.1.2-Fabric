@@ -1,0 +1,31 @@
+{
+  "parent": "hexcasting:root",
+  "criteria": {
+    "cast_amt": {
+      "conditions": {
+        "media_spent": {
+          "min": 6400000.0
+        },
+        "player": []
+      },
+      "trigger": "hexcasting:spend_media"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.hexcasting:big_cast.desc"
+    },
+    "icon": {
+      "id": "hexcasting:charged_amethyst"
+    },
+    "title": {
+      "translate": "advancement.hexcasting:big_cast"
+    }
+  },
+  "requirements": [
+    [
+      "cast_amt"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

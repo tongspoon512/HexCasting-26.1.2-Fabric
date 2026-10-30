@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "minecraft:amethyst_shard",
+    "O": "hexcasting:amethyst_dust"
+  },
+  "pattern": [
+    " O ",
+    "OCO",
+    " O "
+  ],
+  "result": {
+    "id": "hexcasting:default_colorizer"
+  }
+}
