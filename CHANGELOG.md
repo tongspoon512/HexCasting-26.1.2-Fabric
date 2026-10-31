@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_6` - 2026-10-31
+
+### Added
+
+- 指南书新增“拾取”条目：说明该图案接受掉落物实体 iota，并与原版拾取行为一致；同时包含图案演示页。
+
 ## `0.11.4-fabric-build_5` - 2026-10-31
 
 ### Added
