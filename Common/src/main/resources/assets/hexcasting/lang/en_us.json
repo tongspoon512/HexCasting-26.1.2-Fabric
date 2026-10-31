@@ -1569,5 +1569,20 @@
   "hexcasting.mishap.invalid_value.string.max_size": "a string less than %d chars long, was %d",
   "hexcasting.mishap.invalid_value.item_stack": "an item stack",
   "hexcasting.mishap.bad_item.item.read.offhand": "an entity with an offhand",
-  "hexcasting.mishap.bad_item.item.read.any": "an entity that can hold items"
+  "hexcasting.mishap.bad_item.item.read.any": "an entity that can hold items",
+  "hexcasting.entry.splicing_table": "Splicing Table",
+  "hexcasting.page.splicing_table.1": "Long lists are miserable to edit with patterns alone. The Splicing Table is a workbench for list iotas: place it down, right-click it, and you get a grid of buttons representing every entry of the list you feed it.",
+  "hexcasting.page.splicing_table.2": "The table has four slots. The list slot accepts any item that holds iotas - a focus, a spellbook, a scroll, a written book... The clipboard slot holds a second holder used by copy and paste. The media slot accepts anything that stores media, which pays for edits. The staff slot takes a staff, giving you a grid to draw new patterns with.",
+  "hexcasting.page.splicing_table.3": "Click an entry to select it, shift-click to extend the selection, or click the gaps between entries to place an insertion cursor. Duplicate, delete or backspace the selection, nudge it left or right, or cut, copy and paste it. Paste Verbatim inserts the clipboard as one entry; Paste Splat splices a clipboard list in place. Undo and redo live on the table as well.",
+  "hexcasting.page.splicing_table.4": "Select All and Select None work on the whole list, and the view buttons page through long lists. Every edit costs a little media from the media slot, so keep it stocked. Changes are written to the holder immediately, so the list you took out is already different when you put it back.",
+  "hexcasting.entry.personal_media": "Personal Media",
+  "hexcasting.page.personal_media.1": "Some practitioners learn to draw on their own reserves. Instead of carrying a battery, they spend a personal pool of media that slowly refills by itself.",
+  "hexcasting.page.personal_media.2": "When the server enables the pool, it is spent before any item or block source. The maximum defaults to ten charged amethyst crystals, and it regenerates one amethyst shard's worth at a time; both are configurable. If \"Only Enable Personal Media After Enlightened\" is on, the pool stays dormant until you complete the enlightenment advancement. Operators can adjust a player's pool through the hexdebug:personal_media, hexdebug:personal_media_max and hexdebug:personal_media_regen attributes.",
+  "hexcasting.page.personal_media.get": "Returns how much media is left in your personal pool.",
+  "hexcasting.page.personal_media.max": "Returns the size of your personal pool.",
+  "hexcasting.entry.procrastination": "Procrastination",
+  "hexcasting.page.procrastination.1": "Why do today what you can put off until a later tick? Procrastination Strategy takes a snippet and a delay in ticks, and quietly schedules the snippet to be cast later while you continue casting. The delayed snippet runs in the environment it was scheduled from, so its effects still come from where you stood.",
+  "hexcasting.page.procrastination.2": "Only one snippet can be pending for each caster: scheduling another replaces it. A delay of zero or less runs the snippet immediately, which can recurse - mind your stack. Procrastination Reflection tells you what is currently pending, or Null if nothing is. Server operators can disable both patterns with the \"Enable Procrastination Patterns\" option.",
+  "hexcasting.page.procrastination.schedule": "Schedules the snippet to run after the given number of ticks. Replaces any snippet already pending for you. A delay of 0 runs it at once.",
+  "hexcasting.page.procrastination.running_code": "Returns the snippet waiting to be cast, or Null if there is none."
 }

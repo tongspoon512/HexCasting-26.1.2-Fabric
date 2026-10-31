@@ -1570,5 +1570,20 @@
   "hexcasting.mishap.invalid_value.string.max_size": "一个长度小于%d字符的字符串，而实际长度为%d",
   "hexcasting.mishap.invalid_value.item_stack": "一个物品组",
   "hexcasting.mishap.bad_item.item.read.offhand": "一个拥有副手的实体",
-  "hexcasting.mishap.bad_item.item.read.any": "一个能持有物品的实体"
+  "hexcasting.mishap.bad_item.item.read.any": "一个能持有物品的实体",
+  "hexcasting.entry.splicing_table": "剪接台",
+  "hexcasting.page.splicing_table.1": "单靠图案去编辑长列表实在折磨。剪接台是专门处理列表 iota 的工作台：放下它并右键，你放进去的列表里每一个元素都会变成一个按钮。",
+  "hexcasting.page.splicing_table.2": "剪接台有四个槽位。列表槽接受任何存放 iota 的物品——焦点、法术书、卷轴、成书都可以；剪贴板槽放入第二个承载物，供复制粘贴使用；媒质槽放入能储存媒质的物品，用来支付编辑开销；法杖槽放入法杖后，会提供一块可以绘制新图案的网格。",
+  "hexcasting.page.splicing_table.3": "点击元素即可选中，按住 Shift 点击可扩展选区，点击元素之间的空隙可以放置插入光标。你可以复制、删除、退格、左右挪动选区，也可以剪切、复制、粘贴。原样粘贴会把剪贴板作为一个元素插入，展开粘贴则会把剪贴板中的列表逐项铺开。剪接台同样支持撤销与重做。",
+  "hexcasting.page.splicing_table.4": "全选与取消全选作用于整个列表，视图按钮可以翻动长列表。每次编辑都会从媒质槽消耗少量媒质，记得备足。改动会立即写回承载物，所以你取回列表时它已经被改好了。",
+  "hexcasting.entry.personal_media": "个人媒质",
+  "hexcasting.page.personal_media.1": "有些施法者学会了从自身汲取力量。他们不携带电池，而是消耗一个会自行缓慢补充的个人媒质池。",
+  "hexcasting.page.personal_media.2": "服务器启用该池后，它会先于任何物品或方块媒质源被消耗。上限默认等于十枚充能紫水晶，每次再生一枚紫水晶碎片量，二者均可配置。若开启「仅在启明后启用个人媒质」，则需完成启明进度后该池才会生效。管理员可通过 hexdebug:personal_media、hexdebug:personal_media_max 与 hexdebug:personal_media_regen 属性调整玩家的媒质池。",
+  "hexcasting.page.personal_media.get": "返回你的个人媒质池剩余的量。",
+  "hexcasting.page.personal_media.max": "返回你的个人媒质池容量。",
+  "hexcasting.entry.procrastination": "拖延",
+  "hexcasting.page.procrastination.1": "能拖到下一个 tick 的事，何必现在做？拖延之策略接受一段法术与一个以 tick 计的延迟，在你继续施法时悄悄安排这段法术稍后执行。被延迟的法术仍在原本的施法环境中运行，效果依旧来自你当时所在的位置。",
+  "hexcasting.page.procrastination.2": "每位施法者同时只能有一个待执行的片段：再次安排会替换掉旧的。延迟为 0 或更少会立即执行，且可能递归，注意栈深度。拖延之精思会告诉你当前待执行的内容，没有则为 Null。服务器管理员可通过「启用拖延图案」选项关闭这两个图案。",
+  "hexcasting.page.procrastination.schedule": "在给定的 tick 数之后执行该片段。会替换你此前待执行的片段。延迟为 0 时立即执行。",
+  "hexcasting.page.procrastination.running_code": "返回正等待执行的法术片段；若没有则返回 Null。"
 }

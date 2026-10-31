@@ -1,0 +1,28 @@
+{
+  "name": "hexcasting.entry.splicing_table",
+  "icon": "hexdebug:splicing_table",
+  "category": "hexcasting:items",
+  "sortnum": 5,
+  "advancement": "hexcasting:root",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.splicing_table.1"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "text": "hexcasting.page.splicing_table.2",
+      "item": "hexdebug:splicing_table",
+      "link_recipe": true
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.splicing_table.3"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.splicing_table.4"
+    }
+  ]
+}

@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - 移植 [MoreIotas](https://github.com/FallingColors/MoreIotas)（作者 Talia，MIT）的全部 Common/Fabric 玩法：6 种 iota（字符串、矩阵、iota 类型、实体类型、物品类型、物品组）、45 个图案、三套算术、聊天前缀与 5 个指南书条目。
 - 服务端配置新增 `maxMatrixSize`、`maxStringLength`、`setBlockStringCost`、`nameCost`。
 - 书与笔/成书可通过 `CCItemIotaHolder.Static` 作为字符串列表 iota 读取。
+- 补齐指南书条目：剪接台、个人媒质（含法力/奥术之精思）、拖延图案（含拖延之精思），并提供中英文案。
 
 ### Changed
 

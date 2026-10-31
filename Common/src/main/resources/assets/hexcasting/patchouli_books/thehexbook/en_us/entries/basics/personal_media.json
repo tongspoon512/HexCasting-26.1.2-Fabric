@@ -1,0 +1,34 @@
+{
+  "name": "hexcasting.entry.personal_media",
+  "icon": "hexcasting:charged_amethyst",
+  "category": "hexcasting:basics",
+  "sortnum": 1,
+  "advancement": "hexcasting:root",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.personal_media.1"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.personal_media.2"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexdebug:get_personal_media",
+      "anchor": "hexdebug:get_personal_media",
+      "input": "",
+      "output": "number",
+      "text": "hexcasting.page.personal_media.get"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexdebug:get_personal_media_max",
+      "anchor": "hexdebug:get_personal_media_max",
+      "input": "",
+      "output": "number",
+      "text": "hexcasting.page.personal_media.max"
+    }
+  ]
+}

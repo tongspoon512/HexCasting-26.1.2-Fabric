@@ -1,0 +1,34 @@
+{
+  "name": "hexcasting.entry.procrastination",
+  "icon": "minecraft:clock",
+  "category": "hexcasting:patterns",
+  "sortnum": 13,
+  "advancement": "hexcasting:root",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.procrastination.1"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexdebug:mind_env/schedule",
+      "anchor": "hexdebug:mind_env/schedule",
+      "input": "list | pattern, number",
+      "output": "",
+      "text": "hexcasting.page.procrastination.schedule"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.procrastination.2"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexdebug:mind_env/running_code",
+      "anchor": "hexdebug:mind_env/running_code",
+      "input": "",
+      "output": "list | pattern | null",
+      "text": "hexcasting.page.procrastination.running_code"
+    }
+  ]
+}
