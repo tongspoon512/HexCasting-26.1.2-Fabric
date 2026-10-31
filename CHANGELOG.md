@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_7` - 2026-10-31
+
+### Fixed
+
+- 修复石板等方块挖掘后不掉落物品：26.1 的方块战利品表需要放在 `data/<ns>/loot_table/blocks/` 下，数据生成器与已生成文件均已同步修正。
+- 修复剪接台无法选中两个 iota 之间边界位置的问题：边界按钮现在优先于 iota 按钮响应点击，可正常选中并编辑插入点。
+
 ## `0.11.4-fabric-build_6` - 2026-10-31
 
 ### Added

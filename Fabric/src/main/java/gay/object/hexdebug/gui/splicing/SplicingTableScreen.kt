@@ -104,12 +104,14 @@ class SplicingTableScreen(
         addActionButton(40, 64, 11, 11, 269, 16, SplicingTableAction.COPY)
         addActionButton(27, 77, 24, 11, 256, 29, SplicingTableAction.PASTE_SPLAT, SplicingTableAction.PASTE_VERBATIM)
 
+        // Edge buttons go first so their thin strips win the overlap with the 18px iota
+        // buttons; otherwise clicks between two iotas always land on a neighbouring iota.
+        for (offset in 0..IOTA_BUTTONS) {
+            addRenderableWidget(EdgeButton(offset))
+        }
         for (offset in 0 until IOTA_BUTTONS) {
             addRenderableWidget(IotaButton(offset))
             addRenderableOnly(SelectionOverlay(offset))
-        }
-        for (offset in 0..IOTA_BUTTONS) {
-            addRenderableWidget(EdgeButton(offset))
         }
     }
 

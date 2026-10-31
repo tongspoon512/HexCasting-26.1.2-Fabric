@@ -32,7 +32,9 @@ public abstract class PaucalLootTableSubProvider implements net.minecraft.data.l
         Map<Identifier, LootTable.Builder> lootTables = new HashMap<>();
         makeLootTables(blockTables, lootTables);
         for (var entry : blockTables.entrySet()) {
-            writer.accept(ResourceKey.create(Registries.LOOT_TABLE, BuiltInRegistries.BLOCK.getKey(entry.getKey())),
+            // 26.1 expects block loot tables under data/<ns>/loot_table/blocks/<id>.json.
+            writer.accept(ResourceKey.create(Registries.LOOT_TABLE,
+                    BuiltInRegistries.BLOCK.getKey(entry.getKey()).withPrefix("blocks/")),
                 entry.getValue());
         }
         for (var entry : lootTables.entrySet()) {
