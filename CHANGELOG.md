@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 
 - 剪接台嵌入绘咒网格现在会读取客户端 `gridSpacing` 配置：以 20px 为基准按倍率缩放，配置文件中的网格密度修改可正常生效。
+- 修复语言键被错误加点的问题（如 `hexcasting.action.hexcasting:.get_caster`），所有图案名称、进度名称与指南书文案恢复正常本地化显示。
 
 ## `0.11.4-fabric-build_3` - 2026-10-31
 
