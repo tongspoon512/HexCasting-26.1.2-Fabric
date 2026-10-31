@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_4` - 2026-10-31
+
+### Fixed
+
+- 剪接台嵌入绘咒网格现在会读取客户端 `gridSpacing` 配置：以 20px 为基准按倍率缩放，配置文件中的网格密度修改可正常生效。
+
 ## `0.11.4-fabric-build_3` - 2026-10-31
 
 ### Added

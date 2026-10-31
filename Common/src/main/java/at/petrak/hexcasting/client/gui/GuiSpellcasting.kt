@@ -575,9 +575,10 @@ class GuiSpellcasting constructor(
 
     /** Distance between adjacent hex centers */
     fun hexSize(): Float {
-        embeddedHexSize?.let { return it }
-        val scaleModifier = Minecraft.getInstance().player!!.getAttributeValue(HexAttributes.holder(HexAttributes.GRID_ZOOM))
         val spacing = Mth.clamp(HexConfig.client().gridSpacing(), 0.5, 2.0)
+        // Embedded grids keep a fixed base size but still honor the client grid-density setting.
+        embeddedHexSize?.let { return it * spacing.toFloat() }
+        val scaleModifier = Minecraft.getInstance().player!!.getAttributeValue(HexAttributes.holder(HexAttributes.GRID_ZOOM))
 
         // Originally, we allowed 32 dots across. Assuming a 1920x1080 screen this allowed like 500-odd area.
         // Let's be generous and give them 512.
