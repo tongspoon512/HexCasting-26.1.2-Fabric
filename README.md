@@ -108,7 +108,7 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
 ### 4. 施法界面透明背景与网格间距
 
 - 施法 GUI（`GuiSpellcasting`）会清空 `extractBackground`，只绘制图案与 UI 元素，背景保持透明，便于叠加在任意场景上。
-- 新增客户端配置项「咒术网格间距」（`gridSpacing`），缩放施法界面中网格相邻两点的距离，取值范围 0.5–2.0，**默认 1.25**。可通过 ModMenu 或 `config/hexcasting/client.json` 调整。
+- 新增客户端配置项「咒术网格间距」（`gridSpacing`），缩放施法界面中网格相邻两点的距离，取值范围 0.5–2.0，**默认 1.0**。可通过 ModMenu 或 `config/hexcasting/client.json` 调整。
 
 ### 5. 个人媒质池与拖延（移植自 HexOverpowered）
 

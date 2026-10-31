@@ -221,7 +221,7 @@
   "text.autoconfig.hexcasting.option.client.gridSnapThreshold": "咒术网格吸附阈值",
   "text.autoconfig.hexcasting.option.client.gridSnapThreshold.@Tooltip": "使用法杖时，吸附至另一点所需划过的距离，0.5意味着需划过50%（取值0.5~1）",
   "text.autoconfig.hexcasting.option.client.gridSpacing": "咒术网格间距",
-  "text.autoconfig.hexcasting.option.client.gridSpacing.@Tooltip": "缩放施法界面中咒术网格相邻两点的间距。1.25为默认，0.5更紧凑，2.0更疏朗（取值0.5~2）",
+  "text.autoconfig.hexcasting.option.client.gridSpacing.@Tooltip": "缩放施法界面中咒术网格相邻两点的间距。1.0为默认，0.5更紧凑，2.0更疏朗（取值0.5~2）",
   "text.autoconfig.hexcasting.option.client.clickingTogglesDrawing": "单击切换绘制与否",
   "text.autoconfig.hexcasting.option.client.clickingTogglesDrawing.@Tooltip": "单击即可开始或结束绘制，无需按住拖动",
   "text.autoconfig.hexcasting.option.client.alwaysShowListCommas": "在所有情况下都显示列表逗号",

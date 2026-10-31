@@ -221,7 +221,7 @@
   "text.autoconfig.hexcasting.option.client.gridSnapThreshold": "Grid Snap Threshold",
   "text.autoconfig.hexcasting.option.client.gridSnapThreshold.@Tooltip": "When using a staff, the distance from one dot you have to go to snap to the next dot, where 0.5 means 50% of the way (0.5-1)",
   "text.autoconfig.hexcasting.option.client.gridSpacing": "Spell Grid Spacing",
-  "text.autoconfig.hexcasting.option.client.gridSpacing.@Tooltip": "Scales the distance between the dots of the hex grid in the casting screen. 1.25 is the default; 0.5 is tight and 2.0 is wide (0.5-2)",
+  "text.autoconfig.hexcasting.option.client.gridSpacing.@Tooltip": "Scales the distance between the dots of the hex grid in the casting screen. 1.0 is the default; 0.5 is tight and 2.0 is wide (0.5-2)",
   "text.autoconfig.hexcasting.option.client.clickingTogglesDrawing": "Clicking Toggles Drawing",
   "text.autoconfig.hexcasting.option.client.clickingTogglesDrawing.@Tooltip": "Whether you click to start and stop drawing instead of clicking and dragging to draw",
   "text.autoconfig.hexcasting.option.client.alwaysShowListCommas": "Always Show List Commas",
