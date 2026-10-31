@@ -26,6 +26,11 @@ dependencies {
 
     compileOnly "mezz.jei:jei-$minecraftVersion-common-api:$jeiVersion"
 
+    // MoreIotas: 矩阵运算（随 Fabric jar 打包）
+    implementation "org.ejml:ejml-simple:$ejmlVersion"
+    implementation "org.ejml:ejml-core:$ejmlVersion"
+    implementation "org.ejml:ejml-ddense:$ejmlVersion"
+
     compileOnly "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
     testCompileOnly "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
 

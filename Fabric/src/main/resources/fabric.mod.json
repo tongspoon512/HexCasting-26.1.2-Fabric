@@ -31,7 +31,8 @@
       "at.petrak.hexcasting.fabric.datagen.HexFabricDataGenerators"
     ],
     "cardinal-components": [
-      "at.petrak.hexcasting.fabric.cc.HexCardinalComponents"
+      "at.petrak.hexcasting.fabric.cc.HexCardinalComponents",
+      "ram.talia.moreiotas.fabric.cc.MoreIotasCardinalComponents"
     ],
     "jei_mod_plugin": [
       "at.petrak.hexcasting.interop.jei.HexJEIPlugin"
@@ -74,7 +75,8 @@
       "hexcasting:iota_holder",
       "hexcasting:media_holder",
       "hexcasting:hex_holder",
-      "hexcasting:variant_item"
+      "hexcasting:variant_item",
+      "moreiotas:chat_prefix_holder"
     ]
   }
 }

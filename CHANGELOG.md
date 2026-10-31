@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_3` - 2026-10-31
+
+### Added
+
+- 移植 [MoreIotas](https://github.com/FallingColors/MoreIotas)（作者 Talia，MIT）的全部 Common/Fabric 玩法：6 种 iota（字符串、矩阵、iota 类型、实体类型、物品类型、物品组）、45 个图案、三套算术、聊天前缀与 5 个指南书条目。
+- 服务端配置新增 `maxMatrixSize`、`maxStringLength`、`setBlockStringCost`、`nameCost`。
+- 书与笔/成书可通过 `CCItemIotaHolder.Static` 作为字符串列表 iota 读取。
+
+### Changed
+
+- 物品组 iota 改用 26.1 数据组件序列化，移除对 NBT 与 `Component.Serializer` 的依赖。
+
 ## `0.11.5` - [UNRELEASED]
 
 ### Added

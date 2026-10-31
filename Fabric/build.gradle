@@ -73,6 +73,14 @@ dependencies {
     // patchouli is not available for 26.1 (guide book stubbed)
     // inline is not available for 26.1 (text API stubbed)
 
+    // MoreIotas: 矩阵运算（EJML，jar-in-jar 打包）
+    implementation "org.ejml:ejml-simple:$ejmlVersion"
+    include "org.ejml:ejml-simple:$ejmlVersion"
+    implementation "org.ejml:ejml-core:$ejmlVersion"
+    include "org.ejml:ejml-core:$ejmlVersion"
+    implementation "org.ejml:ejml-ddense:$ejmlVersion"
+    include "org.ejml:ejml-ddense:$ejmlVersion"
+
     implementation "org.ladysnake.cardinal-components-api:cardinal-components-base:$cardinalComponentsVersion"
     implementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:$cardinalComponentsVersion"
     implementation "org.ladysnake.cardinal-components-api:cardinal-components-item:$cardinalComponentsVersion"

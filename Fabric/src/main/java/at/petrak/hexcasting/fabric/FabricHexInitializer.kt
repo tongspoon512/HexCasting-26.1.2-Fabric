@@ -29,6 +29,7 @@ import gay.`object`.hexdebug.media.HexDebugAttributes
 import gay.`object`.hexdebug.media.PersonalMediaRegen
 import at.petrak.hexcasting.interop.HexInterop
 import at.petrak.hexcasting.xplat.IXplatAbstractions
+import ram.talia.moreiotas.fabric.FabricMoreIotasInitializer
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
@@ -175,6 +176,10 @@ object FabricHexInitializer : ModInitializer {
         HexContinuationTypes.registerContinuations(bind(IXplatAbstractions.INSTANCE.continuationTypeRegistry))
         HexEvalSounds.register(bind(IXplatAbstractions.INSTANCE.evalSoundRegistry))
         HexItemHolderHandlers.init()
+
+        // MoreIotas
+        FabricMoreIotasInitializer.init()
+        FabricMoreIotasInitializer.initRegistries()
 
         // Because of Java's lazy-loading of classes, can't use Kotlin static initialization for
         // any calls that will eventually touch FeatureUtils.register(), as the growers here do,

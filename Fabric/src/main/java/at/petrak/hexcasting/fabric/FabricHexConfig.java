@@ -265,6 +265,18 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         @ConfigEntry.Gui.Tooltip
         private boolean bypassesSilencedEnvRestrictions = DEFAULT_BYPASSES_SILENCED_ENV_RESTRICTIONS;
 
+        // --- MoreIotas ---
+        @ConfigEntry.BoundedDiscrete(min = MIN_MAX_MATRIX_SIZE, max = MAX_MAX_MATRIX_SIZE)
+        @ConfigEntry.Gui.Tooltip
+        private int maxMatrixSize = DEFAULT_MAX_MATRIX_SIZE;
+        @ConfigEntry.BoundedDiscrete(min = MIN_MAX_STRING_LENGTH, max = MAX_MAX_STRING_LENGTH)
+        @ConfigEntry.Gui.Tooltip
+        private int maxStringLength = DEFAULT_MAX_STRING_LENGTH;
+        @ConfigEntry.Gui.Tooltip
+        private double setBlockStringCost = DEFAULT_SET_BLOCK_STRING_COST;
+        @ConfigEntry.Gui.Tooltip
+        private double nameCost = DEFAULT_NAME_COST;
+
         // ModMenu bad and doesn't like java objects in here so we do stupid string parsing
         @ConfigEntry.Gui.Tooltip
         private List<String> scrollInjectionsRaw = HexLootHandler.DEFAULT_SCROLL_INJECTS
@@ -307,6 +319,11 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
             this.personalMediaMax = Math.max(this.personalMediaMax, 0);
             this.personalMediaRegenStep = Math.max(this.personalMediaRegenStep, 0);
             this.personalMediaRegenInterval = Math.max(this.personalMediaRegenInterval, 1);
+
+            this.maxMatrixSize = Mth.clamp(this.maxMatrixSize, MIN_MAX_MATRIX_SIZE, MAX_MAX_MATRIX_SIZE);
+            this.maxStringLength = Mth.clamp(this.maxStringLength, MIN_MAX_STRING_LENGTH, MAX_MAX_STRING_LENGTH);
+            this.setBlockStringCost = Mth.clamp(this.setBlockStringCost, 0.0, Double.MAX_VALUE);
+            this.nameCost = Mth.clamp(this.nameCost, 0.0, Double.MAX_VALUE);
 
             this.costRescaleMap = new Object2DoubleOpenHashMap<>();
             try {
@@ -441,6 +458,26 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         @Override
         public boolean bypassesSilencedEnvRestrictions() {
             return bypassesSilencedEnvRestrictions;
+        }
+
+        @Override
+        public int maxMatrixSize() {
+            return maxMatrixSize;
+        }
+
+        @Override
+        public int maxStringLength() {
+            return maxStringLength;
+        }
+
+        @Override
+        public double setBlockStringCost() {
+            return setBlockStringCost;
+        }
+
+        @Override
+        public double nameCost() {
+            return nameCost;
         }
 
         public double traderScrollChance() {

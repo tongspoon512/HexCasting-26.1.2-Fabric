@@ -147,6 +147,19 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
 
 > 延迟任务仅存在于内存中，服务器重启（`SERVER_STARTING`）会清空队列；玩家退出时未执行的任务也不会保留。
 
+### 6. MoreIotas（移植自 FallingColors/MoreIotas）
+
+上游 [MoreIotas](https://github.com/FallingColors/MoreIotas)（作者 Talia，MIT）是一套 iota 扩展库，本分支把它的全部玩法并入单 jar，并保持注册命名空间 `moreiotas:*` 以兼容旧存档。
+
+- **6 种新 iota**：`moreiotas:string`、`moreiotas:matrix`、`moreiotas:iota_type`、`moreiotas:entity_type`、`moreiotas:item_type`、`moreiotas:stack`（物品组，用 26.1 数据组件序列化）。
+- **45 个图案**：17 个字符串图案、12 个矩阵图案（含 4 个元素级运算符）、6 个类型/实体图案、4 个物品图案，另含 6 个算子改写的图案（`moreiotas:altadd` 等）。
+- **三套算术**：`moreiotas:string`（10 个）、`moreiotas:matrix`（12 个，含矩阵指数）、`moreiotas:type`（3 个），注册 id 与上游一致。
+- **聊天前缀**：`moreiotas:chat_prefix_holder` 组件 + 聊天事件处理；`Sifter's Gambit` 设置前缀后，带前缀的消息只对「耳语之精思」可见。
+- **服务端配置**：`maxMatrixSize`（默认 144）、`maxStringLength`（默认 1728）、`setBlockStringCost` / `nameCost`（默认各 0.01 粉），随 hexcasting 的 Cloth 配置界面展示。
+- **指南书条目**：字符串、矩阵、类型、物品、物品 Iota 共 5 个条目已并入内置指南书。
+
+相关代码位于 `Common/src/main/java/ram/talia/moreiotas/`，Fabric 侧组件与事件在 `Fabric/src/main/java/ram/talia/moreiotas/fabric/`。
+
 ## 安装
 
 1. 安装 Fabric Loader ≥ 0.20.1（对应 26.1.2）。
@@ -232,6 +245,7 @@ doc/      原版文档源
 - **Pehkui**：其可用版本链接的是旧 intermediary 名，无法在 26.1 上运行，`getPehkuiApi()` 直接抛 `UnsupportedOperationException`。**不要安装 Pehkui**。
 - **EMI / JEI**：保留编译期集成与插件入口；EMI 相关代码同样基于内嵌桩件。
 - **渲染保真度**：26.1 渲染管线重写后，部分特效（画笔、光效、饰品/鞘翅覆盖层等）是按新管线近似实现的，与原版观感可能有差异。
+- **MoreIotas**：仅移植 Common/Fabric 玩法，未引入上游的 Forge 端、Paucal/Inline/Fiber 软依赖、JBLAS 与 Mixin/AW；`moreiotas:stack` 已改为 26.1 数据组件序列化，书与笔/成书的页 iota holder 以 `CCItemIotaHolder.Static` 形式恢复。
 - **验证程度**：构建与基础实机流程已通过，尚未做完整玩法回归；启动阶段的问题请附日志。
 
 ## 玩法与文档
@@ -246,4 +260,5 @@ doc/      原版文档源
 - 原项目：[FallingColors/HexMod](https://github.com/FallingColors/HexMod)，作者 petrak@（gamma-delta）
 - 剪接台来源：[object-Object/HexDebug](https://github.com/object-Object/HexDebug)
 - 个人媒质池与拖延来源：[YukkuriC/HexOverpowered](https://github.com/YukkuriC/HexOverpowered)（MIT）
+- 字符串/矩阵/类型/物品 iota 与相关图案来源：[FallingColors/MoreIotas](https://github.com/FallingColors/MoreIotas)，作者 Talia（MIT）
 - 本移植分支遵循原项目许可：[MIT](./LICENSE.txt)

@@ -14,7 +14,9 @@ import at.petrak.hexcasting.api.casting.eval.vm.CastingImage;
 import at.petrak.hexcasting.api.casting.eval.vm.CastingVM;
 import at.petrak.hexcasting.api.casting.eval.vm.ContinuationFrame;
 import at.petrak.hexcasting.api.casting.iota.DoubleIota;
+import at.petrak.hexcasting.api.casting.iota.Iota;
 import at.petrak.hexcasting.api.casting.iota.IotaType;
+import at.petrak.hexcasting.api.casting.iota.ListIota;
 import at.petrak.hexcasting.api.item.HexHolderItem;
 import at.petrak.hexcasting.api.item.IotaHolderItem;
 import at.petrak.hexcasting.api.item.MediaHolderItem;
@@ -42,11 +44,14 @@ import at.petrak.hexcasting.fabric.interop.trinkets.TrinketsApiInterop;
 import at.petrak.hexcasting.fabric.network.FabricPacketHandler;
 import at.petrak.hexcasting.interop.HexInterop;
 import at.petrak.hexcasting.interop.pehkui.PehkuiInterop;
+import net.minecraft.core.component.DataComponents;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import at.petrak.hexcasting.xplat.IXplatTags;
 import at.petrak.hexcasting.xplat.Platform;
 import com.google.common.base.Suppliers;
 import com.mojang.serialization.Lifecycle;
+import ram.talia.moreiotas.api.casting.iota.StringIota;
+import java.util.ArrayList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
@@ -288,6 +293,30 @@ public class FabricXplatImpl implements IXplatAbstractions {
         }
         if (item == Items.PUMPKIN_PIE) {
             return new CCItemIotaHolder.Static(stack, s -> new DoubleIota(Math.PI * s.getCount()));
+        }
+        if (item == Items.WRITABLE_BOOK || item == Items.WRITTEN_BOOK) {
+            return new CCItemIotaHolder.Static(stack, FabricXplatImpl::bookPages);
+        }
+        return null;
+    }
+
+    /**
+     * MoreIotas: 把成书的每一页读成一个字符串 iota，整体作为字符串列表。
+     */
+    private static @Nullable Iota bookPages(ItemStack stack) {
+        var writable = stack.get(DataComponents.WRITABLE_BOOK_CONTENT);
+        if (writable != null) {
+            var list = new ArrayList<Iota>();
+            writable.getPages(false).forEach(page -> list.add(StringIota.makeUnchecked(page)));
+            return new ListIota(list);
+        }
+        var written = stack.get(DataComponents.WRITTEN_BOOK_CONTENT);
+        if (written != null) {
+            var list = new ArrayList<Iota>();
+            for (var page : written.getPages(false)) {
+                list.add(StringIota.makeUnchecked(page.getString()));
+            }
+            return new ListIota(list);
         }
         return null;
     }

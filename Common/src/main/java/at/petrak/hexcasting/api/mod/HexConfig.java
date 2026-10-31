@@ -125,6 +125,32 @@ public class HexConfig {
         boolean DEFAULT_ENABLES_MIND_ENV_ACTIONS = true;
         boolean DEFAULT_BYPASSES_SILENCED_ENV_RESTRICTIONS = false;
 
+        // --- MoreIotas ---
+        int DEFAULT_MAX_MATRIX_SIZE = 144;
+        int MIN_MAX_MATRIX_SIZE = 3;
+        int MAX_MAX_MATRIX_SIZE = 512;
+        int DEFAULT_MAX_STRING_LENGTH = 1728;
+        int MIN_MAX_STRING_LENGTH = 1;
+        int MAX_MAX_STRING_LENGTH = 32768;
+        double DEFAULT_SET_BLOCK_STRING_COST = 0.01;
+        double DEFAULT_NAME_COST = 0.01;
+
+        default int maxMatrixSize() {
+            return DEFAULT_MAX_MATRIX_SIZE;
+        }
+
+        default int maxStringLength() {
+            return DEFAULT_MAX_STRING_LENGTH;
+        }
+
+        default double setBlockStringCost() {
+            return DEFAULT_SET_BLOCK_STRING_COST;
+        }
+
+        default double nameCost() {
+            return DEFAULT_NAME_COST;
+        }
+
         default ToolMaterial opBreakHarvestLevel() {
             return switch (this.opBreakHarvestLevelBecauseForgeThoughtItWasAGoodIdeaToImplementHarvestTiersUsingAnHonestToGodTopoSort()) {
                 case 0 -> ToolMaterial.WOOD;
