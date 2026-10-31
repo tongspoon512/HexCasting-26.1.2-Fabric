@@ -156,10 +156,17 @@ class GuiSpellcasting constructor(
         this.calculateIotaDisplays()
     }
 
+    /**
+     * Fixed distance between hex centers when embedded in another screen. Standalone grids scale with
+     * the window, but a small embedded grid would otherwise get a tiny spacing and far too many dots.
+     */
+    private var embeddedHexSize: Float? = null
+
     /** Configure this grid to be rendered inside another screen instead of as a standalone screen. */
-    fun embed(width: Int, height: Int) {
+    fun embed(width: Int, height: Int, hexSize: Float = 20f) {
         this.width = width
         this.height = height
+        this.embeddedHexSize = hexSize
         this.init()
     }
 
@@ -568,6 +575,7 @@ class GuiSpellcasting constructor(
 
     /** Distance between adjacent hex centers */
     fun hexSize(): Float {
+        embeddedHexSize?.let { return it }
         val scaleModifier = Minecraft.getInstance().player!!.getAttributeValue(HexAttributes.holder(HexAttributes.GRID_ZOOM))
         val spacing = Mth.clamp(HexConfig.client().gridSpacing(), 0.5, 2.0)
 

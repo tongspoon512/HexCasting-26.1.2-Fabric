@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - 物品组 iota 改用 26.1 数据组件序列化，移除对 NBT 与 `Component.Serializer` 的依赖。
+- 剪接台迷你绘咒网格改用固定 20px 间距，引导点密度不再随窗口尺寸放大而失控。
 
 ## `0.11.5` - [UNRELEASED]
 
