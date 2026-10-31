@@ -555,6 +555,7 @@
   "hexcasting.action.hexcasting:blink": "闪现",
   "hexcasting.action.hexcasting:break_block": "破坏方块",
   "hexcasting.action.hexcasting:place_block": "放置方块",
+  "hexcasting.action.hexcasting:pickup_item": "拾取",
   "hexcasting.action.hexcasting:craft/cypher": "制作杂件",
   "hexcasting.action.hexcasting:craft/trinket": "制作缀品",
   "hexcasting.action.hexcasting:craft/artifact": "制作造物",

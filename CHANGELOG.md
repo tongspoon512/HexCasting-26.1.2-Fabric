@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_5` - 2026-10-31
+
+### Added
+
+- 新增“拾取”图案：接收掉落物实体 iota，让施法者像原版拾取一样把该物品并入背包（含拾取音效与统计）。图案为 7 笔封闭图形，关于中心点 180° 对称。
+
 ## `0.11.4-fabric-build_4` - 2026-10-31
 
 ### Fixed

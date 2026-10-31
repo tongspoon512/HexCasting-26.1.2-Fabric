@@ -561,6 +561,7 @@
   "hexcasting.action.hexcasting:blink": "Blink",
   "hexcasting.action.hexcasting:break_block": "Break Block",
   "hexcasting.action.hexcasting:place_block": "Place Block",
+  "hexcasting.action.hexcasting:pickup_item": "Pickup",
   "hexcasting.action.hexcasting:craft/cypher": "Craft Cypher",
   "hexcasting.action.hexcasting:craft/trinket": "Craft Trinket",
   "hexcasting.action.hexcasting:craft/artifact": "Craft Artifact",
