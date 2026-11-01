@@ -28,8 +28,10 @@ import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.navigation.ScreenRectangle
 import net.minecraft.client.gui.screens.Screen
+import net.minecraft.client.input.CharacterEvent
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
+import net.minecraft.client.input.PreeditEvent
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.nbt.CompoundTag
@@ -64,6 +66,9 @@ class GuiSpellcasting constructor(
     /** Last mouse position in GUI pixels, recorded for keyboard-opened UIs. */
     private var lastMouseX: Int = 0
     private var lastMouseY: Int = 0
+
+    /** Current IME composition shown in the search/alias box; empty when no IME is composing. */
+    private var preeditText: String = ""
 
     private var ambianceSoundInstance: GridSoundInstance? = null
 
@@ -193,6 +198,9 @@ class GuiSpellcasting constructor(
     }
 
     override fun tick() {
+        if (this.drawState !is PatternDrawState.AutoCompleting && this.drawState !is PatternDrawState.AliasEditing) {
+            this.preeditText = ""
+        }
         val minecraft = Minecraft.getInstance()
         val player = minecraft.player
         if (player != null) {
@@ -478,6 +486,14 @@ class GuiSpellcasting constructor(
     }
 
     override fun keyPressed(event: KeyEvent): Boolean {
+        // While an IME is composing, the IME owns every key (Enter/Space only confirm a candidate).
+        // Escape drops the composition instead of closing the search, so a stale composition can
+        // never swallow input for more than one key.
+        if (this.preeditText.isNotEmpty() && isTextState()) {
+            if (event.key() == PatternKeyboard.KEY_ESCAPE) this.preeditText = ""
+            return true
+        }
+
         // The keyboard-driven states go first so Escape doesn't close the whole screen.
         val autoComplete = this.drawState as? PatternDrawState.AutoCompleting
         if (autoComplete != null && handleAutoCompleteKey(event, autoComplete)) return true
@@ -525,6 +541,40 @@ class GuiSpellcasting constructor(
 
         return super.keyPressed(event)
     }
+
+    /** Text typed into the search box or the alias editor, including IME commits. */
+    override fun charTyped(event: CharacterEvent): Boolean {
+        val text = PatternKeyboard.charOfTypedEvent(event.codepoint()) ?: return super.charTyped(event)
+        val autoComplete = this.drawState as? PatternDrawState.AutoCompleting
+        if (autoComplete != null) {
+            autoComplete.query += text
+            this.preeditText = ""
+            refreshAutoComplete(autoComplete)
+            return true
+        }
+
+        val aliasEditing = this.drawState as? PatternDrawState.AliasEditing
+        if (aliasEditing != null) {
+            aliasEditing.text += text
+            this.preeditText = ""
+            return true
+        }
+
+        return super.charTyped(event)
+    }
+
+    /** IME composition text; the event is null when the composition ends or is committed. */
+    override fun preeditUpdated(event: PreeditEvent?): Boolean {
+        if (!isTextState()) {
+            this.preeditText = ""
+            return super.preeditUpdated(event)
+        }
+        this.preeditText = event?.fullText() ?: ""
+        return true
+    }
+
+    private fun isTextState(): Boolean =
+        this.drawState is PatternDrawState.AutoCompleting || this.drawState is PatternDrawState.AliasEditing
 
     private fun startKeyboardPattern(firstAngle: HexAngle) {
         val keyboard = PatternDrawState.KeyboardDrawing(HexCoord.Origin, HexDir.EAST)
@@ -605,11 +655,8 @@ class GuiSpellcasting constructor(
             PatternKeyboard.KEY_LEFT -> offsetAutoDoc(autoComplete, -1)
             PatternKeyboard.KEY_RIGHT -> offsetAutoDoc(autoComplete, 1)
 
-            else -> {
-                val chr = PatternKeyboard.charOfKey(event.key(), event.modifiers()) ?: return false
-                autoComplete.query += chr
-                refreshAutoComplete(autoComplete)
-            }
+            // Everything else is text, delivered by charTyped so IME commits work too.
+            else -> return false
         }
         return true
     }
@@ -631,10 +678,8 @@ class GuiSpellcasting constructor(
                 this.drawState = PatternDrawState.BetweenPatterns
             }
 
-            else -> {
-                val chr = PatternKeyboard.charOfKey(event.key(), event.modifiers()) ?: return false
-                editing.text += chr
-            }
+            // Everything else is text, delivered by charTyped so IME commits work too.
+            else -> return false
         }
         return true
     }
@@ -1078,18 +1123,24 @@ class GuiSpellcasting constructor(
         autoComplete: PatternDrawState.AutoCompleting
     ) {
         val lines = mutableListOf<Pair<FormattedCharSequence, Int>>()
-        val showList = autoComplete.browse || autoComplete.query.isNotEmpty()
+        val showList = autoComplete.browse || autoComplete.query.isNotEmpty() || this.preeditText.isNotEmpty()
         val selected = if (showList) autoComplete.suggestions.getOrNull(autoComplete.chosen) else null
 
         if (!showList) {
             lines.add(Component.translatable("hexcasting.gui.autocomplete.start_typing").visualOrderText to COLOR_HINT)
         } else {
-            val header = if (autoComplete.query.isEmpty()) {
+            val header = if (autoComplete.query.isEmpty() && this.preeditText.isEmpty()) {
                 Component.translatable("hexcasting.gui.autocomplete.all_patterns")
             } else {
                 Component.literal(autoComplete.query)
             }
             lines.add(header.visualOrderText to COLOR_SIGNATURE)
+            if (this.preeditText.isNotEmpty()) {
+                lines.add(
+                    Component.translatable("hexcasting.gui.autocomplete.composing", this.preeditText)
+                        .visualOrderText to COLOR_KEY_HINT
+                )
+            }
 
             val total = autoComplete.suggestions.size
             if (total == 0) {
@@ -1148,10 +1199,16 @@ class GuiSpellcasting constructor(
     ) {
         val lines = mutableListOf<Pair<FormattedCharSequence, Int>>()
         lines.add(editing.entry.rawName().visualOrderText to COLOR_HINT)
-        if (editing.text.isEmpty()) {
+        if (editing.text.isEmpty() && this.preeditText.isEmpty()) {
             lines.add(Component.translatable("hexcasting.gui.alias.start_typing").visualOrderText to COLOR_HINT)
         } else {
             lines.add(Component.literal(editing.text).visualOrderText to COLOR_NAME)
+        }
+        if (this.preeditText.isNotEmpty()) {
+            lines.add(
+                Component.translatable("hexcasting.gui.autocomplete.composing", this.preeditText)
+                    .visualOrderText to COLOR_KEY_HINT
+            )
         }
         lines.add(Component.literal(editing.entry.signatureWithDir).visualOrderText to COLOR_KEY_HINT)
         lines.add(Component.translatable("hexcasting.gui.alias.hint").visualOrderText to COLOR_HINT)

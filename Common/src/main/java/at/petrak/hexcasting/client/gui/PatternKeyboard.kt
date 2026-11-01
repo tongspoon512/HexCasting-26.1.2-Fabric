@@ -57,9 +57,6 @@ internal object PatternKeyboard {
     const val KEY_D = 68
     const val KEY_S = 83
     const val KEY_R = 82
-    const val KEY_0 = 48
-    const val KEY_9 = 57
-    const val KEY_MINUS = 45
 
     /** GLFW_MOD_SHIFT */
     const val MOD_SHIFT = 1
@@ -90,20 +87,34 @@ internal object PatternKeyboard {
         for (angle in angles) append(keyOfAngle(angle))
     }
 
-    /** Text a search box / alias editor should receive for the given key, if any. */
-    fun charOfKey(key: Int, modifiers: Int): Char? {
-        if (key in KEY_A..(KEY_A + 25)) {
-            val lower = ('a' + (key - KEY_A))
-            return if (modifiers and MOD_SHIFT != 0) lower.uppercaseChar() else lower
-        }
-        if (key in KEY_0..KEY_9) return ('0' + (key - KEY_0))
-        if (key == KEY_SPACE) return ' '
-        if (key == KEY_MINUS) return if (modifiers and MOD_SHIFT != 0) '_' else '-'
-        return null
+    /** Printable text delivered by a character event (ASCII, IME commits, other scripts). */
+    fun charOfTypedEvent(codepoint: Int): String? {
+        if (codepoint < 0x20 || codepoint == 0x7f) return null
+        return String(Character.toChars(codepoint))
     }
 
     fun removeLastWord(text: String): String =
         text.split(' ').dropLast(1).joinToString(" ")
+
+    /**
+     * JustEnoughCharacters compatibility. JEC patches Hexcessible's `fluffySearch` by injecting
+     * `HexcessibleHooks.mergeScore(score, query, candidate)`; our search is a port of that same
+     * algorithm, so invoke the same hook reflectively. When JEC is absent the lookup fails once
+     * and the score is left untouched, keeping JEC purely optional.
+     */
+    private val jecMergeScoreMethod: java.lang.reflect.Method? by lazy {
+        runCatching {
+            Class.forName("me.towdium.jecharacters.utils.HexcessibleHooks")
+                .getMethod("mergeScore", Int::class.javaPrimitiveType, String::class.java, String::class.java)
+        }.getOrNull()
+    }
+
+    private fun jecMergeScore(score: Int, query: String, candidate: String): Int {
+        val merge = jecMergeScoreMethod ?: return score
+        return runCatching {
+            (merge.invoke(null, score, query, candidate) as Number).toInt()
+        }.getOrDefault(score)
+    }
 
     private var entries: List<PatternEntry>? = null
     private var byAngles: Map<List<HexAngle>, PatternEntry>? = null
@@ -195,6 +206,8 @@ internal object PatternKeyboard {
             }
         }
         if (c.startsWith(q)) score += 15
-        return if (qi == q.length) score else 0
+        // Fall back to JEC's pinyin matcher (e.g. "shuzizhisi" for 数字之精思) when the plain
+        // subsequence match finds nothing.
+        return if (qi == q.length) score else jecMergeScore(0, query, candidate)
     }
 }

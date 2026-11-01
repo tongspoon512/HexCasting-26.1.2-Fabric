@@ -187,6 +187,7 @@
   "hexcasting.gui.autocomplete.no_match": "No matching patterns",
   "hexcasting.gui.autocomplete.all_patterns": "All Patterns",
   "hexcasting.gui.autocomplete.locked": "%s more patterns are still locked",
+  "hexcasting.gui.autocomplete.composing": "Composing: %s",
   "hexcasting.gui.autocomplete.hint": "Up/Down select · Left/Right docs · Enter/Tab cast · Ctrl+E alias · Esc exit",
   "hexcasting.gui.alias.start_typing": "Type an alias, leave blank to clear it",
   "hexcasting.gui.alias.hint": "Enter/Tab save · Esc cancel",

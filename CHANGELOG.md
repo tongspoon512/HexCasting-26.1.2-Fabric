@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_14` - 2026-11-01
+
+### Added
+
+- 图案补全与右键图案列表兼容 JustEnoughCharacters：安装 JEC 后可直接用拼音搜索中文图案名（如 `shuzi`、`zhisi` 匹配「数字之精思」），未安装时自动退回原有模糊匹配。
+- 搜索框与别名输入改用 26.1 的 `charTyped` / `preeditUpdated`：支持输入法直接输入中文，组字过程中在提示框显示「输入中：…」，非美式键盘布局也按实际字符接收。
+
 ## `0.11.4-fabric-build_13` - 2026-11-01
 
 ### Added

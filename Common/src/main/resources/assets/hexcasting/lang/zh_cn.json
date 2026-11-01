@@ -187,6 +187,7 @@
   "hexcasting.gui.autocomplete.no_match": "没有匹配的图案",
   "hexcasting.gui.autocomplete.all_patterns": "全部图案",
   "hexcasting.gui.autocomplete.locked": "另有 %s 个图案尚未解锁",
+  "hexcasting.gui.autocomplete.composing": "输入中：%s",
   "hexcasting.gui.autocomplete.hint": "↑/↓ 选择 · ←/→ 切换说明 · Enter/Tab 施放 · Ctrl+E 别名 · Esc 退出",
   "hexcasting.gui.alias.start_typing": "输入别名，留空则清除别名",
   "hexcasting.gui.alias.hint": "Enter/Tab 保存 · Esc 取消",
