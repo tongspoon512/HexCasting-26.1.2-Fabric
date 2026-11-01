@@ -58,6 +58,9 @@ public class FabricPacketHandler {
         var newPatterns = registerType(MsgNewSpiralPatternsS2C.ID, MsgNewSpiralPatternsS2C::deserialize);
         var clearPatterns = registerType(MsgClearSpiralPatternsS2C.ID, MsgClearSpiralPatternsS2C::deserialize);
 
+        var pullClipboard = registerType(MsgPullClipboardS2C.ID, MsgPullClipboardS2C::deserialize);
+        var pushClipboard = registerType(MsgPushClipboardC2S.ID, MsgPushClipboardC2S::deserialize);
+
         registerServerReceiver(MsgNewSpellPatternC2S.ID,
             (msg, server, player) -> ((MsgNewSpellPatternC2S) msg).handle(server, player));
         registerServerReceiver(MsgShiftScrollC2S.ID,
@@ -72,6 +75,8 @@ public class FabricPacketHandler {
             (msg, server, player) -> MsgSplicingTableActionC2S.handle(player, (MsgSplicingTableActionC2S) msg));
         registerServerReceiver(MsgSplicingTableDrawPatternC2S.ID,
             (msg, server, player) -> MsgSplicingTableDrawPatternC2S.handle(player, (MsgSplicingTableDrawPatternC2S) msg));
+        registerServerReceiver(MsgPushClipboardC2S.ID,
+            (msg, server, player) -> MsgPushClipboardC2S.handle(player, (MsgPushClipboardC2S) msg));
 
         RECEIVERS.put(newPattern.id(), (msg, ctx) -> MsgNewSpellPatternS2C.handle((MsgNewSpellPatternS2C) msg));
         RECEIVERS.put(castParticle.id(), (msg, ctx) -> MsgCastParticleS2C.handle((MsgCastParticleS2C) msg));
@@ -86,6 +91,8 @@ public class FabricPacketHandler {
             (msg, ctx) -> MsgClearSpiralPatternsS2C.handle((MsgClearSpiralPatternsS2C) msg));
         RECEIVERS.put(splicingNewData.id(),
             (msg, ctx) -> MsgSplicingTableNewDataS2C.handle((MsgSplicingTableNewDataS2C) msg));
+        RECEIVERS.put(pullClipboard.id(),
+            (msg, ctx) -> MsgPullClipboardS2C.handle((MsgPullClipboardS2C) msg));
     }
 
     private static final Map<Identifier, ClientReceiver> RECEIVERS = new HashMap<>();

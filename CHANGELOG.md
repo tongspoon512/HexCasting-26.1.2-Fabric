@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_9` - 2026-11-01
+
+### Added
+
+- 新增 HexParse 文本导入/导出：`/hexParse <code> [rename]`、`/hexParse read`、`/hexParse read_signatures`、`/hexParse share`、`/hexParse clipboard [rename]`、`/hexParse clipboard_angles [rename]`。支持列表、图案名、数字与图案互转、`mask_`/`num_`、向量、实体、字符串、矩阵、类型 iota，以及 HexParseMod 风格的数字/掩码图案语法。
+- 新增剪贴板导入用的 `MsgPullClipboardS2C` / `MsgPushClipboardC2S` 往返消息。
+- 新增 `hexparse/连锁挖掘.md`：基于现有图案的 3×3 平面、3×3×3 立方与直线钻探三套连锁挖掘法术。
+
 ## `0.11.4-fabric-build_8` - 2026-11-01
 
 ### Added
