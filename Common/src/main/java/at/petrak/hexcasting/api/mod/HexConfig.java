@@ -64,6 +64,13 @@ public class HexConfig {
             return DEFAULT_GRID_SPACING;
         }
 
+        /**
+         * Updates the grid spacing multiplier. Implementations that own a writable config file
+         * should persist the value; read-only implementations may ignore it.
+         */
+        default void setGridSpacing(double spacing) {
+        }
+
         boolean DEFAULT_CTRL_TOGGLES_OFF_STROKE_ORDER = false;
         boolean DEFAULT_DISABLE_INWORLD_SCROLLING = false;
         boolean DEFAULT_INVERT_SPELLBOOK_SCROLL = false;

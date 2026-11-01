@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_8` - 2026-11-01
+
+### Added
+
+- 新增“探知透镜组”物品：右键打开咒术网格间距调节界面，可拖动滑块调整 0.5~2.0 的点间距，实时预览网格密度，关闭时写回客户端配置；附带自制贴图、配方（金锭 / 充能紫水晶 / 探知透镜）与指南书条目。
+- 新增界面文本的中英文案。
+
+### Fixed
+
+- 旧版 `data/hexcasting/loot_tables/`（复数目录）中的 `random_scroll`、`random_cypher`、`grant_patchi_book` 已移动到 26.1 使用的 `loot_table/`（单数目录），战利品注入表可正常加载。
+
 ## `0.11.4-fabric-build_7` - 2026-10-31
 
 ### Fixed

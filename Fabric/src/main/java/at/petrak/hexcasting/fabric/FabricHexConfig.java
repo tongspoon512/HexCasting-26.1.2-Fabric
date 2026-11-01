@@ -199,6 +199,12 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         }
 
         @Override
+        public void setGridSpacing(double spacing) {
+            this.gridSpacing = Mth.clamp(spacing, 0.5, 2.0);
+            AutoConfig.getConfigHolder(FabricHexConfig.class).save();
+        }
+
+        @Override
         public boolean clickingTogglesDrawing() {
              return clickingTogglesDrawing;
         }

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "i": "minecraft:gold_ingot",
+    "t": "hexcasting:lens",
+    "z": "hexcasting:charged_amethyst"
+  },
+  "pattern": [
+    " i ",
+    "tzt",
+    " i "
+  ],
+  "result": {
+    "id": "hexcasting:lens_assembly"
+  }
+}

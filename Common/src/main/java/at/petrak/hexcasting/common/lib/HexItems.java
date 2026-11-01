@@ -8,6 +8,7 @@ import at.petrak.hexcasting.common.items.ItemGuideBook;
 import at.petrak.hexcasting.common.items.ItemJewelerHammer;
 import at.petrak.hexcasting.common.items.ItemLens;
 import at.petrak.hexcasting.common.items.ItemLoreFragment;
+import at.petrak.hexcasting.common.items.ItemScryingLensAssembly;
 import at.petrak.hexcasting.common.items.ItemStaff;
 import at.petrak.hexcasting.common.items.magic.*;
 import at.petrak.hexcasting.common.items.pigment.*;
@@ -76,6 +77,10 @@ public class HexItems {
     public static final ItemLens SCRYING_LENS = make("lens", new ItemLens(
         IXplatAbstractions.INSTANCE.addEquipSlotFabric(EquipmentSlot.HEAD)
             .stacksTo(1).setId(itemKey("lens"))));
+
+    public static final ItemScryingLensAssembly LENS_ASSEMBLY = make("lens_assembly",
+        new ItemScryingLensAssembly(unstackable().rarity(Rarity.UNCOMMON)
+            .setId(itemKey("lens_assembly"))));
 
     public static final ItemAbacus ABACUS = make("abacus", new ItemAbacus(unstackable().setId(itemKey("abacus"))));
     public static final ItemThoughtKnot THOUGHT_KNOT = make("thought_knot", new ItemThoughtKnot(unstackable().setId(itemKey("thought_knot"))));

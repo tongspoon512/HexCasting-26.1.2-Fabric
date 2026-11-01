@@ -161,6 +161,15 @@ public class HexplatRecipes extends PaucalRecipeProvider {
         ringCornerless(RecipeCategory.TOOLS, HexItems.SCRYING_LENS, 1, Items.GLASS, HexItems.AMETHYST_DUST)
             .unlockedBy("has_item", hasItem(HexTags.Items.STAVES)).save(this.output);
 
+        ShapedRecipeBuilder.shaped(itemLookup, RecipeCategory.TOOLS, HexItems.LENS_ASSEMBLY)
+            .define('i', ingredients.goldIngot())
+            .define('z', HexItems.CHARGED_AMETHYST)
+            .define('t', HexItems.SCRYING_LENS)
+            .pattern(" i ")
+            .pattern("tzt")
+            .pattern(" i ")
+            .unlockedBy("has_item", hasItem(HexTags.Items.STAVES)).save(this.output);
+
         ShapedRecipeBuilder.shaped(itemLookup, RecipeCategory.TOOLS, HexItems.ABACUS)
             .define('S', Items.STICK)
             .define('A', Items.AMETHYST_SHARD)

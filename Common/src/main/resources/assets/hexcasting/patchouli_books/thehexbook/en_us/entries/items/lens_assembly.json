@@ -1,0 +1,18 @@
+{
+  "name": "hexcasting.entry.lens_assembly",
+  "icon": "hexcasting:lens_assembly",
+  "category": "hexcasting:items",
+  "advancement": "hexcasting:root",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.lens_assembly.1"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hexcasting:lens_assembly",
+      "text": "hexcasting.page.lens_assembly.crafting.desc"
+    }
+  ]
+}
