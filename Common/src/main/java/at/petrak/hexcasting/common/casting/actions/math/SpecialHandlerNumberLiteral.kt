@@ -34,7 +34,8 @@ class SpecialHandlerNumberLiteral(val x: Double) : SpecialHandler {
     }
 
     class Factory : SpecialHandler.Factory<SpecialHandlerNumberLiteral> {
-        override fun tryMatch(pat: HexPattern, env: CastingEnvironment): SpecialHandlerNumberLiteral? {
+        // env is nullable: the client resolves tooltip names without a casting environment.
+        override fun tryMatch(pat: HexPattern, env: CastingEnvironment?): SpecialHandlerNumberLiteral? {
             val sig = pat.anglesSignature()
             if (sig.startsWith("aqaa") || sig.startsWith("dedd")) {
                 val negate = sig.startsWith("dedd");

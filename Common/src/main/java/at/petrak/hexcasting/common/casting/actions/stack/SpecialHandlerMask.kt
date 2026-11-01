@@ -46,7 +46,8 @@ class SpecialHandlerMask(val mask: BooleanList) : SpecialHandler {
     }
 
     class Factory : SpecialHandler.Factory<SpecialHandlerMask> {
-        override fun tryMatch(pat: HexPattern, env: CastingEnvironment): SpecialHandlerMask? {
+        // env is nullable: the client resolves tooltip names without a casting environment.
+        override fun tryMatch(pat: HexPattern, env: CastingEnvironment?): SpecialHandlerMask? {
             val directions = pat.directions()
 
             var flatDir = pat.startDir

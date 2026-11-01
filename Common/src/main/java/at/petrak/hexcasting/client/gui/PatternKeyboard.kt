@@ -144,7 +144,11 @@ internal object PatternKeyboard {
      */
     fun nameOf(pattern: HexPattern): Component? {
         entryOf(pattern.angles)?.let { return it.displayName() }
-        return PatternRegistryManifest.matchPatternToSpecialHandler(pattern, null)?.first?.name
+        // There is no CastingEnvironment on the client; the built-in handlers accept null. A third
+        // party handler that insists on an env must not be able to take the screen down with it.
+        return runCatching {
+            PatternRegistryManifest.matchPatternToSpecialHandler(pattern, null)?.first?.name
+        }.getOrNull()
     }
 
     /**
