@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
-- 物品（聚焦器、法术书、思想结、算盘等）的 iota 列表提示现在**每 10 个 iota 换一行**；图案 iota 同样各计一个，超长法术不会再挤成一条难以阅读的长行。
+- 物品（聚焦器、法术书、思想结、算盘等）的 iota 列表提示现在**按屏幕宽度自适应换行**：按实际渲染像素宽度切行，图案 iota 同样参与宽度计算，超长法术不会再挤成一条难以阅读的长行。
 
 ### Fixed
 

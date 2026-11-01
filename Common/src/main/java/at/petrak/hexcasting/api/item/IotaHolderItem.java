@@ -8,6 +8,7 @@ import at.petrak.hexcasting.api.mod.HexConfig;
 import at.petrak.hexcasting.client.ClientTickCounter;
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
@@ -101,14 +102,20 @@ public interface IotaHolderItem {
      */
     void writeDatum(ItemStack stack, @Nullable Iota iota);
 
-    /** How many iotas are shown per tooltip line before wrapping. */
-    int TOOLTIP_IOTAS_PER_LINE = 10;
+    /** Pixels kept clear on each side of the screen so the tooltip still fits on screen. */
+    int TOOLTIP_SCREEN_MARGIN = 32;
 
     static void appendHoverText(IotaHolderItem self, ItemStack stack, List<Component> components,
         TooltipFlag flag) {
         var datumTag = self.readIotaTag(stack);
         if (datumTag != null) {
-            var lines = IotaType.getDisplayLines(datumTag, TOOLTIP_IOTAS_PER_LINE);
+            var mc = Minecraft.getInstance();
+            var font = mc.font;
+            var prefix = Component.translatable("hexcasting.spelldata.onitem", Component.empty());
+            // wrap to the width of the screen, leaving room for the margins and the first-line prefix
+            var maxWidth = Math.max(80, mc.getWindow().getGuiScaledWidth()
+                - TOOLTIP_SCREEN_MARGIN - font.width(prefix));
+            var lines = IotaType.getDisplayLines(datumTag, font, maxWidth);
             components.add(Component.translatable("hexcasting.spelldata.onitem", lines.get(0)));
             for (int i = 1; i < lines.size(); i++) {
                 components.add(Component.literal("    ").append(lines.get(i)));

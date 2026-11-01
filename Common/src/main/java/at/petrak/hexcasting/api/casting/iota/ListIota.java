@@ -6,6 +6,7 @@ import at.petrak.hexcasting.api.utils.TreeList;
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes;
 import at.petrak.hexcasting.api.mod.HexConfig;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.Font;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -121,6 +122,10 @@ public class ListIota extends Iota {
         return depth;
     }
 
+    private static int widthOf(@Nullable Font font, Component component) {
+        return font == null ? 0 : font.width(component);
+    }
+
     public static IotaType<ListIota> TYPE = new IotaType<>() {
         @Nullable
         @Override
@@ -143,37 +148,47 @@ public class ListIota extends Iota {
         @Override
         public Component display(Tag tag) {
             var out = Component.empty();
-            for (var line : displayLines(tag, 0)) {
+            for (var line : displayLines(tag, null, 0)) {
                 out.append(line);
             }
             return out;
         }
 
         @Override
-        public List<Component> displayLines(Tag tag, int wrapEvery) {
+        public List<Component> displayLines(Tag tag, @Nullable Font font, int maxWidth) {
             var list = HexUtils.downcast(tag, ListTag.TYPE);
             var chunks = new ArrayList<Component>();
             var chunk = Component.empty();
+            var chunkWidth = 0;
+            var alwaysShowCommas = HexConfig.client() != null && HexConfig.client().alwaysShowListCommas();
             for (int i = 0; i < list.size(); i++) {
                 var csub = HexUtils.downcast(list.get(i), CompoundTag.TYPE);
-                chunk.append(IotaType.getDisplay(csub));
+                var sub = IotaType.getDisplay(csub);
 
                 // only add a comma between 2 non-patterns (commas don't look good with Inline patterns)
+                var needsComma = false;
                 if (i < list.size() - 1) {
                     var thisType = IotaType.getTypeFromTag(csub);
                     var nextType = IotaType.getTypeFromTag(HexUtils.downcast(list.get(i+1), CompoundTag.TYPE));
                     var thisIotaNeedsComma = thisType == null || thisType.usesListCommas();
                     var nextIotaNeedsComma = nextType == null || nextType.usesListCommas();
-                    var alwaysShowCommas = HexConfig.client() != null && HexConfig.client().alwaysShowListCommas();
-                    if (thisIotaNeedsComma || nextIotaNeedsComma || alwaysShowCommas)
-                        chunk.append(", ");
+                    needsComma = thisIotaNeedsComma || nextIotaNeedsComma || alwaysShowCommas;
                 }
 
-                // wrap to a new line after every wrapEvery iotas (patterns count as one each)
-                if (wrapEvery > 0 && (i + 1) % wrapEvery == 0 && i < list.size() - 1) {
+                // wrap to a new line when this iota would push the line past the width budget
+                var subWidth = widthOf(font, sub);
+                var commaWidth = needsComma && font != null ? font.width(", ") : 0;
+                if (maxWidth > 0 && chunkWidth > 0 && chunkWidth + subWidth + commaWidth > maxWidth) {
                     chunks.add(chunk);
                     chunk = Component.empty();
+                    chunkWidth = 0;
                 }
+
+                chunk.append(sub);
+                if (needsComma) {
+                    chunk.append(", ");
+                }
+                chunkWidth += subWidth + commaWidth;
             }
             chunks.add(chunk);
 

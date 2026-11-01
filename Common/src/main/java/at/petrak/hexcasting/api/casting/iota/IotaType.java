@@ -39,10 +39,12 @@ public abstract class IotaType<T extends Iota> {
     public abstract Component display(Tag tag);
 
     /**
-     * Get the display of this datum split into separate lines, with at most {@code wrapEvery}
-     * iotas per line. Only list iotas need to override this; by default it is a single line.
+     * Get the display of this datum split into separate lines, each at most {@code maxWidth}
+     * pixels wide when drawn with {@code font}. Only list iotas need to override this; by
+     * default it is a single line. A non-positive {@code maxWidth} or a {@code null} font
+     * disables wrapping.
      */
-    public List<Component> displayLines(Tag tag, int wrapEvery) {
+    public List<Component> displayLines(Tag tag, @Nullable Font font, int maxWidth) {
         return List.of(display(tag));
     }
 
@@ -170,9 +172,9 @@ public abstract class IotaType<T extends Iota> {
 
     /**
      * Like {@link #getDisplay(CompoundTag)}, but list iotas can spread their contents over
-     * multiple lines, with at most {@code wrapEvery} iotas per line.
+     * multiple lines, each at most {@code maxWidth} pixels wide when drawn with {@code font}.
      */
-    public static List<Component> getDisplayLines(CompoundTag tag, int wrapEvery) {
+    public static List<Component> getDisplayLines(CompoundTag tag, @Nullable Font font, int maxWidth) {
         var type = getTypeFromTag(tag);
         if (type == null) {
             return List.of(brokenIota());
@@ -181,7 +183,7 @@ public abstract class IotaType<T extends Iota> {
         if (data == null) {
             return List.of(brokenIota());
         }
-        return type.displayLines(data, wrapEvery);
+        return type.displayLines(data, font, maxWidth);
     }
 
     public static FormattedCharSequence getDisplayWithMaxWidth(CompoundTag tag, int maxWidth, Font font) {
