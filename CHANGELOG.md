@@ -14,6 +14,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - `hexparse/连锁挖掘.md` 的同种矿物连锁挖掘加入自动拾取：每破坏一格后用 `zone_entity/item` + `for_each` + `pickup_item` 收走掉落物（种子方块也拾取），并补充了栈变化、开关方式与 op 预算说明。
 
+### Fixed
+
+- 闪现/传送落点偏移：`teleportRespectSticky` 把绝对坐标连同 `Relative.X/Y/Z` 一起传给 `teleportTo`，而 26.1 的相对传送会再加上实体当前坐标，导致落点变成 `2 × 当前坐标 + 位移`（离原点越远偏得越多）。现改为传位移本身、旋转增量传 0，并用 `Relative.DELTA_*` 保留原速度，同时修掉朝向被叠加两遍的问题。
+
 ## `0.11.4-fabric-build_12` - 2026-11-01
 
 ### Added

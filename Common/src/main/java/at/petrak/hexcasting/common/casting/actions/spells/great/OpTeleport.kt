@@ -105,17 +105,21 @@ object OpTeleport : SpellAction {
             return
         }
 
-        val target = teleportee.position().add(delta)
-
         // A "sticky" entity teleports itself and its riders
         // This is the default behavior for teleportTo(), so we remove the riders if the teleportee *isn't* sticky
         teleportee.stopRiding()
         if (!teleportee.type.builtInRegistryHolder().`is`(HexTags.Entities.STICKY_TELEPORTERS)) 
             teleportee.passengers.forEach(Entity::stopRiding)
 
-        // we specify that this is relative movement so that it doesn't reset player velocity. :mojank:
-        // note that the coordinates here are still absolute, because vanilla relative teleports are weird
-        teleportee.teleportTo(world, target.x, target.y, target.z,
-            setOf(Relative.X, Relative.Y, Relative.Z, Relative.Y_ROT, Relative.X_ROT), teleportee.yRot, teleportee.xRot, false)
+        // 26.1's relative teleports add the entity's current position/rotation to the supplied values
+        // (see PositionMoveRotation.calculateAbsolute), so the coordinates here are offsets, not absolute.
+        // Hand over the delta itself (and zero rotation deltas) so the entity lands at position + delta,
+        // while the DELTA flags keep the current velocity instead of zeroing it.
+        teleportee.teleportTo(world, delta.x, delta.y, delta.z,
+            setOf(
+                Relative.X, Relative.Y, Relative.Z,
+                Relative.Y_ROT, Relative.X_ROT,
+                Relative.DELTA_X, Relative.DELTA_Y, Relative.DELTA_Z
+            ), 0.0f, 0.0f, false)
     }
 }
