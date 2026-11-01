@@ -185,6 +185,7 @@
   "hexcasting.gui.keyboard.hint": "Enter/Tab/Space cast · Backspace/s undo · H/J/K/L move · R rotate · Esc exit",
   "hexcasting.gui.autocomplete.start_typing": "Start typing to search patterns…",
   "hexcasting.gui.autocomplete.no_match": "No matching patterns",
+  "hexcasting.gui.autocomplete.all_patterns": "All Patterns",
   "hexcasting.gui.autocomplete.locked": "%s more patterns are still locked",
   "hexcasting.gui.autocomplete.hint": "Up/Down select · Left/Right docs · Enter/Tab cast · Ctrl+E alias · Esc exit",
   "hexcasting.gui.alias.start_typing": "Type an alias, leave blank to clear it",

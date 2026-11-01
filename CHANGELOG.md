@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_12` - 2026-11-01
+
+### Added
+
+- 空闲时在绘图区右键可打开全部已注册图案的浏览列表（窗口化滚动，直接输入即可搜索），与 `Ctrl+Space` 补全共用选择与施放逻辑。
+
+### Fixed
+
+- 数字之精思与簿记员之策略的图案名称改为取自各自的特殊处理器，悬停与键盘绘制提示现在会显示具体值，如「数字之精思：4.00」「簿记员之策略：-v--v」，不再显示未翻译的动作键。
+
 ## `0.11.4-fabric-build_11` - 2026-11-01
 
 ### Added

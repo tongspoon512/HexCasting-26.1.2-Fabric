@@ -3,6 +3,8 @@ package at.petrak.hexcasting.client.gui
 import at.petrak.hexcasting.api.HexAPI
 import at.petrak.hexcasting.api.casting.math.HexAngle
 import at.petrak.hexcasting.api.casting.math.HexDir
+import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import at.petrak.hexcasting.common.lib.hex.HexActions
 import net.minecraft.network.chat.Component
 
@@ -135,13 +137,21 @@ internal object PatternKeyboard {
     /** Entry matching an angle signature; like [HexPattern.sigsEqual] the start direction is ignored. */
     fun entryOf(angles: List<HexAngle>): PatternEntry? = angleIndex()[angles]
 
-    fun nameOf(angles: List<HexAngle>): Component? = entryOf(angles)?.displayName()
+    /**
+     * Name for a drawn pattern. Registered actions resolve through the action registry (so aliases
+     * apply), while number/mask literals resolve through their special handler, which supplies the
+     * computed value or mask fingerprint (e.g. "数字之精思：4.00").
+     */
+    fun nameOf(pattern: HexPattern): Component? {
+        entryOf(pattern.angles)?.let { return it.displayName() }
+        return PatternRegistryManifest.matchPatternToSpecialHandler(pattern, null)?.first?.name
+    }
 
     /**
      * Fuzzy search over localized names, aliases and ids. Locked patterns are dropped from
      * [PatternSearchResult.suggestions] but counted in [PatternSearchResult.lockedCount].
      */
-    fun search(query: String, limit: Int): PatternSearchResult {
+    fun search(query: String): PatternSearchResult {
         val all = allEntries()
         val matches = if (query.isBlank()) {
             all.sortedBy { it.displayNameString().lowercase() }
@@ -160,7 +170,7 @@ internal object PatternKeyboard {
         }
 
         val unlocked = matches.filterNot { PatternDocs.isLocked(it.id) }
-        return PatternSearchResult(unlocked.take(limit), matches.size - unlocked.size)
+        return PatternSearchResult(unlocked, matches.size - unlocked.size)
     }
 
     private fun fluffySearch(query: String, candidate: String): Int {

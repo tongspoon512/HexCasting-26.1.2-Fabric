@@ -217,6 +217,13 @@ class GuiSpellcasting constructor(
             return true
         }
 
+        // Right-click on the idle grid opens the browsable list of every registered pattern.
+        if (this.drawState is PatternDrawState.BetweenPatterns && event.button() == 1) {
+            val coord = this.pxToCoord(Vec2(event.x.toFloat(), event.y.toFloat()))
+            openAutoComplete(coord, browse = true)
+            return true
+        }
+
         if (super.mouseClicked(event, doubleClick)) {
             return true
         }
@@ -269,7 +276,7 @@ class GuiSpellcasting constructor(
         val autoComplete = this.drawState as? PatternDrawState.AutoCompleting
         if (autoComplete != null) {
             // Don't leave an empty search box hanging around when the mouse wanders off.
-            if (autoComplete.query.isEmpty()) {
+            if (!autoComplete.browse && autoComplete.query.isEmpty()) {
                 val anchor = this.coordToPx(autoComplete.origin)
                 val dx = mxOut.toFloat() - anchor.x
                 val dy = myOut.toFloat() - anchor.y
@@ -535,13 +542,18 @@ class GuiSpellcasting constructor(
 
     private fun startAutoComplete() {
         val coord = this.pxToCoord(Vec2(this.lastMouseX.toFloat(), this.lastMouseY.toFloat()))
-        val autoComplete = PatternDrawState.AutoCompleting(coord)
+        openAutoComplete(coord, browse = false)
+    }
+
+    private fun openAutoComplete(origin: HexCoord, browse: Boolean) {
+        val autoComplete = PatternDrawState.AutoCompleting(origin)
+        autoComplete.browse = browse
         this.drawState = autoComplete
         refreshAutoComplete(autoComplete)
     }
 
     private fun refreshAutoComplete(autoComplete: PatternDrawState.AutoCompleting) {
-        val result = PatternKeyboard.search(autoComplete.query, HexConfig.client().patternAutocompleteCount())
+        val result = PatternKeyboard.search(autoComplete.query)
         autoComplete.suggestions = result.suggestions
         autoComplete.lockedCount = result.lockedCount
         autoComplete.chosen = 0
@@ -1018,7 +1030,8 @@ class GuiSpellcasting constructor(
                 if (keyboard.start == null) {
                     lines.add(Component.translatable("hexcasting.gui.keyboard.no_space").visualOrderText to COLOR_ERROR)
                 }
-                PatternKeyboard.nameOf(keyboard.angles)?.let { lines.add(it.visualOrderText to COLOR_NAME) }
+                val drawn = HexPattern(keyboard.startDir ?: keyboard.originDir, ArrayList(keyboard.angles))
+                PatternKeyboard.nameOf(drawn)?.let { lines.add(it.visualOrderText to COLOR_NAME) }
             }
             lines.add(Component.translatable("hexcasting.gui.keyboard.hint").visualOrderText to COLOR_HINT)
 
@@ -1034,7 +1047,7 @@ class GuiSpellcasting constructor(
             if (System.currentTimeMillis() - this.hoveredSince >= HOVER_DELAY_MS) {
                 val lines = mutableListOf<Pair<FormattedCharSequence, Int>>()
                 lines.add(Component.literal(PatternKeyboard.signature(hovered.pattern.angles)).visualOrderText to COLOR_SIGNATURE)
-                PatternKeyboard.nameOf(hovered.pattern.angles)?.let { lines.add(it.visualOrderText to COLOR_NAME) }
+                PatternKeyboard.nameOf(hovered.pattern)?.let { lines.add(it.visualOrderText to COLOR_NAME) }
                 drawTooltipBox(graphics, font, mouseX + 12, mouseY + 12, lines)
             }
         } else {
@@ -1049,19 +1062,34 @@ class GuiSpellcasting constructor(
         autoComplete: PatternDrawState.AutoCompleting
     ) {
         val lines = mutableListOf<Pair<FormattedCharSequence, Int>>()
-        val showList = autoComplete.query.isNotEmpty()
+        val showList = autoComplete.browse || autoComplete.query.isNotEmpty()
         val selected = if (showList) autoComplete.suggestions.getOrNull(autoComplete.chosen) else null
 
         if (!showList) {
             lines.add(Component.translatable("hexcasting.gui.autocomplete.start_typing").visualOrderText to COLOR_HINT)
         } else {
-            lines.add(Component.literal(autoComplete.query).visualOrderText to COLOR_SIGNATURE)
-            if (autoComplete.suggestions.isEmpty()) {
+            val header = if (autoComplete.query.isEmpty()) {
+                Component.translatable("hexcasting.gui.autocomplete.all_patterns")
+            } else {
+                Component.literal(autoComplete.query)
+            }
+            lines.add(header.visualOrderText to COLOR_SIGNATURE)
+
+            val total = autoComplete.suggestions.size
+            if (total == 0) {
                 lines.add(Component.translatable("hexcasting.gui.autocomplete.no_match").visualOrderText to COLOR_ERROR)
             } else {
-                for ((i, entry) in autoComplete.suggestions.withIndex()) {
+                // Only render a window around the cursor; the whole registry can be hundreds of entries.
+                val visible = HexConfig.client().patternAutocompleteCount()
+                val from = if (total <= visible) 0
+                else (autoComplete.chosen - visible / 2).coerceIn(0, total - visible)
+                val to = minOf(total, from + visible)
+                for (i in from until to) {
                     val color = if (i == autoComplete.chosen) COLOR_NAME else COLOR_HINT
-                    lines.add(entry.displayName().visualOrderText to color)
+                    lines.add(autoComplete.suggestions[i].displayName().visualOrderText to color)
+                }
+                if (total > visible) {
+                    lines.add(Component.literal("${from + 1}-$to/$total").visualOrderText to COLOR_KEY_HINT)
                 }
                 if (autoComplete.lockedCount > 0) {
                     lines.add(
@@ -1204,6 +1232,9 @@ class GuiSpellcasting constructor(
             var chosenDoc: Int = 0
             var suggestions: List<PatternEntry> = emptyList()
             var lockedCount: Int = 0
+
+            /** Opened by right-click: shows the whole list and doesn't close when the mouse wanders. */
+            var browse: Boolean = false
         }
 
         /** Renaming a pattern, opened with Ctrl+E while hovering it. */
