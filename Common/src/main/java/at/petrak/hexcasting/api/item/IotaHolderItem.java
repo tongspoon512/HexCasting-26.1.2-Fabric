@@ -101,12 +101,18 @@ public interface IotaHolderItem {
      */
     void writeDatum(ItemStack stack, @Nullable Iota iota);
 
+    /** How many iotas are shown per tooltip line before wrapping. */
+    int TOOLTIP_IOTAS_PER_LINE = 10;
+
     static void appendHoverText(IotaHolderItem self, ItemStack stack, List<Component> components,
         TooltipFlag flag) {
         var datumTag = self.readIotaTag(stack);
         if (datumTag != null) {
-            var cmp = IotaType.getDisplay(datumTag);
-            components.add(Component.translatable("hexcasting.spelldata.onitem", cmp));
+            var lines = IotaType.getDisplayLines(datumTag, TOOLTIP_IOTAS_PER_LINE);
+            components.add(Component.translatable("hexcasting.spelldata.onitem", lines.get(0)));
+            for (int i = 1; i < lines.size(); i++) {
+                components.add(Component.literal("    ").append(lines.get(i)));
+            }
 
             if (flag.isAdvanced() && (HexConfig.client() == null || HexConfig.client().advancedTooltipsShowsIotaNBT())) {
                 components.add(Component.literal("").append(NbtUtils.toPrettyComponent(datumTag)));

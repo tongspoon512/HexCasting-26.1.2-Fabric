@@ -143,12 +143,20 @@ public class ListIota extends Iota {
         @Override
         public Component display(Tag tag) {
             var out = Component.empty();
-            var list = HexUtils.downcast(tag, ListTag.TYPE);
-            for (int i = 0; i < list.size(); i++) {
-                Tag sub = list.get(i);
-                var csub = HexUtils.downcast(sub, CompoundTag.TYPE);
+            for (var line : displayLines(tag, 0)) {
+                out.append(line);
+            }
+            return out;
+        }
 
-                out.append(IotaType.getDisplay(csub));
+        @Override
+        public List<Component> displayLines(Tag tag, int wrapEvery) {
+            var list = HexUtils.downcast(tag, ListTag.TYPE);
+            var chunks = new ArrayList<Component>();
+            var chunk = Component.empty();
+            for (int i = 0; i < list.size(); i++) {
+                var csub = HexUtils.downcast(list.get(i), CompoundTag.TYPE);
+                chunk.append(IotaType.getDisplay(csub));
 
                 // only add a comma between 2 non-patterns (commas don't look good with Inline patterns)
                 if (i < list.size() - 1) {
@@ -158,10 +166,30 @@ public class ListIota extends Iota {
                     var nextIotaNeedsComma = nextType == null || nextType.usesListCommas();
                     var alwaysShowCommas = HexConfig.client() != null && HexConfig.client().alwaysShowListCommas();
                     if (thisIotaNeedsComma || nextIotaNeedsComma || alwaysShowCommas)
-                        out.append(", ");
+                        chunk.append(", ");
+                }
+
+                // wrap to a new line after every wrapEvery iotas (patterns count as one each)
+                if (wrapEvery > 0 && (i + 1) % wrapEvery == 0 && i < list.size() - 1) {
+                    chunks.add(chunk);
+                    chunk = Component.empty();
                 }
             }
-            return Component.translatable("hexcasting.tooltip.list_contents", out).withStyle(ChatFormatting.DARK_PURPLE);
+            chunks.add(chunk);
+
+            var out = new ArrayList<Component>(chunks.size());
+            for (int i = 0; i < chunks.size(); i++) {
+                var line = Component.empty();
+                if (i == 0) {
+                    line.append(Component.literal("["));
+                }
+                line.append(chunks.get(i));
+                if (i == chunks.size() - 1) {
+                    line.append(Component.literal("]"));
+                }
+                out.add(line.withStyle(ChatFormatting.DARK_PURPLE));
+            }
+            return out;
         }
 
         @Override

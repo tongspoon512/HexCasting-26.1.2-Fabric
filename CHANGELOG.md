@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_10` - 2026-11-01
+
+### Added
+
+- 物品（聚焦器、法术书、思想结、算盘等）的 iota 列表提示现在**每 10 个 iota 换一行**；图案 iota 同样各计一个，超长法术不会再挤成一条难以阅读的长行。
+
+### Fixed
+
+- 修正 `hexparse/连锁挖掘.md` 中「同种矿物连锁挖掘」法术的裸数字：hexparse 的裸数字是 `DoubleIota` 字面量，作为指令执行会触发 `MishapUnescapedValue`（「本应运行一个图案，而实际运行了 1.00」）。驱动与递归体中的 `0` / `1` / `2` 已改为 `num_0` / `num_1` / `num_2`，并在文档中补充了该规则说明。
+
 ## `0.11.4-fabric-build_9` - 2026-11-01
 
 ### Added

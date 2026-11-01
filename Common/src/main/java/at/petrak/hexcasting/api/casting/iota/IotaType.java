@@ -39,6 +39,14 @@ public abstract class IotaType<T extends Iota> {
     public abstract Component display(Tag tag);
 
     /**
+     * Get the display of this datum split into separate lines, with at most {@code wrapEvery}
+     * iotas per line. Only list iotas need to override this; by default it is a single line.
+     */
+    public List<Component> displayLines(Tag tag, int wrapEvery) {
+        return List.of(display(tag));
+    }
+
+    /**
      * Get the color associated with this datum type.
      */
     public abstract int color();
@@ -158,6 +166,22 @@ public abstract class IotaType<T extends Iota> {
             return brokenIota();
         }
         return type.display(data);
+    }
+
+    /**
+     * Like {@link #getDisplay(CompoundTag)}, but list iotas can spread their contents over
+     * multiple lines, with at most {@code wrapEvery} iotas per line.
+     */
+    public static List<Component> getDisplayLines(CompoundTag tag, int wrapEvery) {
+        var type = getTypeFromTag(tag);
+        if (type == null) {
+            return List.of(brokenIota());
+        }
+        var data = tag.get(HexIotaTypes.KEY_DATA);
+        if (data == null) {
+            return List.of(brokenIota());
+        }
+        return type.displayLines(data, wrapEvery);
     }
 
     public static FormattedCharSequence getDisplayWithMaxWidth(CompoundTag tag, int maxWidth, Font font) {
