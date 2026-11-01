@@ -160,6 +160,62 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
 
 相关代码位于 `Common/src/main/java/ram/talia/moreiotas/`，Fabric 侧组件与事件在 `Fabric/src/main/java/ram/talia/moreiotas/fabric/`。
 
+### 7. HexParse 文本咒术（`/hexParse`）
+
+26.1 没有可用的 HexParseMod，本分支按它的命令格式自行实现了一套「文本 ↔ iota」的双向转换，方便把长法术写成文本保存、分享，再用命令写回物品。
+
+- **导入**：`/hexParse "<代码>" [改名]` 把文本解析成 iota，写入主手可写容器（Focus、法术书等），可同时改物品名。
+- **导出**：`/hexParse read` 读取手持容器并输出可点击复制的文本；`/hexParse read_signatures` 只输出 `<起始方向,角度串>` 形式的签名。
+- **传播**：`/hexParse share` 向全服广播手持咒术文本。
+- **剪贴板**：`/hexParse clipboard [改名]` 用剪贴板原文导入，`clipboard_angles [改名]` 只导入引号内的角度串；客户端与服务端往返走新增的 `MsgPullClipboardS2C` / `MsgPushClipboardC2S`。
+- **语法要点**：顶层本身即列表；`(` `)` 是 Introspection/Retrospection，在运行期构造列表；裸数字是 `DoubleIota` **字面量**，要被 `eval` 执行必须写成 `num_<n>` 图案；`vec_x_y_z` 与 `mask_` 有专用写法；图案可用名称、别名或方向签名书写；实体、字符串、矩阵、类型 iota 均支持。`read` 输出的文本可再次 `/hexParse` 回写，嵌套列表、图案方向与掩码都会保留。
+
+实现位置：
+
+- [HexParseCommand.java](Common/src/main/java/at/petrak/hexcasting/common/lib/hexparse/HexParseCommand.java)：命令树、读写目标与聊天输出
+- [IotaCode.kt](Common/src/main/java/at/petrak/hexcasting/common/lib/hexparse/IotaCode.kt)：分词、解析、反向输出、数字/掩码图案角度算法
+- [MsgPullClipboardS2C.java](Common/src/main/java/at/petrak/hexcasting/common/msgs/MsgPullClipboardS2C.java) / [MsgPushClipboardC2S.java](Common/src/main/java/at/petrak/hexcasting/common/msgs/MsgPushClipboardC2S.java)：剪贴板往返
+
+示例法术文档见 [hexparse/连锁挖掘.md](hexparse/连锁挖掘.md)：3×3 平面、3×3×3 立方、直线钻探，以及「同种矿物 + 自引用（quine）」的连锁挖掘。
+
+### 8. 探知透镜组（`hexcasting:lens_assembly`）
+
+- 新增物品 `hexcasting:lens_assembly`，手持右键打开网格间距调节界面（`GridSpacingScreen`）。
+- 界面中央实时预览当前网格密度，滑块范围 0.5–2.0；关闭界面时把结果写回客户端配置 `gridSpacing`，与 ModMenu、`config/hexcasting/client.json` 完全等价。
+- 该间距同时作用于施法界面与剪接台的迷你法杖网格。
+- 附带自制贴图、配方（金锭 + 充能紫水晶 + 探知透镜）与指南书条目。
+
+实现位置：
+
+- [ItemScryingLensAssembly.java](Common/src/main/java/at/petrak/hexcasting/common/items/ItemScryingLensAssembly.java)
+- [GridSpacingScreen.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/GridSpacingScreen.kt)
+- [HexConfig.java](Common/src/main/java/at/petrak/hexcasting/api/mod/HexConfig.java) 中的 `gridSpacing()`
+
+### 9. 物品 iota 提示自适应换行
+
+聚焦器、法术书、思想结、算盘等物品的物品提示里，列表 iota 不再挤成一条长行：
+
+- 按 `font.width` 实测每个 iota（含逗号）的渲染像素宽度，超出预算才换行；图案 iota 也按真实字宽计入。
+- 预算取 GUI 缩放宽度减去 32 像素边距，并扣掉首行 `Contains:` 前缀宽度；后续行四空格缩进。
+- 收窄窗口或调大 GUI 缩放后，下一次悬停即按新宽度重排；单行 `display()`（法术书界面内等场景）行为不变。
+
+实现位置：[IotaType.java](Common/src/main/java/at/petrak/hexcasting/api/casting/iota/IotaType.java) 的 `displayLines`、[ListIota.java](Common/src/main/java/at/petrak/hexcasting/api/casting/iota/ListIota.java)、[IotaHolderItem.java](Common/src/main/java/at/petrak/hexcasting/api/item/IotaHolderItem.java)。
+
+### 10. 键盘施法、图案补全与别名（移植自 Hexcessible）
+
+参考 [tizu69/Hexcessible](https://github.com/tizu69/Hexcessible) 的纯客户端无障碍层，在施法界面内实现了一套不改变原有鼠标绘制的键盘操作：
+
+- **空闲悬停提示**：鼠标停在已绘制图案上 0.5 秒，显示 `<起始方向, 角度串>` 与该图案的本地化名称。
+- **键盘绘制**：空闲时按 `q/w/e/a/d` 直接开始输入相对角度，`Backspace`/`s` 撤销，`Enter`/`Tab`/空格 施放，`H/J/K/L` 与方向键移动落点，`R`/`Shift+R` 或滚轮旋转；绘制中显示灰色幽灵图案与蓝色实际落点，并在每个可延伸方向标注下一个按键，空间不足时红字提示。
+- **模糊补全**（`Ctrl+Space`）：按名称、别名与动作 id 做逐字符模糊匹配，`↑/↓` 或滚轮选择，`Enter`/`Tab` 直接进入键盘绘制，`Esc` 退出；空查询时鼠标移出 1.75 格半径自动收起。
+- **指南书说明**：补全列表会展示选中图案的输入/输出与指南书说明文本，`←/→` 在同一图案的多条实现说明之间切换；尚未解锁的图案不会出现在列表中，只显示「另有 N 个图案尚未解锁」。
+- **别名**（`Ctrl+E`）：在悬停图案或补全列表上改名，`Enter`/`Tab` 保存、留空清除、`Esc` 取消；别名保存在 `config/hexcasting_aliases.json`，并立即用于悬停提示与模糊搜索。
+- **客户端配置**：`config/hexcasting/client.json` 新增「图案补全条数」（`patternAutocompleteCount`，默认 5，取值 3–20）与「图案补全显示指南书说明」（`showPatternDocsInAutocomplete`，默认开），也可在 ModMenu 中调整。
+
+实现位置：[GuiSpellcasting.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/GuiSpellcasting.kt)（状态机与绘制）、[PatternKeyboard.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/PatternKeyboard.kt)（键位/签名/模糊搜索）、[PatternDocs.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/PatternDocs.kt)（指南书说明与解锁过滤）、[PatternAliases.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/PatternAliases.kt)（别名持久化）。
+
+已知限制：26.1 的 `Screen` 不再提供 `charTyped`，因此搜索框与别名的文字输入按 GLFW 键码自行映射，非美式键盘布局下字母位置可能与实际字符不一致。
+
 ## 安装
 
 1. 安装 Fabric Loader ≥ 0.20.1（对应 26.1.2）。
@@ -217,6 +273,7 @@ Fabric/   平台实现：入口、网络、CCA 组件、事件、interop、datag
           └─ gay/object/hexdebug/  剪接台（方块、菜单、GUI、网络、数据模型）与 HUD
 Forge/    上游 1.20.1 遗留，未纳入构建，请勿修改
 doc/      原版文档源
+hexparse/  HexParse 文本法术文档（连锁挖掘等）
 ```
 
 ## 26.1 移植要点
@@ -252,6 +309,7 @@ doc/      原版文档源
 
 - 原版在线手册：https://hexcasting.hexxy.media/
 - HexDebug 在线手册：https://hexdebug.hexxy.media/
+- HexParse 法术示例：[hexparse/连锁挖掘.md](hexparse/连锁挖掘.md)
 - 更新日志：见 [CHANGELOG.md](./CHANGELOG.md)
 - 贡献指南：见 [CONTRIBUTING.md](./CONTRIBUTING.md)
 

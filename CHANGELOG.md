@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_11` - 2026-11-01
+
+### Added
+
+- 施法界面新增 Hexcessible 风格的键盘操作：空闲悬停图案 0.5 秒显示签名与名称；`q/w/e/a/d` 输入相对角度绘制、`Backspace`/`s` 撤销、`Enter`/`Tab`/空格 施放、`H/J/K/L` 与方向键移动、`R` 或滚轮旋转，带幽灵预览与下一按键提示。
+- 新增 `Ctrl+Space` 模糊图案补全：按名称、别名与动作 id 匹配，`↑/↓` 或滚轮选择，`Enter`/`Tab` 直接进入键盘绘制；选中项显示输入/输出与指南书说明，`←/→` 切换同一图案的多条说明；未解锁图案被过滤并显示「另有 N 个图案尚未解锁」。
+- 新增 `Ctrl+E` 图案别名：悬停图案或补全列表上改名，保存在 `config/hexcasting_aliases.json`，并立即用于提示与搜索。
+- 新增客户端配置「图案补全条数」（`patternAutocompleteCount`，默认 5）与「图案补全显示指南书说明」（`showPatternDocsInAutocomplete`，默认开）。
+
 ## `0.11.4-fabric-build_10` - 2026-11-01
 
 ### Added

@@ -161,11 +161,17 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         private boolean advancedTooltipsShowsIotaNBT = DEFAULT_ADVANCED_TOOLTIPS_SHOWS_IOTA_NBT;
         @ConfigEntry.Gui.Tooltip
         private boolean staticActiveSlates = DEFAULT_STATIC_ACTIVE_SLATES;
+        @ConfigEntry.Gui.Tooltip
+        @ConfigEntry.BoundedDiscrete(min = 3, max = 20)
+        private int patternAutocompleteCount = DEFAULT_PATTERN_AUTOCOMPLETE_COUNT;
+        @ConfigEntry.Gui.Tooltip
+        private boolean showPatternDocsInAutocomplete = DEFAULT_SHOW_PATTERN_DOCS_IN_AUTOCOMPLETE;
 
         @Override
         public void validatePostLoad() throws ValidationException {
             this.gridSnapThreshold = Mth.clamp(this.gridSnapThreshold, 0.5, 1.0);
             this.gridSpacing = Mth.clamp(this.gridSpacing, 0.5, 2.0);
+            this.patternAutocompleteCount = Mth.clamp(this.patternAutocompleteCount, 3, 20);
         }
 
         @Override
@@ -222,6 +228,16 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         @Override
         public boolean staticActiveSlates() { 
           return staticActiveSlates; 
+        }
+
+        @Override
+        public int patternAutocompleteCount() {
+            return patternAutocompleteCount;
+        }
+
+        @Override
+        public boolean showPatternDocsInAutocomplete() {
+            return showPatternDocsInAutocomplete;
         }
     }
 

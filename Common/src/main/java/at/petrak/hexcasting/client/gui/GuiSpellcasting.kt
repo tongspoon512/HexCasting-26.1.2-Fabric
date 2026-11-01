@@ -24,6 +24,7 @@ import at.petrak.hexcasting.common.msgs.MsgNewSpellPatternC2S
 import at.petrak.hexcasting.xplat.IClientXplatAbstractions
 
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.navigation.ScreenRectangle
 import net.minecraft.client.gui.screens.Screen
@@ -32,6 +33,7 @@ import net.minecraft.client.input.MouseButtonEvent
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.client.resources.sounds.SoundInstance
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
 import net.minecraft.sounds.SoundSource
 import net.minecraft.util.FormattedCharSequence
 import net.minecraft.util.Mth
@@ -54,6 +56,14 @@ class GuiSpellcasting constructor(
 
     private var drawState: PatternDrawState = PatternDrawState.BetweenPatterns
     private val usedSpots: MutableSet<HexCoord> = HashSet()
+
+    /** Pattern currently under the mouse while idling, and when the hover started. */
+    private var hoveredPattern: ResolvedPattern? = null
+    private var hoveredSince: Long = 0L
+
+    /** Last mouse position in GUI pixels, recorded for keyboard-opened UIs. */
+    private var lastMouseX: Int = 0
+    private var lastMouseY: Int = 0
 
     private var ambianceSoundInstance: GridSoundInstance? = null
 
@@ -193,6 +203,20 @@ class GuiSpellcasting constructor(
     }
 
     override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
+        if (this.drawState is PatternDrawState.AutoCompleting || this.drawState is PatternDrawState.AliasEditing) {
+            this.drawState = PatternDrawState.BetweenPatterns
+            return true
+        }
+
+        val keyboard = this.drawState as? PatternDrawState.KeyboardDrawing
+        if (keyboard != null) {
+            when (event.button()) {
+                0 -> submitKeyboardPattern(keyboard)
+                1 -> this.drawState = PatternDrawState.BetweenPatterns
+            }
+            return true
+        }
+
         if (super.mouseClicked(event, doubleClick)) {
             return true
         }
@@ -233,11 +257,43 @@ class GuiSpellcasting constructor(
     override fun mouseMoved(mxOut: Double, myOut: Double) {
         super.mouseMoved(mxOut, myOut)
 
+        val keyboard = this.drawState as? PatternDrawState.KeyboardDrawing
+        if (keyboard != null) {
+            val mx = Mth.clamp(mxOut, 0.0, this.width.toDouble())
+            val my = Mth.clamp(myOut, 0.0, this.height.toDouble())
+            keyboard.origin = this.pxToCoord(Vec2(mx.toFloat(), my.toFloat()))
+            recalculateKeyboardPattern(keyboard)
+            return
+        }
+
+        val autoComplete = this.drawState as? PatternDrawState.AutoCompleting
+        if (autoComplete != null) {
+            // Don't leave an empty search box hanging around when the mouse wanders off.
+            if (autoComplete.query.isEmpty()) {
+                val anchor = this.coordToPx(autoComplete.origin)
+                val dx = mxOut.toFloat() - anchor.x
+                val dy = myOut.toFloat() - anchor.y
+                val breakout = this.hexSize() * 1.75f
+                if (dx * dx + dy * dy > breakout * breakout) {
+                    this.drawState = PatternDrawState.BetweenPatterns
+                }
+            }
+            return
+        }
+
+        if (this.drawState is PatternDrawState.AliasEditing) return
+
         if (HexConfig.client().clickingTogglesDrawing() && this.drawState !is PatternDrawState.BetweenPatterns)
             drawMove(mxOut, myOut)
     }
 
     override fun mouseDragged(event: MouseButtonEvent, pDragX: Double, pDragY: Double): Boolean {
+        if (this.drawState is PatternDrawState.KeyboardDrawing ||
+            this.drawState is PatternDrawState.AutoCompleting ||
+            this.drawState is PatternDrawState.AliasEditing
+        ) {
+            return true
+        }
         if (super.mouseDragged(event, pDragX, pDragY)) {
             return true
         }
@@ -254,6 +310,9 @@ class GuiSpellcasting constructor(
             PatternDrawState.BetweenPatterns -> null
             is PatternDrawState.JustStarted -> (this.drawState as PatternDrawState.JustStarted).start
             is PatternDrawState.Drawing -> (this.drawState as PatternDrawState.Drawing).current
+            is PatternDrawState.KeyboardDrawing,
+            is PatternDrawState.AutoCompleting,
+            is PatternDrawState.AliasEditing -> null
         }
         if (anchorCoord != null) {
             val anchor = this.coordToPx(anchorCoord)
@@ -320,6 +379,12 @@ class GuiSpellcasting constructor(
     }
 
     override fun mouseReleased(event: MouseButtonEvent): Boolean {
+        if (this.drawState is PatternDrawState.KeyboardDrawing ||
+            this.drawState is PatternDrawState.AutoCompleting ||
+            this.drawState is PatternDrawState.AliasEditing
+        ) {
+            return true
+        }
         if (super.mouseReleased(event)) {
             return true
         }
@@ -339,29 +404,51 @@ class GuiSpellcasting constructor(
             is PatternDrawState.Drawing -> {
                 val (start, _, pat) = this.drawState as PatternDrawState.Drawing
                 this.drawState = PatternDrawState.BetweenPatterns
-                this.patterns.add(ResolvedPattern(pat, start, ResolvedPatternType.UNRESOLVED))
-
-                this.usedSpots.addAll(pat.positions(start))
-
-                val sink = this.patternSink
-                if (sink != null) {
-                    sink(pat)
-                } else {
-                    IClientXplatAbstractions.INSTANCE.sendPacketToServer(
-                        MsgNewSpellPatternC2S(
-                            this.handOpenedWith,
-                            pat,
-                            this.patterns
-                        )
-                    )
-                }
+                commitPattern(start, pat)
             }
+
+            is PatternDrawState.KeyboardDrawing,
+            is PatternDrawState.AutoCompleting,
+            is PatternDrawState.AliasEditing -> {}
         }
 
         return false
     }
 
+    /** Adds a finished pattern to the grid and hands it to the sink or the server. */
+    private fun commitPattern(start: HexCoord, pat: HexPattern) {
+        this.patterns.add(ResolvedPattern(pat, start, ResolvedPatternType.UNRESOLVED))
+        this.usedSpots.addAll(pat.positions(start))
+
+        val sink = this.patternSink
+        if (sink != null) {
+            sink(pat)
+        } else {
+            IClientXplatAbstractions.INSTANCE.sendPacketToServer(
+                MsgNewSpellPatternC2S(
+                    this.handOpenedWith,
+                    pat,
+                    this.patterns
+                )
+            )
+        }
+    }
+
     override fun mouseScrolled(pMouseX: Double, pMouseY: Double, scrollX: Double, pDelta: Double): Boolean {
+        val keyboard = this.drawState as? PatternDrawState.KeyboardDrawing
+        if (keyboard != null) {
+            rotateKeyboardPattern(keyboard, if (pDelta > 0) -1 else 1)
+            return true
+        }
+
+        val autoComplete = this.drawState as? PatternDrawState.AutoCompleting
+        if (autoComplete != null) {
+            offsetAutoChosen(autoComplete, if (pDelta > 0) -1 else 1)
+            return true
+        }
+
+        if (this.drawState is PatternDrawState.AliasEditing) return true
+
         super.mouseScrolled(pMouseX, pMouseY, scrollX, pDelta)
 
         val mouseHandler = Minecraft.getInstance().mouseHandler
@@ -384,7 +471,15 @@ class GuiSpellcasting constructor(
     }
 
     override fun keyPressed(event: KeyEvent): Boolean {
-        if (super.keyPressed(event)) return true
+        // The keyboard-driven states go first so Escape doesn't close the whole screen.
+        val autoComplete = this.drawState as? PatternDrawState.AutoCompleting
+        if (autoComplete != null && handleAutoCompleteKey(event, autoComplete)) return true
+
+        val aliasEditing = this.drawState as? PatternDrawState.AliasEditing
+        if (aliasEditing != null && handleAliasKey(event, aliasEditing)) return true
+
+        val keyboard = this.drawState as? PatternDrawState.KeyboardDrawing
+        if (keyboard != null && handleKeyboardKey(event, keyboard)) return true
 
         // because of how mouse scrolling works (scrolling upward moves the page down), a positive
         // delta value makes the book flip backward while a negative one makes it flip forward
@@ -396,7 +491,284 @@ class GuiSpellcasting constructor(
             return true
         }
 
-        return false
+        // Ctrl combos and typed angles while idling.
+        if (this.drawState is PatternDrawState.BetweenPatterns) {
+            val ctrl = (event.modifiers() and PatternKeyboard.MOD_CONTROL) != 0
+            if (ctrl && event.key() == PatternKeyboard.KEY_SPACE) {
+                startAutoComplete()
+                return true
+            }
+            if (ctrl && event.key() == PatternKeyboard.KEY_E) {
+                val hovered = this.hoveredPattern
+                val entry = hovered?.let { PatternKeyboard.entryOf(it.pattern.angles) }
+                if (entry != null) {
+                    this.drawState = PatternDrawState.AliasEditing(entry)
+                    return true
+                }
+            }
+
+            if (!ctrl) {
+                val angle = PatternKeyboard.angleOfKey(event.key())
+                if (angle != null) {
+                    startKeyboardPattern(angle)
+                    return true
+                }
+            }
+        }
+
+        return super.keyPressed(event)
+    }
+
+    private fun startKeyboardPattern(firstAngle: HexAngle) {
+        val keyboard = PatternDrawState.KeyboardDrawing(HexCoord.Origin, HexDir.EAST)
+        keyboard.angles.add(firstAngle)
+        this.drawState = keyboard
+        recalculateKeyboardPattern(keyboard)
+    }
+
+    private fun startKeyboardPattern(entry: PatternEntry, origin: HexCoord) {
+        val keyboard = PatternDrawState.KeyboardDrawing(origin, entry.startDir)
+        keyboard.angles.addAll(entry.angles)
+        this.drawState = keyboard
+        recalculateKeyboardPattern(keyboard)
+    }
+
+    private fun startAutoComplete() {
+        val coord = this.pxToCoord(Vec2(this.lastMouseX.toFloat(), this.lastMouseY.toFloat()))
+        val autoComplete = PatternDrawState.AutoCompleting(coord)
+        this.drawState = autoComplete
+        refreshAutoComplete(autoComplete)
+    }
+
+    private fun refreshAutoComplete(autoComplete: PatternDrawState.AutoCompleting) {
+        val result = PatternKeyboard.search(autoComplete.query, HexConfig.client().patternAutocompleteCount())
+        autoComplete.suggestions = result.suggestions
+        autoComplete.lockedCount = result.lockedCount
+        autoComplete.chosen = 0
+        autoComplete.chosenDoc = 0
+    }
+
+    private fun offsetAutoChosen(autoComplete: PatternDrawState.AutoCompleting, by: Int) {
+        val size = autoComplete.suggestions.size
+        if (size == 0) return
+        autoComplete.chosen = ((autoComplete.chosen + by) % size + size) % size
+        autoComplete.chosenDoc = 0
+    }
+
+    private fun offsetAutoDoc(autoComplete: PatternDrawState.AutoCompleting, by: Int) {
+        val entry = autoComplete.suggestions.getOrNull(autoComplete.chosen) ?: return
+        val size = PatternDocs.docsOf(entry.id).size
+        if (size == 0) return
+        autoComplete.chosenDoc = ((autoComplete.chosenDoc + by) % size + size) % size
+    }
+
+    private fun handleAutoCompleteKey(event: KeyEvent, autoComplete: PatternDrawState.AutoCompleting): Boolean {
+        val ctrl = (event.modifiers() and PatternKeyboard.MOD_CONTROL) != 0
+        if (ctrl && event.key() == PatternKeyboard.KEY_E) {
+            val entry = autoComplete.suggestions.getOrNull(autoComplete.chosen) ?: return true
+            this.drawState = PatternDrawState.AliasEditing(entry)
+            return true
+        }
+
+        when (event.key()) {
+            PatternKeyboard.KEY_ESCAPE -> this.drawState = PatternDrawState.BetweenPatterns
+            PatternKeyboard.KEY_BACKSPACE -> {
+                autoComplete.query = if (ctrl) {
+                    PatternKeyboard.removeLastWord(autoComplete.query)
+                } else {
+                    autoComplete.query.dropLast(1)
+                }
+                refreshAutoComplete(autoComplete)
+            }
+
+            PatternKeyboard.KEY_ENTER,
+            PatternKeyboard.KEY_KP_ENTER,
+            PatternKeyboard.KEY_TAB -> {
+                val entry = autoComplete.suggestions.getOrNull(autoComplete.chosen) ?: return true
+                startKeyboardPattern(entry, autoComplete.origin)
+            }
+
+            PatternKeyboard.KEY_UP -> offsetAutoChosen(autoComplete, -1)
+            PatternKeyboard.KEY_DOWN -> offsetAutoChosen(autoComplete, 1)
+            PatternKeyboard.KEY_LEFT -> offsetAutoDoc(autoComplete, -1)
+            PatternKeyboard.KEY_RIGHT -> offsetAutoDoc(autoComplete, 1)
+
+            else -> {
+                val chr = PatternKeyboard.charOfKey(event.key(), event.modifiers()) ?: return false
+                autoComplete.query += chr
+                refreshAutoComplete(autoComplete)
+            }
+        }
+        return true
+    }
+
+    private fun handleAliasKey(event: KeyEvent, editing: PatternDrawState.AliasEditing): Boolean {
+        val ctrl = (event.modifiers() and PatternKeyboard.MOD_CONTROL) != 0
+        when (event.key()) {
+            PatternKeyboard.KEY_ESCAPE -> this.drawState = PatternDrawState.BetweenPatterns
+            PatternKeyboard.KEY_BACKSPACE -> {
+                editing.text = if (ctrl) {
+                    PatternKeyboard.removeLastWord(editing.text)
+                } else {
+                    editing.text.dropLast(1)
+                }
+            }
+
+            PatternKeyboard.KEY_ENTER, PatternKeyboard.KEY_KP_ENTER, PatternKeyboard.KEY_TAB -> {
+                PatternAliases.put(editing.entry.id, editing.text)
+                this.drawState = PatternDrawState.BetweenPatterns
+            }
+
+            else -> {
+                val chr = PatternKeyboard.charOfKey(event.key(), event.modifiers()) ?: return false
+                editing.text += chr
+            }
+        }
+        return true
+    }
+
+    private fun handleKeyboardKey(event: KeyEvent, keyboard: PatternDrawState.KeyboardDrawing): Boolean {
+        when (event.key()) {
+            PatternKeyboard.KEY_ESCAPE -> this.drawState = PatternDrawState.BetweenPatterns
+            PatternKeyboard.KEY_BACKSPACE, PatternKeyboard.KEY_S -> {
+                if (keyboard.angles.isEmpty()) {
+                    this.drawState = PatternDrawState.BetweenPatterns
+                } else {
+                    keyboard.angles.removeLast()
+                    if (keyboard.angles.isEmpty()) {
+                        this.drawState = PatternDrawState.BetweenPatterns
+                    } else {
+                        recalculateKeyboardPattern(keyboard)
+                    }
+                }
+            }
+
+            PatternKeyboard.KEY_ENTER,
+            PatternKeyboard.KEY_KP_ENTER,
+            PatternKeyboard.KEY_TAB,
+            PatternKeyboard.KEY_SPACE -> submitKeyboardPattern(keyboard)
+
+            PatternKeyboard.KEY_H, PatternKeyboard.KEY_LEFT -> moveKeyboardOrigin(keyboard, -1, 0)
+            PatternKeyboard.KEY_J, PatternKeyboard.KEY_DOWN -> moveKeyboardOrigin(keyboard, 0, 1)
+            PatternKeyboard.KEY_K, PatternKeyboard.KEY_UP -> moveKeyboardOrigin(keyboard, 0, -1)
+            PatternKeyboard.KEY_L, PatternKeyboard.KEY_RIGHT -> moveKeyboardOrigin(keyboard, 1, 0)
+
+            PatternKeyboard.KEY_R ->
+                rotateKeyboardPattern(
+                    keyboard,
+                    if ((event.modifiers() and PatternKeyboard.MOD_SHIFT) != 0) -1 else 1
+                )
+
+            else -> {
+                val angle = PatternKeyboard.angleOfKey(event.key()) ?: return false
+                if (canAppendKeyboardAngle(keyboard, angle)) {
+                    keyboard.angles.add(angle)
+                    recalculateKeyboardPattern(keyboard)
+                }
+            }
+        }
+        return true
+    }
+
+    private fun canAppendKeyboardAngle(keyboard: PatternDrawState.KeyboardDrawing, angle: HexAngle): Boolean {
+        val startDir = keyboard.startDir ?: keyboard.originDir
+        val pat = HexPattern(startDir, ArrayList(keyboard.angles))
+        return pat.tryAppendDir(pat.finalDir().rotatedBy(angle))
+    }
+
+    private fun moveKeyboardOrigin(keyboard: PatternDrawState.KeyboardDrawing, x: Int, y: Int) {
+        val next = keyboard.origin + HexCoord(x, y)
+        if (isVisible(next)) {
+            keyboard.origin = next
+            recalculateKeyboardPattern(keyboard)
+        }
+    }
+
+    private fun rotateKeyboardPattern(keyboard: PatternDrawState.KeyboardDrawing, delta: Int) {
+        keyboard.originDir = HexDir.values()[(keyboard.originDir.ordinal + delta).mod(HexDir.values().size)]
+        recalculateKeyboardPattern(keyboard)
+    }
+
+    private fun submitKeyboardPattern(keyboard: PatternDrawState.KeyboardDrawing) {
+        if (keyboard.angles.isEmpty()) {
+            this.drawState = PatternDrawState.BetweenPatterns
+            return
+        }
+        recalculateKeyboardPattern(keyboard)
+        val start = keyboard.start ?: return
+        val startDir = keyboard.startDir ?: return
+        val pat = HexPattern(startDir, ArrayList(keyboard.angles))
+        this.drawState = PatternDrawState.BetweenPatterns
+        commitPattern(start, pat)
+    }
+
+    /** Find the closest free spot (and the best rotation) for the keyboard pattern being drawn. */
+    private fun recalculateKeyboardPattern(keyboard: PatternDrawState.KeyboardDrawing) {
+        if (keyboard.angles.isEmpty()) {
+            keyboard.start = keyboard.origin
+            keyboard.startDir = keyboard.originDir
+            keyboard.end = keyboard.origin
+            keyboard.endDir = keyboard.originDir
+            return
+        }
+
+        val proto = HexPattern(keyboard.originDir, ArrayList(keyboard.angles))
+        val placement = findClosestAvailable(keyboard.origin, proto)
+        if (placement == null) {
+            keyboard.start = null
+            keyboard.startDir = null
+            keyboard.end = keyboard.origin
+            keyboard.endDir = keyboard.originDir
+            return
+        }
+
+        val (start, startDir) = placement
+        keyboard.start = start
+        keyboard.startDir = startDir
+        val placed = HexPattern(startDir, ArrayList(keyboard.angles))
+        keyboard.end = placed.positions(start).last()
+        keyboard.endDir = placed.finalDir()
+    }
+
+    private fun findClosestAvailable(origin: HexCoord, pat: HexPattern): Pair<HexCoord, HexDir>? {
+        val dirs = HexDir.values()
+        val visited = HashSet<HexCoord>()
+        val queue = ArrayDeque<HexCoord>()
+        queue.add(origin)
+        visited.add(origin)
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            for (i in dirs.indices) {
+                val startDir = dirs[(pat.startDir.ordinal + i) % dirs.size]
+                if (fitsAt(current, pat, startDir)) return current to startDir
+            }
+            for (dir in dirs) {
+                val next = current + dir
+                if (visited.add(next)) queue.add(next)
+            }
+            if (visited.size > 512) return null
+        }
+        return null
+    }
+
+    private fun fitsAt(origin: HexCoord, pat: HexPattern, startDir: HexDir): Boolean {
+        if (isUsed(origin)) return false
+        var cursor = origin + startDir
+        if (isUsed(cursor)) return false
+        var dir = startDir
+        for (angle in pat.angles) {
+            dir = dir.rotatedBy(angle)
+            cursor += dir
+            if (isUsed(cursor)) return false
+        }
+        return true
+    }
+
+    private fun isUsed(coord: HexCoord): Boolean = this.usedSpots.contains(coord) || !isVisible(coord)
+
+    private fun isVisible(coord: HexCoord): Boolean {
+        val px = this.coordToPx(coord)
+        return px.x >= 0f && px.x < this.width && px.y >= 0f && px.y < this.height
     }
 
     override fun onClose() {
@@ -474,8 +846,23 @@ class GuiSpellcasting constructor(
             )
         }
 
+        this.lastMouseX = pMouseX
+        this.lastMouseY = pMouseY
+
         // Now draw the currently WIP pattern
-        if (this.drawState !is PatternDrawState.BetweenPatterns) {
+        val keyboard = this.drawState as? PatternDrawState.KeyboardDrawing
+        if (keyboard != null) {
+            // Grey ghost where the mouse is, then the actual spot the pattern will snap to.
+            val ghost = HexPattern(keyboard.originDir, ArrayList(keyboard.angles))
+            drawPatternPreview(mat, keyboard.origin, ghost, 0xaa_363a4f_u.toInt(), 0xaa_6e738d_u.toInt(), mesh)
+
+            val start = keyboard.start
+            val startDir = keyboard.startDir
+            if (start != null && startDir != null) {
+                val placed = HexPattern(startDir, ArrayList(keyboard.angles))
+                drawPatternPreview(mat, start, placed, 0xff_64c8ff_u.toInt(), 0xff_fecbe6_u.toInt(), mesh)
+            }
+        } else if (this.drawState is PatternDrawState.JustStarted || this.drawState is PatternDrawState.Drawing) {
             val points = mutableListOf<Vec2>()
             var dupIndices: Set<Int>? = null
 
@@ -562,6 +949,200 @@ class GuiSpellcasting constructor(
             graphics.text(font, kotlinBad, 0, 0, color)
             matrix.popMatrix()
         }
+
+        drawCastingOverlay(graphics, font, pMouseX, pMouseY)
+    }
+
+    private fun drawPatternPreview(
+        mat: Matrix4f,
+        origin: HexCoord,
+        pat: HexPattern,
+        tail: Int,
+        head: Int,
+        mesh: MeshCollector
+    ) {
+        drawPatternFromPoints(
+            mat,
+            pat.toLines(this.hexSize(), this.coordToPx(origin)),
+            findDupIndices(pat.positions()),
+            false,
+            tail,
+            head,
+            0.1f,
+            DEFAULT_READABILITY_OFFSET,
+            1f,
+            this.patterns.size.toDouble(),
+            mesh
+        )
+    }
+
+    /** Next-key hints while keyboard drawing, the search/alias boxes, and the hover tooltip while idling. */
+    private fun drawCastingOverlay(graphics: GuiGraphicsExtractor, font: Font, mouseX: Int, mouseY: Int) {
+        val autoComplete = this.drawState as? PatternDrawState.AutoCompleting
+        if (autoComplete != null) {
+            drawAutoCompleteOverlay(graphics, font, autoComplete)
+            return
+        }
+
+        val aliasEditing = this.drawState as? PatternDrawState.AliasEditing
+        if (aliasEditing != null) {
+            drawAliasOverlay(graphics, font, aliasEditing, mouseX, mouseY)
+            return
+        }
+
+        val keyboard = this.drawState as? PatternDrawState.KeyboardDrawing
+        if (keyboard != null) {
+            if (keyboard.start != null) {
+                val endPx = this.coordToPx(keyboard.end)
+                for (angle in HexAngle.values()) {
+                    val nextPos = keyboard.end + keyboard.endDir.rotatedBy(angle)
+                    if (isUsed(nextPos) || !canAppendKeyboardAngle(keyboard, angle)) continue
+                    val px = this.coordToPx(nextPos)
+                    val dx = px.x - endPx.x
+                    val dy = px.y - endPx.y
+                    val distance = sqrt(dx * dx + dy * dy)
+                    if (distance < 0.001f) continue
+                    graphics.centeredText(
+                        font,
+                        PatternKeyboard.keyOfAngle(angle).toString(),
+                        (endPx.x + dx / distance * 20f).toInt(),
+                        (endPx.y + dy / distance * 20f).toInt() - 4,
+                        COLOR_KEY_HINT
+                    )
+                }
+            }
+
+            val lines = mutableListOf<Pair<FormattedCharSequence, Int>>()
+            if (keyboard.angles.isNotEmpty()) {
+                lines.add(Component.literal(PatternKeyboard.signature(keyboard.angles)).visualOrderText to COLOR_SIGNATURE)
+                if (keyboard.start == null) {
+                    lines.add(Component.translatable("hexcasting.gui.keyboard.no_space").visualOrderText to COLOR_ERROR)
+                }
+                PatternKeyboard.nameOf(keyboard.angles)?.let { lines.add(it.visualOrderText to COLOR_NAME) }
+            }
+            lines.add(Component.translatable("hexcasting.gui.keyboard.hint").visualOrderText to COLOR_HINT)
+
+            val anchor = if (keyboard.start != null) this.coordToPx(keyboard.end) else this.coordToPx(keyboard.origin)
+            drawTooltipBox(graphics, font, anchor.x.toInt() + 20, anchor.y.toInt(), lines)
+            return
+        }
+
+        if (this.drawState !is PatternDrawState.BetweenPatterns) return
+
+        val hovered = patternAt(mouseX, mouseY)
+        if (hovered != null && hovered == this.hoveredPattern) {
+            if (System.currentTimeMillis() - this.hoveredSince >= HOVER_DELAY_MS) {
+                val lines = mutableListOf<Pair<FormattedCharSequence, Int>>()
+                lines.add(Component.literal(PatternKeyboard.signature(hovered.pattern.angles)).visualOrderText to COLOR_SIGNATURE)
+                PatternKeyboard.nameOf(hovered.pattern.angles)?.let { lines.add(it.visualOrderText to COLOR_NAME) }
+                drawTooltipBox(graphics, font, mouseX + 12, mouseY + 12, lines)
+            }
+        } else {
+            this.hoveredPattern = hovered
+            this.hoveredSince = System.currentTimeMillis()
+        }
+    }
+
+    private fun drawAutoCompleteOverlay(
+        graphics: GuiGraphicsExtractor,
+        font: Font,
+        autoComplete: PatternDrawState.AutoCompleting
+    ) {
+        val lines = mutableListOf<Pair<FormattedCharSequence, Int>>()
+        val showList = autoComplete.query.isNotEmpty()
+        val selected = if (showList) autoComplete.suggestions.getOrNull(autoComplete.chosen) else null
+
+        if (!showList) {
+            lines.add(Component.translatable("hexcasting.gui.autocomplete.start_typing").visualOrderText to COLOR_HINT)
+        } else {
+            lines.add(Component.literal(autoComplete.query).visualOrderText to COLOR_SIGNATURE)
+            if (autoComplete.suggestions.isEmpty()) {
+                lines.add(Component.translatable("hexcasting.gui.autocomplete.no_match").visualOrderText to COLOR_ERROR)
+            } else {
+                for ((i, entry) in autoComplete.suggestions.withIndex()) {
+                    val color = if (i == autoComplete.chosen) COLOR_NAME else COLOR_HINT
+                    lines.add(entry.displayName().visualOrderText to color)
+                }
+                if (autoComplete.lockedCount > 0) {
+                    lines.add(
+                        Component.translatable("hexcasting.gui.autocomplete.locked", autoComplete.lockedCount)
+                            .visualOrderText to COLOR_HINT
+                    )
+                }
+            }
+        }
+
+        if (selected != null) {
+            lines.add(Component.literal(selected.signatureWithDir).visualOrderText to COLOR_KEY_HINT)
+            if (HexConfig.client().showPatternDocsInAutocomplete()) {
+                val docs = PatternDocs.docsOf(selected.id)
+                if (docs.isNotEmpty()) {
+                    val docIndex = autoComplete.chosenDoc.coerceIn(0, docs.size - 1)
+                    val doc = docs[docIndex]
+                    val header = "[${docIndex + 1}/${docs.size}]" + if (doc.args.isBlank()) "" else " ${doc.args}"
+                    lines.add(Component.literal(header).visualOrderText to COLOR_KEY_HINT)
+                    if (doc.desc.isNotBlank()) {
+                        for (descLine in font.split(Component.literal(doc.desc), DOCS_WRAP_WIDTH)) {
+                            lines.add(descLine to COLOR_HINT)
+                        }
+                    }
+                }
+            }
+        }
+        lines.add(Component.translatable("hexcasting.gui.autocomplete.hint").visualOrderText to COLOR_HINT)
+
+        val anchor = this.coordToPx(autoComplete.origin)
+        drawTooltipBox(graphics, font, anchor.x.toInt() + 20, anchor.y.toInt(), lines)
+    }
+
+    private fun drawAliasOverlay(
+        graphics: GuiGraphicsExtractor,
+        font: Font,
+        editing: PatternDrawState.AliasEditing,
+        mouseX: Int,
+        mouseY: Int
+    ) {
+        val lines = mutableListOf<Pair<FormattedCharSequence, Int>>()
+        lines.add(editing.entry.rawName().visualOrderText to COLOR_HINT)
+        if (editing.text.isEmpty()) {
+            lines.add(Component.translatable("hexcasting.gui.alias.start_typing").visualOrderText to COLOR_HINT)
+        } else {
+            lines.add(Component.literal(editing.text).visualOrderText to COLOR_NAME)
+        }
+        lines.add(Component.literal(editing.entry.signatureWithDir).visualOrderText to COLOR_KEY_HINT)
+        lines.add(Component.translatable("hexcasting.gui.alias.hint").visualOrderText to COLOR_HINT)
+
+        drawTooltipBox(graphics, font, mouseX + 12, mouseY + 12, lines)
+    }
+
+    /** Pattern whose origin or any of its points sits on the given grid coordinate. */
+    private fun patternAt(mouseX: Int, mouseY: Int): ResolvedPattern? {
+        val coord = this.pxToCoord(Vec2(mouseX.toFloat(), mouseY.toFloat()))
+        return this.patterns.firstOrNull { entry ->
+            val (pat, origin, _) = entry
+            origin == coord || pat.positions().any { it + origin == coord }
+        }
+    }
+
+    private fun drawTooltipBox(
+        graphics: GuiGraphicsExtractor,
+        font: Font,
+        x: Int,
+        y: Int,
+        lines: List<Pair<FormattedCharSequence, Int>>
+    ) {
+        if (lines.isEmpty()) return
+        val boxWidth = lines.maxOf { font.width(it.first) } + 8
+        val boxHeight = lines.size * 10 + 4
+        val bx = x.coerceIn(2, (this.width - boxWidth - 2).coerceAtLeast(2))
+        val by = y.coerceIn(2, (this.height - boxHeight - 2).coerceAtLeast(2))
+        drawBox(graphics, bx.toFloat(), by.toFloat(), boxWidth.toFloat(), boxHeight.toFloat())
+
+        var textY = by + 3
+        for ((text, color) in lines) {
+            graphics.text(font, text, bx + 4, textY, color, false)
+            textY += 10
+        }
     }
 
     // why the hell is this default true
@@ -603,11 +1184,45 @@ class GuiSpellcasting constructor(
 
         /** We've started drawing a pattern for real. */
         data class Drawing(val start: HexCoord, var current: HexCoord, val wipPattern: HexPattern) : PatternDrawState()
+
+        /**
+         * Keyboard drawing (ported from Hexcessible): the pattern shape lives in [angles] and is
+         * snapped to the closest free spot around [origin], which follows the mouse.
+         */
+        class KeyboardDrawing(var origin: HexCoord, var originDir: HexDir) : PatternDrawState() {
+            val angles: MutableList<HexAngle> = ArrayList()
+            var start: HexCoord? = null
+            var startDir: HexDir? = null
+            var end: HexCoord = origin
+            var endDir: HexDir = originDir
+        }
+
+        /** Fuzzy pattern search opened with Ctrl+Space. */
+        class AutoCompleting(val origin: HexCoord) : PatternDrawState() {
+            var query: String = ""
+            var chosen: Int = 0
+            var chosenDoc: Int = 0
+            var suggestions: List<PatternEntry> = emptyList()
+            var lockedCount: Int = 0
+        }
+
+        /** Renaming a pattern, opened with Ctrl+E while hovering it. */
+        class AliasEditing(val entry: PatternEntry) : PatternDrawState() {
+            var text: String = PatternAliases.get(entry.id) ?: ""
+        }
     }
 
     companion object {
         const val LHS_IOTAS_ALLOCATION = 0.7
         const val RHS_IOTAS_ALLOCATION = 0.15
+
+        private const val HOVER_DELAY_MS = 500L
+        private const val DOCS_WRAP_WIDTH = 170
+        private const val COLOR_SIGNATURE = 0xFF_E6E6E6.toInt()
+        private const val COLOR_NAME = 0xFF_5555FF.toInt()
+        private const val COLOR_ERROR = 0xFF_FF5555.toInt()
+        private const val COLOR_HINT = 0xFF_8A8A8A.toInt()
+        private const val COLOR_KEY_HINT = 0xFF_A8A8A8.toInt()
 
         fun drawBox(graphics: GuiGraphicsExtractor, x: Float, y: Float, w: Float, h: Float, leftMargin: Float = 2.5f) {
             graphics.fill(x.toInt(), y.toInt(), (x + w).toInt(), (y + h).toInt(), 0x50_303030)

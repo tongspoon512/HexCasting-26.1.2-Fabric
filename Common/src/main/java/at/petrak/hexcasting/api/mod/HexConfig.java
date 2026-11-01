@@ -71,6 +71,16 @@ public class HexConfig {
         default void setGridSpacing(double spacing) {
         }
 
+        /** How many patterns the Ctrl+Space autocomplete list shows at once. */
+        default int patternAutocompleteCount() {
+            return DEFAULT_PATTERN_AUTOCOMPLETE_COUNT;
+        }
+
+        /** Whether the autocomplete list appends the guidebook args/description of the selection. */
+        default boolean showPatternDocsInAutocomplete() {
+            return DEFAULT_SHOW_PATTERN_DOCS_IN_AUTOCOMPLETE;
+        }
+
         boolean DEFAULT_CTRL_TOGGLES_OFF_STROKE_ORDER = false;
         boolean DEFAULT_DISABLE_INWORLD_SCROLLING = false;
         boolean DEFAULT_INVERT_SPELLBOOK_SCROLL = false;
@@ -81,6 +91,8 @@ public class HexConfig {
         boolean DEFAULT_ALWAYS_SHOW_LIST_COMMAS = false;
         boolean DEFAULT_ADVANCED_TOOLTIPS_SHOWS_IOTA_NBT = false;
         boolean DEFAULT_STATIC_ACTIVE_SLATES = false;
+        int DEFAULT_PATTERN_AUTOCOMPLETE_COUNT = 5;
+        boolean DEFAULT_SHOW_PATTERN_DOCS_IN_AUTOCOMPLETE = true;
     }
 
     public interface ServerConfigAccess {
