@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_13` - 2026-11-01
+
+### Added
+
+- 鼠标绘制图案时实时预览「现在松手会画出什么」：在落点旁显示当前角度串与图案名称，数字之精思/簿记员之策略显示计算出的具体值；反向撤销时预览同步回退。
+
+### Changed
+
+- `hexparse/连锁挖掘.md` 的同种矿物连锁挖掘加入自动拾取：每破坏一格后用 `zone_entity/item` + `for_each` + `pickup_item` 收走掉落物（种子方块也拾取），并补充了栈变化、开关方式与 op 预算说明。
+
 ## `0.11.4-fabric-build_12` - 2026-11-01
 
 ### Added

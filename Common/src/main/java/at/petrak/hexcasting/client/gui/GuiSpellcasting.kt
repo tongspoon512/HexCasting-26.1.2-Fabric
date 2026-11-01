@@ -1040,6 +1040,22 @@ class GuiSpellcasting constructor(
             return
         }
 
+        // Mouse drawing: show what would be cast if the player let go right now.
+        val drawing = this.drawState as? PatternDrawState.Drawing
+        if (drawing != null) {
+            if (drawing.wipPattern.angles.isNotEmpty()) {
+                val lines = mutableListOf<Pair<FormattedCharSequence, Int>>()
+                lines.add(
+                    Component.literal(PatternKeyboard.signature(drawing.wipPattern.angles))
+                        .visualOrderText to COLOR_SIGNATURE
+                )
+                PatternKeyboard.nameOf(drawing.wipPattern)?.let { lines.add(it.visualOrderText to COLOR_NAME) }
+                val anchor = this.coordToPx(drawing.current)
+                drawTooltipBox(graphics, font, anchor.x.toInt() + 20, anchor.y.toInt(), lines)
+            }
+            return
+        }
+
         if (this.drawState !is PatternDrawState.BetweenPatterns) return
 
         val hovered = patternAt(mouseX, mouseY)
