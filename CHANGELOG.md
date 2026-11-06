@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_15` - 2026-11-06
+
+### Added
+
+- 指南书加入书签：条目页脚部的 `☆` 收藏当前跨页，`书签` 列表支持点击跳转与 `×` 删除；`搜索`（或按 `F`）可对条目名、条目 ID 与所有页面正文做全文搜索，支持方向键选择、回车打开与输入法组字；按 `B` 直接打开书签列表。
+- 指南书记住上次退出时的位置：再次打开时自动回到原来的条目/分类与跨页；书签与位置保存在 `config/hexcasting_guidebook.json`。
+- 新增英文版说明 [README.en.md](README.en.md)，并在 README 顶部加入中英文互链。
+
+### Fixed
+
+- 剪接台内的迷你法杖网格现在可以正常使用图案搜索：`Ctrl+Space`、字符输入、输入法组字与滚轮都会转发给网格，`Esc` 只关闭搜索浮层而不会关掉剪接台。
+- 个人媒质池的五处问题：持有人不再强引用玩家（修复按玩家内存泄漏）；`canConstructBattery()` 恢复为 `true`；HUD 改用与媒质池一致的读数并尊重服务端开关；启蒙进度查询改为缓存，不再每 tick 重复获取；玩家断开时清理按 UUID 的会话缓存与 WeakHashMap 条目。
+
 ## `0.11.4-fabric-build_14` - 2026-11-01
 
 ### Added

@@ -195,7 +195,14 @@ class GuiSpellcasting constructor(
 
     fun cancelDrawing() {
         this.drawState = PatternDrawState.BetweenPatterns
+        this.preeditText = ""
     }
+
+    /** True when a search box, alias editor or keyboard-drawn pattern is open above the grid. */
+    fun isOverlayOpen(): Boolean =
+        this.drawState is PatternDrawState.KeyboardDrawing ||
+            this.drawState is PatternDrawState.AutoCompleting ||
+            this.drawState is PatternDrawState.AliasEditing
 
     override fun tick() {
         if (this.drawState !is PatternDrawState.AutoCompleting && this.drawState !is PatternDrawState.AliasEditing) {
@@ -213,6 +220,7 @@ class GuiSpellcasting constructor(
     override fun mouseClicked(event: MouseButtonEvent, doubleClick: Boolean): Boolean {
         if (this.drawState is PatternDrawState.AutoCompleting || this.drawState is PatternDrawState.AliasEditing) {
             this.drawState = PatternDrawState.BetweenPatterns
+            this.preeditText = ""
             return true
         }
 
@@ -505,13 +513,16 @@ class GuiSpellcasting constructor(
         if (keyboard != null && handleKeyboardKey(event, keyboard)) return true
 
         // because of how mouse scrolling works (scrolling upward moves the page down), a positive
-        // delta value makes the book flip backward while a negative one makes it flip forward
-        if (Keybinds.spellbookPrev.matches(event)) {
-            ShiftScrollListener.onScroll(1.0, false, false)
-            return true
-        } else if (Keybinds.spellbookNext.matches(event)) {
-            ShiftScrollListener.onScroll(-1.0, false, false)
-            return true
+        // delta value makes the book flip backward while a negative one makes it flip forward.
+        // Embedded grids (splicing table) must not flip the held spellbook.
+        if (this.patternSink == null) {
+            if (Keybinds.spellbookPrev.matches(event)) {
+                ShiftScrollListener.onScroll(1.0, false, false)
+                return true
+            } else if (Keybinds.spellbookNext.matches(event)) {
+                ShiftScrollListener.onScroll(-1.0, false, false)
+                return true
+            }
         }
 
         // Ctrl combos and typed angles while idling.
@@ -599,6 +610,7 @@ class GuiSpellcasting constructor(
         val autoComplete = PatternDrawState.AutoCompleting(origin)
         autoComplete.browse = browse
         this.drawState = autoComplete
+        this.preeditText = ""
         refreshAutoComplete(autoComplete)
     }
 

@@ -1,5 +1,7 @@
 # Hex Casting — Minecraft 26.1.2 / Fabric
 
+**简体中文** | [English](./README.en.md)
+
 Hex Casting 的 **Minecraft 26.1.2（Fabric）** 移植分支。原模组由 petrak@（gamma-delta）开发，是一个「在空中绘制图案来施法」的魔法模组，灵感来自 PSI。
 
 本仓库基于上游 0.11.4 代码，把 1.20.1 时代的实现迁移到 26.1 的新 API 体系：官方名直出（无混淆、无 remap）、Java 25、渲染走 render state / submit 管线、网络走 payload 体系。
@@ -67,6 +69,8 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
 - 入口物品：`hexcasting:guide_book`，配方为「书 + 紫水晶粉」（无序合成），也已加入创造模式物品栏。
 - 打开方式：手持右键。尺寸为 512×256 贴图里的 271×180 双页书。
 - 导航：目录 → 分类 → 条目 → 双页翻页；支持鼠标滚轮滚动长页、`<` `>` 翻页、`目录/返回`回到上一级。
+- **书签与搜索**：条目页脚部的 `☆` 收藏当前跨页，`书签` 列表可点击跳转、`×` 删除；`搜索`（或按 `F`）打开全文搜索，匹配条目名、条目 ID 与所有页面正文，支持方向键选择、回车打开以及输入法组字；按 `B` 直接打开书签列表。
+- **阅读位置记忆**：退出书时记录所在条目/分类与跨页，下次打开自动回到原处。书签与位置保存在 `config/hexcasting_guidebook.json`。
 - 内容规模：9 个分类、82 个条目、528 页，全部来自 `assets/hexcasting/patchouli_books/thehexbook/en_us/`。
 - 页型覆盖：`patchouli:text`、`link`、`image`、`spotlight`、`empty`、`crafting`，以及 Hex Casting 自定义的 `pattern`、`manual_pattern`、`manual_pattern_nosig`、`brainsweep`、`crafting_multi`。
 - 文本渲染：支持 `$(br)`/`$(br2)`/`$(p)`/`$(li)`/`$(#rgb)`/`$(0-f)`/`$(o)`/`$(n)`/`$(l:...)`/`$(k:...)`、book.json 自定义宏；**按页面宽度自动换行，超长单词按字符折行**，不会戳出书页。
@@ -75,7 +79,8 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
 
 实现位置：
 
-- [GuideBook.kt](Common/src/main/java/at/petrak/hexcasting/client/guidebook/GuideBook.kt)：书数据加载（分类、条目、宏、图标解析）
+- [GuideBook.kt](Common/src/main/java/at/petrak/hexcasting/client/guidebook/GuideBook.kt)：书数据加载（分类、条目、宏、图标解析）与全文搜索索引
+- [GuideBookState.kt](Common/src/main/java/at/petrak/hexcasting/client/guidebook/GuideBookState.kt)：书签与上次阅读位置的持久化
 - [GuideBookScreen.kt](Common/src/main/java/at/petrak/hexcasting/client/guidebook/GuideBookScreen.kt)：双页 GUI、导航、各页型渲染
 - [GuideMarkup.kt](Common/src/main/java/at/petrak/hexcasting/client/guidebook/GuideMarkup.kt)：文本标记解析 + 自动换行 + 链接命中
 - [GuideRecipes.kt](Common/src/main/java/at/petrak/hexcasting/client/guidebook/GuideRecipes.kt)：配方 JSON 读取
@@ -298,7 +303,7 @@ hexparse/  HexParse 文本法术文档（连锁挖掘等）
 
 - **剪接台**：仅移植到 P2 阶段——列表编辑与迷你法杖网格可用，但**还不能在剪接台直接施法**（P3 未实现），因此介质槽目前不参与任何逻辑，也不会消耗介质。未移植 Enlightened 剪接台、调试杖、Focus Holder 与调试器（DAP）等功能。
 - **拖延**：延迟任务只存在于内存，不随存档持久化；服务器重启或重置时队列被清空，玩家离线时待执行任务也不会保留。
-- **指南书**：未做搜索、书签、已读进度与进度（advancement）锁定；`spotlight` 页不显示合成来源；若某条配方在 26.1 移植中缺失（如 `amethyst_dust_packing`），对应页只显示文字不显示网格。
+- **指南书**：未做已读进度与进度（advancement）锁定；`spotlight` 页不显示合成来源；若某条配方在 26.1 移植中缺失（如 `amethyst_dust_packing`），对应页只显示文字不显示网格。
 - **Patchouli**：没有 26.1 版本，仓库内以源码形式内嵌 API 桩件；书内容改由内置 GUI 读取，不再需要 Patchouli 运行时。
 - **Inline**：仅实现了图案内联，其余 Inline 功能（物品/实体/头像匹配、尺寸修饰、叠加渲染）未实现；世界空间文本（告示牌、名字标签等）会显示占位符。
 - **Trinkets**：未移植，`dev/emi/trinkets` 为桩件，饰品渲染器是空实现（功能可用，视觉不显示）。

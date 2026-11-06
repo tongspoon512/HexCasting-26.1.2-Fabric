@@ -26,6 +26,7 @@ import gay.`object`.hexdebug.HexDebugRegistry
 import gay.`object`.hexdebug.actions.HexDebugActions
 import gay.`object`.hexdebug.actions.OpScheduleCall
 import gay.`object`.hexdebug.media.HexDebugAttributes
+import gay.`object`.hexdebug.media.PersonalManaHolder
 import gay.`object`.hexdebug.media.PersonalMediaRegen
 import at.petrak.hexcasting.interop.HexInterop
 import at.petrak.hexcasting.xplat.IXplatAbstractions
@@ -38,6 +39,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback
 import net.fabricmc.fabric.api.event.player.UseEntityCallback
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry
@@ -108,6 +110,9 @@ object FabricHexInitializer : ModInitializer {
         ServerTickEvents.END_LEVEL_TICK.register(OpFlight::tickAllPlayers)
         ServerTickEvents.END_LEVEL_TICK.register(OpAltiora::checkAllPlayers)
         ServerTickEvents.END_LEVEL_TICK.register { level -> PersonalMediaRegen.tick(level) }
+        ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> PersonalManaHolder.forget(handler.player) }
+        ServerLifecycleEvents.SERVER_STARTED.register { PersonalManaHolder.clearCaches() }
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register { _, _, _ -> PersonalManaHolder.clearCaches() }
 
         CommandRegistrationCallback.EVENT.register { dp, _, _ -> HexCommands.register(dp) }
 

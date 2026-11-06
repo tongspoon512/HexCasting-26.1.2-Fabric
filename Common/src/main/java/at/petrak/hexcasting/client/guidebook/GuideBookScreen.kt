@@ -9,8 +9,10 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions
 import net.minecraft.ChatFormatting
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.gui.screens.Screen
+import net.minecraft.client.input.CharacterEvent
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
+import net.minecraft.client.input.PreeditEvent
 import net.minecraft.client.resources.language.I18n
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
@@ -28,7 +30,7 @@ class GuideBookScreen(
     private val initialEntry: GuideEntry? = null
 ) : Screen(Component.translatable("item.hexcasting.book")) {
 
-    private enum class View { HOME, CATEGORY, ENTRY }
+    private enum class View { HOME, CATEGORY, ENTRY, SEARCH, BOOKMARKS }
 
     private val data: GuideBookData get() = GuideBook.get()
     private val orderedCategories by lazy { data.orderedCategories() }
@@ -52,6 +54,21 @@ class GuideBookScreen(
     private var descContent = 0
     private var descBodyHeight = 0
 
+    private var searchQuery = ""
+    private var searchPreedit = ""
+    private var searchResults: List<GuideBookData.SearchResult> = emptyList()
+    private var searchSelected = 0
+    private var searchScroll = 0
+    private var searchContent = 0
+    private var searchBody = 0
+
+    private var bookmarkScroll = 0
+    private var bookmarkContent = 0
+    private var bookmarkBody = 0
+
+    /** 打开搜索/书签列表前所处的视图，Esc 返回时用。 */
+    private var overlayReturn = View.HOME
+
     private val hits = ArrayList<GuideHit>()
     private var originX = 0
     private var originY = 0
@@ -60,9 +77,35 @@ class GuideBookScreen(
         val start = initialEntry
         if (start != null) {
             openEntry(start, null, resetView = false)
-        } else {
+        } else if (!restoreLastPosition()) {
             category = orderedCategories.firstOrNull()?.first
         }
+    }
+
+    /** 回到上次退出时的页面；没有记录或数据已失效时返回 false。 */
+    private fun restoreLastPosition(): Boolean {
+        val pos = GuideBookState.loadPosition() ?: return false
+        when (pos.view) {
+            "entry" -> {
+                val e = pos.entryId?.let { data.entry(it) } ?: return false
+                entry = e
+                category = data.category(e.categoryId)
+                view = View.ENTRY
+                val spreads = ((e.pages.size + 1) / 2).coerceAtLeast(1)
+                spread = pos.spread.coerceIn(0, spreads - 1)
+            }
+            "category" -> {
+                val cat = pos.categoryId?.let { data.category(it) } ?: return false
+                category = cat
+                view = View.CATEGORY
+            }
+            "home" -> {
+                view = View.HOME
+                category = orderedCategories.firstOrNull()?.first
+            }
+            else -> return false
+        }
+        return true
     }
 
     override fun isPauseScreen(): Boolean = false
@@ -98,6 +141,8 @@ class GuideBookScreen(
             View.HOME -> renderHome(graphics, mx, my)
             View.CATEGORY -> renderCategory(graphics, mx, my)
             View.ENTRY -> renderEntry(graphics, mx, my)
+            View.SEARCH -> renderSearch(graphics, mx, my)
+            View.BOOKMARKS -> renderBookmarks(graphics, mx, my)
         }
         pose.popMatrix()
     }
@@ -108,6 +153,7 @@ class GuideBookScreen(
         drawHeader(graphics, PAGE_L_X, text("gui.hexcasting.guidebook.categories"))
         listContent = renderCategoryList(graphics, mx, my)
         descContent = drawDescription(graphics, GuideBook.string(data.landingTextKey))
+        drawFooter(graphics, mx, my, null)
     }
 
     private fun renderCategory(graphics: GuiGraphicsExtractor, mx: Int, my: Int) {
@@ -259,12 +305,14 @@ class GuideBookScreen(
             (leftIndex + 1).coerceAtMost(pages.size),
             pages.size
         ).string
+        val bookmarkPage = leftIndex.coerceAtMost(pages.lastIndex.coerceAtLeast(0))
         drawFooter(
             graphics, mx, my, pageLabel,
             showPrev = spread > 0,
             showNext = spread + 1 < spreads,
             showHome = true,
-            homeLabel = text("gui.hexcasting.guidebook.home")
+            homeLabel = text("gui.hexcasting.guidebook.home"),
+            bookmark = if (pages.isEmpty()) null else e.id to bookmarkPage
         )
     }
 
@@ -658,6 +706,147 @@ class GuideBookScreen(
         }
     }
 
+    // -------------------------------------------------------------- SEARCH
+
+    private fun renderSearch(graphics: GuiGraphicsExtractor, mx: Int, my: Int) {
+        drawHeader(graphics, PAGE_L_X, text("gui.hexcasting.guidebook.search"))
+
+        val fieldX = PAGE_L_X + 4
+        val fieldTop = PAGE_Y + 17
+        val fieldW = PAGE_W - 8
+        val fieldH = 13
+        graphics.fill(fieldX, fieldTop, fieldX + fieldW, fieldTop + fieldH, FIELD_BG)
+        graphics.fill(fieldX, fieldTop, fieldX + fieldW, fieldTop + 1, FIELD_BORDER)
+        graphics.fill(fieldX, fieldTop + fieldH - 1, fieldX + fieldW, fieldTop + fieldH, FIELD_BORDER)
+        graphics.fill(fieldX, fieldTop, fieldX + 1, fieldTop + fieldH, FIELD_BORDER)
+        graphics.fill(fieldX + fieldW - 1, fieldTop, fieldX + fieldW, fieldTop + fieldH, FIELD_BORDER)
+
+        val shown = searchQuery + searchPreedit
+        val available = fieldW - 6
+        val textX = fieldX + 3 + minOf(0, available - font.width(shown))
+        graphics.text(font, shown, textX, fieldTop + 3, BODY_COLOR, false)
+        if (searchPreedit.isEmpty() && System.currentTimeMillis() % 1000 < 500) {
+            val caretX = textX + font.width(shown)
+            graphics.fill(caretX, fieldTop + 2, caretX + 1, fieldTop + fieldH - 2, BODY_COLOR)
+        }
+
+        val x = PAGE_L_X
+        val top = fieldTop + fieldH + 5
+        val bottom = PAGE_Y + PAGE_H - 10
+        val rowH = 18
+        searchBody = bottom - top
+        searchContent = searchResults.size * rowH
+        val maxScroll = (searchContent - searchBody).coerceAtLeast(0)
+        searchScroll = searchScroll.coerceIn(0, maxScroll)
+
+        if (searchQuery.isBlank()) {
+            graphics.text(font, text("gui.hexcasting.guidebook.searchEmpty"), x + 2, top + 2, MUTED_COLOR, false)
+        } else if (searchResults.isEmpty()) {
+            graphics.text(font, text("gui.hexcasting.guidebook.searchNoMatch"), x + 2, top + 2, MUTED_COLOR, false)
+        } else {
+            var y = top - searchScroll
+            for ((index, result) in searchResults.withIndex()) {
+                if (y + rowH > top - rowH && y < bottom) {
+                    val hover = mx in x until x + PAGE_W && my in y until y + rowH - 1
+                    val label = buildString {
+                        append(GuideBook.translate(result.entry.nameKey).string)
+                        if (result.page >= 0) {
+                            append("  ")
+                            append(pageShort(result.page + 1))
+                        }
+                    }
+                    drawListRow(
+                        graphics, x, y, PAGE_W, rowH,
+                        result.entry.icon, result.entry.iconTexture,
+                        label, 0, hover || index == searchSelected,
+                        "search:" + result.entry.id + "#" + result.page
+                    )
+                }
+                y += rowH
+            }
+        }
+
+        drawWrapped(
+            graphics,
+            text("gui.hexcasting.guidebook.searchHint"),
+            PAGE_R_X + 4, PAGE_Y + 4, PAGE_W - 8, PAGE_Y + PAGE_H - 10, 0, MUTED_COLOR
+        )
+
+        drawFooter(graphics, mx, my, null)
+    }
+
+    // ------------------------------------------------------------ BOOKMARKS
+
+    private fun renderBookmarks(graphics: GuiGraphicsExtractor, mx: Int, my: Int) {
+        drawHeader(graphics, PAGE_L_X, text("gui.hexcasting.guidebook.bookmarks"))
+
+        val valid = GuideBookState.bookmarks().mapNotNull { bookmark ->
+            data.entry(bookmark.entryId)?.let { it to bookmark.page }
+        }
+        val x = PAGE_L_X
+        val top = PAGE_Y + 17
+        val bottom = PAGE_Y + PAGE_H - 10
+        val rowH = 18
+        bookmarkBody = bottom - top
+        bookmarkContent = valid.size * rowH
+        val maxScroll = (bookmarkContent - bookmarkBody).coerceAtLeast(0)
+        bookmarkScroll = bookmarkScroll.coerceIn(0, maxScroll)
+
+        if (valid.isEmpty()) {
+            graphics.text(font, text("gui.hexcasting.guidebook.bookmarksEmpty"), x + 2, top + 2, MUTED_COLOR, false)
+        } else {
+            var y = top - bookmarkScroll
+            for ((entry, page) in valid) {
+                if (y + rowH > top - rowH && y < bottom) {
+                    val hover = mx in x until x + PAGE_W && my in y until y + rowH - 1
+                    val label = GuideBook.translate(entry.nameKey).string + "  " + pageShort(page + 1)
+                    val target = "bookmark:" + entry.id + "#" + page
+                    drawListRow(graphics, x, y, PAGE_W, rowH, entry.icon, entry.iconTexture, label, 0, hover, target)
+
+                    val removeX = x + PAGE_W - 10
+                    val removeHover = mx in removeX - 2 until x + PAGE_W && my in y until y + rowH - 1
+                    graphics.text(
+                        font, "\u00d7", removeX, y + 5,
+                        if (removeHover) LINK_COLOR else MUTED_COLOR, false
+                    )
+                    hits += GuideHit(removeX - 2, y, x + PAGE_W, y + rowH, "unbookmark:" + entry.id + "#" + page)
+                }
+                y += rowH
+            }
+        }
+
+        drawWrapped(
+            graphics,
+            text("gui.hexcasting.guidebook.bookmarksHint"),
+            PAGE_R_X + 4, PAGE_Y + 4, PAGE_W - 8, PAGE_Y + PAGE_H - 10, 0, MUTED_COLOR
+        )
+
+        drawFooter(graphics, mx, my, null)
+    }
+
+    /** 画一段自动折行的纯文本（不生成链接命中）。 */
+    private fun drawWrapped(
+        graphics: GuiGraphicsExtractor,
+        raw: String,
+        x: Int,
+        top: Int,
+        width: Int,
+        bottom: Int,
+        scroll: Int,
+        color: Int
+    ) {
+        if (raw.isBlank()) return
+        val spans = listOf(GuideMarkup.Span(raw, null, false, false, false, null))
+        GuideText.draw(graphics, font, spans, x, top, width, bottom, scroll, color, hits)
+    }
+
+    private fun pageShort(page: Int): String =
+        if (I18n.exists("gui.hexcasting.guidebook.pageShort")) {
+            I18n.get("gui.hexcasting.guidebook.pageShort", page)
+        } else {
+            "p.$page"
+        }
+
     // --------------------------------------------------------------- FOOTER
 
     private fun drawFooter(
@@ -668,7 +857,8 @@ class GuideBookScreen(
         showPrev: Boolean = false,
         showNext: Boolean = false,
         showHome: Boolean = false,
-        homeLabel: String = ""
+        homeLabel: String = "",
+        bookmark: Pair<String, Int>? = null
     ) {
         val y = BOOK_H - 11
         if (showPrev) {
@@ -681,15 +871,41 @@ class GuideBookScreen(
             graphics.text(font, ">", 26, y, if (hover) LINK_COLOR else MUTED_COLOR, false)
             hits += GuideHit(24, y, 38, y + 11, "nav:next")
         }
-        if (pageLabel != null) {
-            graphics.centeredText(font, pageLabel, BOOK_W / 2, y, MUTED_COLOR)
+        if (bookmark != null) {
+            val starred = GuideBookState.isBookmarked(bookmark.first, bookmark.second)
+            val hover = mx in 40 until 54 && my in y until y + 11
+            graphics.text(
+                font, if (starred) "\u2605" else "\u2606", 42, y,
+                if (hover || starred) LINK_COLOR else MUTED_COLOR, false
+            )
+            hits += GuideHit(40, y, 54, y + 11, "nav:toggleBookmark")
         }
+        if (pageLabel != null) {
+            // 页码放在偏左的位置，给右侧的搜索/书签标签让出空间
+            graphics.centeredText(font, pageLabel, BOOK_W / 3, y, MUTED_COLOR)
+        }
+
+        // 从右往左排：目录/返回、书签、搜索
+        var right = BOOK_W - 8
         if (showHome && homeLabel.isNotBlank()) {
-            val labelWidth = font.width(homeLabel)
-            val x = BOOK_W - labelWidth - 8
-            val hover = mx in x - 2 until BOOK_W - 4 && my in y until y + 11
+            val width = font.width(homeLabel)
+            val x = right - width
+            val hover = mx in x - 2 until right + 2 && my in y until y + 11
             graphics.text(font, homeLabel, x, y, if (hover) LINK_COLOR else MUTED_COLOR, false)
-            hits += GuideHit(x - 2, y, BOOK_W - 4, y + 11, "nav:home")
+            hits += GuideHit(x - 2, y, right + 2, y + 11, "nav:home")
+            right = x - 8
+        }
+        for ((labelKey, target) in listOf(
+            "gui.hexcasting.guidebook.bookmarks" to "nav:bookmarks",
+            "gui.hexcasting.guidebook.search" to "nav:search"
+        )) {
+            val label = text(labelKey)
+            val width = font.width(label)
+            val x = right - width
+            val hover = mx in x - 2 until right + 2 && my in y until y + 11
+            graphics.text(font, label, x, y, if (hover) LINK_COLOR else MUTED_COLOR, false)
+            hits += GuideHit(x - 2, y, right + 2, y + 11, target)
+            right = x - 8
         }
     }
 
@@ -755,29 +971,180 @@ class GuideBookScreen(
                     descScroll = (descScroll - pDelta * 12).toInt().coerceIn(0, max)
                 }
             }
+            View.SEARCH -> {
+                if (leftPage) {
+                    val max = (searchContent - searchBody).coerceAtLeast(0)
+                    searchScroll = (searchScroll - pDelta * 12).toInt().coerceIn(0, max)
+                }
+            }
+            View.BOOKMARKS -> {
+                if (leftPage) {
+                    val max = (bookmarkContent - bookmarkBody).coerceAtLeast(0)
+                    bookmarkScroll = (bookmarkScroll - pDelta * 12).toInt().coerceIn(0, max)
+                }
+            }
         }
         return true
     }
 
     override fun keyPressed(event: KeyEvent): Boolean {
+        if (view == View.SEARCH && handleSearchKey(event)) return true
+        if (view == View.BOOKMARKS && event.isEscape()) {
+            closeOverlay()
+            return true
+        }
         if (super.keyPressed(event)) return true
         return when (event.key()) {
             KEY_LEFT -> {
-                prevSpread()
-                true
+                if (view == View.ENTRY) {
+                    prevSpread()
+                    true
+                } else false
             }
             KEY_RIGHT -> {
-                nextSpread()
-                true
+                if (view == View.ENTRY) {
+                    nextSpread()
+                    true
+                } else false
             }
-            KEY_BACKSPACE -> {
-                if (view != View.HOME) {
+            KEY_BACKSPACE -> when (view) {
+                View.ENTRY, View.CATEGORY -> {
                     goHome()
+                    true
+                }
+                View.BOOKMARKS -> {
+                    closeOverlay()
+                    true
+                }
+                else -> false
+            }
+            KEY_F -> {
+                if (view != View.SEARCH) {
+                    openSearch()
+                    true
+                } else false
+            }
+            KEY_B -> {
+                if (view != View.SEARCH && view != View.BOOKMARKS) {
+                    openBookmarks()
                     true
                 } else false
             }
             else -> false
         }
+    }
+
+    override fun charTyped(event: CharacterEvent): Boolean {
+        if (view != View.SEARCH) return super.charTyped(event)
+        val codepoint = event.codepoint()
+        if (codepoint < 0x20 || codepoint == 0x7F) return false
+        searchQuery += String(Character.toChars(codepoint))
+        refreshSearch()
+        return true
+    }
+
+    override fun preeditUpdated(event: PreeditEvent?): Boolean {
+        if (view != View.SEARCH) return super.preeditUpdated(event)
+        searchPreedit = event?.fullText() ?: ""
+        return true
+    }
+
+    /** 搜索结果里的按键处理；返回 false 时交给父类（例如输入法的组字按键）。 */
+    private fun handleSearchKey(event: KeyEvent): Boolean {
+        if (searchPreedit.isNotEmpty()) {
+            if (event.isEscape()) {
+                searchPreedit = ""
+                return true
+            }
+            // 组字期间的后退/确认交给 IME，避免把拼音当成搜索词
+            return false
+        }
+        when (event.key()) {
+            KEY_ESCAPE -> {
+                closeOverlay()
+                return true
+            }
+            KEY_BACKSPACE -> {
+                if (searchQuery.isNotEmpty()) {
+                    searchQuery = searchQuery.dropLast(1)
+                    refreshSearch()
+                }
+                return true
+            }
+            KEY_ENTER -> {
+                openSelectedResult()
+                return true
+            }
+            KEY_UP -> {
+                if (searchResults.isNotEmpty()) {
+                    searchSelected = (searchSelected - 1 + searchResults.size) % searchResults.size
+                    ensureSearchVisible()
+                }
+                return true
+            }
+            KEY_DOWN -> {
+                if (searchResults.isNotEmpty()) {
+                    searchSelected = (searchSelected + 1) % searchResults.size
+                    ensureSearchVisible()
+                }
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun openSearch() {
+        if (view != View.SEARCH) overlayReturn = currentSavedView()
+        view = View.SEARCH
+        searchPreedit = ""
+        searchScroll = 0
+        refreshSearch()
+    }
+
+    private fun openBookmarks() {
+        if (view != View.SEARCH && view != View.BOOKMARKS) overlayReturn = currentSavedView()
+        view = View.BOOKMARKS
+        bookmarkScroll = 0
+    }
+
+    private fun closeOverlay() {
+        searchPreedit = ""
+        view = overlayReturn
+    }
+
+    private fun currentSavedView(): View =
+        if (view == View.SEARCH || view == View.BOOKMARKS) overlayReturn else view
+
+    private fun refreshSearch() {
+        searchResults = data.search(searchQuery)
+        searchSelected = 0
+        searchScroll = 0
+    }
+
+    private fun openSelectedResult() {
+        val result = searchResults.getOrNull(searchSelected) ?: return
+        openEntry(result.entry, null, resetView = true)
+        if (result.page >= 0) spread = result.page / 2
+    }
+
+    private fun ensureSearchVisible() {
+        val rowH = 18
+        val top = PAGE_Y + 17 + 13 + 5
+        val body = (PAGE_Y + PAGE_H - 10) - top
+        val y = searchSelected * rowH
+        if (y < searchScroll) searchScroll = y
+        else if (y + rowH > searchScroll + body) searchScroll = y + rowH - body
+        searchScroll = searchScroll.coerceIn(0, (searchResults.size * rowH - body).coerceAtLeast(0))
+    }
+
+    override fun removed() {
+        GuideBookState.savePosition(
+            currentSavedView().name.lowercase(),
+            entry?.id,
+            category?.id,
+            spread
+        )
+        super.removed()
     }
 
     private fun prevSpread() {
@@ -827,6 +1194,19 @@ class GuideBookScreen(
             }
             target == "nav:prev" -> prevSpread()
             target == "nav:next" -> nextSpread()
+            target == "nav:search" -> openSearch()
+            target == "nav:bookmarks" -> openBookmarks()
+            target == "nav:toggleBookmark" -> {
+                val e = entry ?: return
+                val page = (spread * 2).coerceAtMost(e.pages.lastIndex.coerceAtLeast(0))
+                if (e.pages.isNotEmpty()) GuideBookState.toggleBookmark(e.id, page)
+            }
+            target.startsWith("search:") -> openSearchHit(target.removePrefix("search:"))
+            target.startsWith("bookmark:") -> openSearchHit(target.removePrefix("bookmark:"))
+            target.startsWith("unbookmark:") -> {
+                val (entryId, page) = splitPageTarget(target.removePrefix("unbookmark:"))
+                if (entryId != null) GuideBookState.removeBookmark(entryId, page)
+            }
             target.startsWith("url:") -> {
                 val uri = runCatching { URI.create(target.removePrefix("url:")) }.getOrNull()
                 if (uri != null) clickUrlAction(minecraft!!, this, uri)
@@ -847,6 +1227,20 @@ class GuideBookScreen(
                 openEntry(e, anchor.ifBlank { null }, resetView = true)
             }
         }
+    }
+
+    /** 解析 `entryId#page` 形式的命中目标并跳转。 */
+    private fun openSearchHit(payload: String) {
+        val (entryId, page) = splitPageTarget(payload)
+        val e = entryId?.let { data.entry(it) } ?: return
+        openEntry(e, null, resetView = true)
+        if (page >= 0) spread = page / 2
+    }
+
+    private fun splitPageTarget(payload: String): Pair<String?, Int> {
+        val entryId = payload.substringBefore('#', "").ifBlank { null }
+        val page = payload.substringAfter('#', "-1").toIntOrNull() ?: -1
+        return entryId to page
     }
 
     private fun openEntry(e: GuideEntry, anchor: String?, resetView: Boolean) {
@@ -878,9 +1272,18 @@ class GuideBookScreen(
         private const val LINK_COLOR = 0xFF6A3FB5.toInt()
         private const val MUTED_COLOR = 0xFF7A6A55.toInt()
 
-        private const val KEY_LEFT = 263
-        private const val KEY_RIGHT = 262
+        private const val FIELD_BG = 0xFFF2E8D0.toInt()
+        private const val FIELD_BORDER = 0xFF8A7A5F.toInt()
+
+        private const val KEY_ESCAPE = 256
+        private const val KEY_ENTER = 257
         private const val KEY_BACKSPACE = 259
+        private const val KEY_RIGHT = 262
+        private const val KEY_LEFT = 263
+        private const val KEY_DOWN = 264
+        private const val KEY_UP = 265
+        private const val KEY_B = 66
+        private const val KEY_F = 70
 
         val BOOK_TEXTURE: Identifier =
             Identifier.fromNamespaceAndPath("hexcasting", "textures/gui/patchi_book.png")

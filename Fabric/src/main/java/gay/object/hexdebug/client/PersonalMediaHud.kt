@@ -1,7 +1,8 @@
 package gay.`object`.hexdebug.client
 
+import at.petrak.hexcasting.api.mod.HexConfig
 import gay.`object`.hexdebug.HexDebug
-import gay.`object`.hexdebug.media.HexDebugAttributes
+import gay.`object`.hexdebug.media.PersonalManaHolder
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.renderer.RenderPipelines
@@ -16,14 +17,16 @@ object PersonalMediaHud {
     private const val TEX_WIDTH = 182
     private const val TEX_HEIGHT = 5
 
-    private val mediaAttribute by lazy { HexDebugAttributes.holder(HexDebugAttributes.PERSONAL_MEDIA) }
-    private val maxMediaAttribute by lazy { HexDebugAttributes.holder(HexDebugAttributes.PERSONAL_MEDIA_MAX) }
-
     fun render(graphics: GuiGraphicsExtractor) {
-        val player = Minecraft.getInstance().player ?: return
+        val minecraft = Minecraft.getInstance()
+        val player = minecraft.player ?: return
+        // On an integrated server the pool switch is in the same config the client reads; remote
+        // servers only sync the attribute values, so there we rely on those instead.
+        if (minecraft.hasSingleplayerServer() && !HexConfig.server().personalMediaPool()) return
 
-        val media = player.getAttributeValue(mediaAttribute).toLong()
-        val maxMedia = player.getAttributeValue(maxMediaAttribute).toLong()
+        val holder = PersonalManaHolder.get(player) ?: return
+        val media = holder.getMedia()
+        val maxMedia = holder.getMaxMedia()
         if (media <= 0 || maxMedia <= 0) return
 
         val x = graphics.guiWidth() / 2 - TEX_WIDTH / 2

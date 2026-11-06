@@ -19,8 +19,10 @@ import net.minecraft.client.gui.components.Renderable
 import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.navigation.ScreenRectangle
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import net.minecraft.client.input.CharacterEvent
 import net.minecraft.client.input.KeyEvent
 import net.minecraft.client.input.MouseButtonEvent
+import net.minecraft.client.input.PreeditEvent
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
@@ -221,6 +223,21 @@ class SplicingTableScreen(
     }
 
     override fun keyPressed(event: KeyEvent): Boolean {
+        if (hasStaffItem) {
+            if (guiSpellcasting.isOverlayOpen()) {
+                // The search box, alias editor and keyboard drawing own every key while open;
+                // Escape closes just the overlay instead of the table.
+                if (event.isEscape()) guiSpellcasting.cancelDrawing() else guiSpellcasting.keyPressed(event)
+                return true
+            }
+            // Ctrl+Space opens the pattern search on the mini staff grid.
+            if (event.hasControlDown() && event.key() == InputConstants.KEY_SPACE
+                && guiSpellcasting.keyPressed(event)
+            ) {
+                return true
+            }
+        }
+
         if (!event.hasAltDown()) {
             val action = KEYBINDS[KeyCombo(event.key(), event.hasControlDown(), event.hasShiftDown())]
             if (action != null && canRun(action)) {
@@ -231,12 +248,28 @@ class SplicingTableScreen(
         return super.keyPressed(event)
     }
 
+    override fun charTyped(event: CharacterEvent): Boolean {
+        if (hasStaffItem && guiSpellcasting.isOverlayOpen() && guiSpellcasting.charTyped(event)) return true
+        return super.charTyped(event)
+    }
+
+    override fun preeditUpdated(event: PreeditEvent?): Boolean {
+        if (hasStaffItem && guiSpellcasting.isOverlayOpen()) return guiSpellcasting.preeditUpdated(event)
+        return super.preeditUpdated(event)
+    }
+
     override fun mouseScrolled(
         mouseX: Double,
         mouseY: Double,
         scrollX: Double,
         scrollY: Double,
     ): Boolean {
+        // A scrollable search/list or keyboard pattern on the staff grid takes the scroll first.
+        if (hasStaffItem && guiSpellcasting.isOverlayOpen() && isInStaffGrid(mouseX, mouseY, null)) {
+            guiSpellcasting.mouseScrolled(mouseX - staffMinX, mouseY - staffMinY, scrollX, scrollY)
+            return true
+        }
+
         val action = when {
             scrollY > 0 -> when {
                 hasControlDown -> SplicingTableAction.VIEW_LEFT_FULL

@@ -239,6 +239,72 @@ class GuideBookData(
         }
         return out
     }
+
+    // ------------------------------------------------------------- 搜索
+
+    /** 一条搜索结果：命中的条目，若正文命中则带上页码（-1 表示仅名称命中）。 */
+    data class SearchResult(val entry: GuideEntry, val page: Int, val nameMatch: Boolean)
+
+    private class SearchDoc(val entry: GuideEntry, val name: String, val pages: List<String>)
+
+    private var searchDocs: List<SearchDoc>? = null
+
+    /**
+     * 全库搜索：空格分隔的每个关键词都要命中（条目名/ID 或同一页正文）。
+     * 结果按名称命中优先、书本顺序其次排序。
+     */
+    fun search(query: String): List<SearchResult> {
+        val terms = query.trim().lowercase().split(' ').filter { it.isNotEmpty() }
+        if (terms.isEmpty()) return emptyList()
+        val docs = searchDocs ?: buildSearchDocs().also { searchDocs = it }
+        val results = ArrayList<SearchResult>()
+        for (doc in docs) {
+            val name = doc.name.lowercase()
+            val nameMatch = terms.all { name.contains(it) }
+            var page = -1
+            for ((index, text) in doc.pages.withIndex()) {
+                if (terms.all { text.lowercase().contains(it) }) {
+                    page = index
+                    break
+                }
+            }
+            if (nameMatch || page >= 0) results += SearchResult(doc.entry, page, nameMatch)
+        }
+        return results.sortedByDescending { if (it.nameMatch) 1 else 0 }
+    }
+
+    private fun buildSearchDocs(): List<SearchDoc> {
+        return entries.map { entry ->
+            SearchDoc(
+                entry,
+                GuideBook.translate(entry.nameKey).string + " " + entry.id,
+                entry.pages.map { searchableText(it) }
+            )
+        }
+    }
+
+    private fun searchableText(page: GuidePage): String {
+        val sb = StringBuilder()
+        fun add(raw: String) {
+            if (raw.isBlank()) return
+            sb.append(GuideBook.string(raw)).append(' ')
+        }
+        add(page.string("text"))
+        add(page.string("title"))
+        add(page.string("link_text"))
+        val opId = page.string("op_id", page.string("anchor"))
+        if (opId.isNotBlank()) {
+            sb.append(opId).append(' ')
+            val translated = GuideBook.keyFor("hexcasting.action.$opId")
+            if (translated != null) sb.append(I18n.get(translated)).append(' ')
+        }
+        page.json.getAsJsonArray("patterns")?.forEach { element ->
+            if (element.isJsonObject) {
+                element.asJsonObject.get("signature")?.asString?.let { sb.append(it).append(' ') }
+            }
+        }
+        return sb.toString()
+    }
 }
 
 class GuideCategory(
