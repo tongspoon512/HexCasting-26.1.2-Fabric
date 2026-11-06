@@ -3,7 +3,7 @@
   "category": "equipment",
   "key": {
     "A": "hexcasting:charged_amethyst",
-    "D": "#minecraft:creeper_drop_music_discs",
+    "D": "#hexcassettes:music_discs",
     "F": "minecraft:gold_ingot"
   },
   "pattern": [

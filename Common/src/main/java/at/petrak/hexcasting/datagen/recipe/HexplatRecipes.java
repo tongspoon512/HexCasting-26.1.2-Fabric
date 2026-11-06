@@ -151,8 +151,9 @@ public class HexplatRecipes extends PaucalRecipeProvider {
         ShapedRecipeBuilder.shaped(itemLookup, RecipeCategory.TOOLS, HexItems.ARTIFACT)
             .define('F', ingredients.goldIngot())
             .define('A', HexItems.CHARGED_AMETHYST)
-            // why in god's name does minecraft have two different places for item tags
-            .define('D', ItemTags.CREEPER_DROP_MUSIC_DISCS)
+            // 26.1 移除了 minecraft:music_discs，这里改用包含全部唱片的 hexcassettes 标签
+            .define('D', TagKey.create(Registries.ITEM,
+                Identifier.fromNamespaceAndPath("hexcassettes", "music_discs")))
             .pattern(" F ")
             .pattern("FAF")
             .pattern(" D ")
