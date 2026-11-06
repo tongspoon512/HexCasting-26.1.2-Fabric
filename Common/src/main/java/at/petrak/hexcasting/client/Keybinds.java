@@ -23,7 +23,13 @@ public class Keybinds {
             CATEGORY_OBJ
     );
 
-    public static List<KeyMapping> ALL_BINDS = List.of(spellbookPrev, spellbookNext);
+    public static KeyMapping openCassettes = new KeyMapping(
+            "key.hexcassettes.ponder_cassette",
+            InputConstants.KEY_G,
+            CATEGORY_OBJ
+    );
+
+    public static List<KeyMapping> ALL_BINDS = List.of(spellbookPrev, spellbookNext, openCassettes);
 
     public static void clientTickEnd() {
         // because of how mouse scrolling works (scrolling upward moves the page down), a positive

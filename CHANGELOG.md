@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_16` - 2026-11-06
+
+### Added
+
+- 移植 [hexcassettes](https://github.com/miyucomics/hexcassettes)：新增 8 个图案（排队、取消、清空、槽位数、忙碌列表、查询、剩余延迟、当前标签），把咒术延迟施放到玩家身上的「磁带」槽位，死亡后清空队列但保留槽位。
+- 新增磁带物品、4 种音效、合成配方与创造模式物品栏条目；`ServerConfig.maxCassettes` 控制槽位上限（默认 6）。
+- 磁带状态通过 Cardinal Components 玩家组件持久化，服务端每 tick 递减延迟并在槽位变化时同步；客户端登录时请求同步，新增 `G` 键打开的磁带总览界面，点击忙碌磁带可将其移除。
+- 指南书新增「异步施法」与「守护进程」条目，并新增 `tape_worm`、`full_arsenal`、`quinio` 三项进度。
+
 ## `0.11.4-fabric-build_15` - 2026-11-06
 
 ### Added

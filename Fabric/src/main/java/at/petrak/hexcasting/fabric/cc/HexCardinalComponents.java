@@ -42,6 +42,10 @@ public class HexCardinalComponents implements EntityComponentInitializer {
     public static final ComponentKey<CCClientCastingStack> CLIENT_CASTING_STACK = ComponentRegistry.getOrCreate(modLoc("client_casting_stack"),
             CCClientCastingStack.class);
 
+    // hexcassettes
+    public static final ComponentKey<CCCassettes> CASSETTES = ComponentRegistry.getOrCreate(
+        net.minecraft.resources.Identifier.fromNamespaceAndPath("hexcassettes", "cassettes"), CCCassettes.class);
+
     // 26.1: CCA v8 dropped item components; item-based addldata is constructed directly in FabricXplatImpl.
     public static final ComponentKey<CCIotaHolder> IOTA_HOLDER = ComponentRegistry.getOrCreate(modLoc("iota_holder"),
         CCIotaHolder.class);
@@ -57,6 +61,8 @@ public class HexCardinalComponents implements EntityComponentInitializer {
         registry.registerFor(ServerPlayer.class, FLIGHT, CCFlight::new);
         registry.registerFor(ServerPlayer.class, STAFFCAST_IMAGE, CCStaffcastImage::new);
         registry.registerFor(ServerPlayer.class, PATTERNS, CCPatterns::new);
+        // 死亡时清空排队咒术，但保留已购买的槽位（重生事件中单独复制 owned）
+        registry.registerForPlayers(CASSETTES, CCCassettes::new, RespawnCopyStrategy.NEVER_COPY);
 
 
         registry.registerFor(ItemEntity.class, IOTA_HOLDER, wrapItemEntityDelegate(

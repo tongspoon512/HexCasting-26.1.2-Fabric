@@ -129,6 +129,13 @@ public class HexConfig {
         double DEFAULT_TRADER_SCROLL_CHANCE = 0.2;
         boolean DEFAULT_GREATER_TELEPORT_SPLATS_ITEMS = true;
 
+        // --- Hexcassettes ---
+        int DEFAULT_MAX_CASSETTES = 6;
+
+        default int maxCassettes() {
+            return DEFAULT_MAX_CASSETTES;
+        }
+
         boolean DEFAULT_VILLAGERS_DISLIKE_MIND_MURDER = true;
 
         List<String> DEFAULT_DIM_TP_DENYLIST = List.of("twilightforest:twilight_forest");

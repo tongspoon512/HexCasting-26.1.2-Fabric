@@ -271,6 +271,10 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         @ConfigEntry.Gui.Tooltip
         private double traderScrollChance = DEFAULT_TRADER_SCROLL_CHANCE;
 
+        // --- Hexcassettes ---
+        @ConfigEntry.Gui.Tooltip
+        private int maxCassettes = DEFAULT_MAX_CASSETTES;
+
         // --- HexDebug personal media pool ---
         @ConfigEntry.Gui.Tooltip
         private boolean personalMediaPool = DEFAULT_PERSONAL_MEDIA_POOL;
@@ -445,6 +449,11 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         @Override
         public boolean trueNameHasAmbit() {
             return doesTrueNameHaveAmbit;
+        }
+
+        @Override
+        public int maxCassettes() {
+            return Math.max(0, maxCassettes);
         }
 
         @Override

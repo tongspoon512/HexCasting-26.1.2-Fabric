@@ -7,6 +7,9 @@ import gay.object.hexdebug.networking.MsgSplicingTableGetDataC2S;
 import gay.object.hexdebug.networking.MsgSplicingTableNewDataS2C;
 import gay.object.hexdebug.networking.MsgSplicingTableSelectC2S;
 import gay.object.hexdebug.networking.MsgSplicingTableViewC2S;
+import miyucomics.hexcassettes.network.MsgCassetteRemoveC2S;
+import miyucomics.hexcassettes.network.MsgCassetteSyncRequestC2S;
+import miyucomics.hexcassettes.network.MsgCassetteSyncS2C;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -61,6 +64,10 @@ public class FabricPacketHandler {
         var pullClipboard = registerType(MsgPullClipboardS2C.ID, MsgPullClipboardS2C::deserialize);
         var pushClipboard = registerType(MsgPushClipboardC2S.ID, MsgPushClipboardC2S::deserialize);
 
+        var cassetteSync = registerType(MsgCassetteSyncS2C.ID, MsgCassetteSyncS2C::deserialize);
+        registerType(MsgCassetteRemoveC2S.ID, MsgCassetteRemoveC2S::deserialize);
+        registerType(MsgCassetteSyncRequestC2S.ID, MsgCassetteSyncRequestC2S::deserialize);
+
         registerServerReceiver(MsgNewSpellPatternC2S.ID,
             (msg, server, player) -> ((MsgNewSpellPatternC2S) msg).handle(server, player));
         registerServerReceiver(MsgShiftScrollC2S.ID,
@@ -77,6 +84,10 @@ public class FabricPacketHandler {
             (msg, server, player) -> MsgSplicingTableDrawPatternC2S.handle(player, (MsgSplicingTableDrawPatternC2S) msg));
         registerServerReceiver(MsgPushClipboardC2S.ID,
             (msg, server, player) -> MsgPushClipboardC2S.handle(player, (MsgPushClipboardC2S) msg));
+        registerServerReceiver(MsgCassetteRemoveC2S.ID,
+            (msg, server, player) -> MsgCassetteRemoveC2S.handle(player, (MsgCassetteRemoveC2S) msg));
+        registerServerReceiver(MsgCassetteSyncRequestC2S.ID,
+            (msg, server, player) -> MsgCassetteSyncRequestC2S.handle(player));
 
         RECEIVERS.put(newPattern.id(), (msg, ctx) -> MsgNewSpellPatternS2C.handle((MsgNewSpellPatternS2C) msg));
         RECEIVERS.put(castParticle.id(), (msg, ctx) -> MsgCastParticleS2C.handle((MsgCastParticleS2C) msg));
@@ -93,6 +104,8 @@ public class FabricPacketHandler {
             (msg, ctx) -> MsgSplicingTableNewDataS2C.handle((MsgSplicingTableNewDataS2C) msg));
         RECEIVERS.put(pullClipboard.id(),
             (msg, ctx) -> MsgPullClipboardS2C.handle((MsgPullClipboardS2C) msg));
+        RECEIVERS.put(cassetteSync.id(),
+            (msg, ctx) -> MsgCassetteSyncS2C.handle((MsgCassetteSyncS2C) msg));
     }
 
     private static final Map<Identifier, ClientReceiver> RECEIVERS = new HashMap<>();

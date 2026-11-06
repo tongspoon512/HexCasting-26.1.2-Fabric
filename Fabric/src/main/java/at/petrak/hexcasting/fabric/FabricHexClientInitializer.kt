@@ -16,6 +16,8 @@ import at.petrak.hexcasting.fabric.network.FabricPacketHandler
 import at.petrak.hexcasting.interop.HexInterop
 import gay.`object`.hexdebug.HexDebugRegistry
 import gay.`object`.hexdebug.gui.splicing.SplicingTableScreen
+import miyucomics.hexcassettes.client.CassetteScreen
+import miyucomics.hexcassettes.network.MsgCassetteSyncRequestC2S
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
@@ -60,6 +62,13 @@ object FabricHexClientInitializer : ClientModInitializer {
             ClientTickCounter.clientTickEnd()
             Keybinds.clientTickEnd()
             ShiftScrollListener.clientTickEnd()
+
+            val minecraft = Minecraft.getInstance()
+            while (Keybinds.openCassettes.consumeClick()) {
+                if (minecraft.screen == null) {
+                    minecraft.setScreen(CassetteScreen())
+                }
+            }
         }
         ClientTooltipComponentCallback.EVENT.register(PatternTooltipComponent::tryConvert)
         ClientPlayConnectionEvents.JOIN.register { _, _, _ ->
@@ -67,6 +76,8 @@ object FabricHexClientInitializer : ClientModInitializer {
                 PatternRegistryManifest.processRegistry(null)
                 FabricHexInitializer.patternRegistryIsProcessed = true
             }
+            // 登录后向服务端请求一次磁带状态
+            FabricPacketHandler.sendToServer(MsgCassetteSyncRequestC2S())
         }
 
         MouseScrollCallback.EVENT.register(ShiftScrollListener::onScrollInGameplay)

@@ -30,11 +30,17 @@ import gay.`object`.hexdebug.media.PersonalManaHolder
 import gay.`object`.hexdebug.media.PersonalMediaRegen
 import at.petrak.hexcasting.interop.HexInterop
 import at.petrak.hexcasting.xplat.IXplatAbstractions
+import miyucomics.hexcassettes.HexCassetteItems
+import miyucomics.hexcassettes.HexCassetteSounds
+import miyucomics.hexcassettes.actions.HexCassetteActions
+import miyucomics.hexcassettes.advancements.CassetteTrigger
+import miyucomics.hexcassettes.cassetteState
 import ram.talia.moreiotas.fabric.FabricMoreIotasInitializer
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.entity.event.v1.EntityElytraEvents
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback
@@ -71,6 +77,7 @@ object FabricHexInitializer : ModInitializer {
             SingletonArgumentInfo.contextFree { PatternResLocArgument.id() }
         )
         HexAdvancementTriggers.registerTriggers()
+        CassetteTrigger.register()
         HexComposting.setup()
         HexStrippables.init()
         FabricImpetusStorage.registerStorage()
@@ -114,6 +121,17 @@ object FabricHexInitializer : ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register { PersonalManaHolder.clearCaches() }
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register { _, _, _ -> PersonalManaHolder.clearCaches() }
 
+        // hexcassettes: 每 tick 推进所有玩家的卡带队列；死亡后清空队列但保留槽位
+        ServerTickEvents.END_SERVER_TICK.register { server ->
+            for (player in server.playerList.players) {
+                player.cassetteState.tick(player)
+            }
+        }
+        ServerPlayerEvents.AFTER_RESPAWN.register { oldPlayer, newPlayer, _ ->
+            newPlayer.cassetteState.owned = oldPlayer.cassetteState.owned
+            newPlayer.cassetteState.sync(newPlayer)
+        }
+
         CommandRegistrationCallback.EVENT.register { dp, _, _ -> HexCommands.register(dp) }
 
         LootTableEvents.MODIFY.register { id, builder, _, _ ->
@@ -134,6 +152,7 @@ object FabricHexInitializer : ModInitializer {
             HexItems.registerItemCreativeTab(output, tab)
             if (tab == HexCreativeTabs.HEX) {
                 output.accept(HexDebugRegistry.SPLICING_TABLE_ITEM)
+                output.accept(HexCassetteItems.CASSETTE)
             }
         }
     }
@@ -146,10 +165,12 @@ object FabricHexInitializer : ModInitializer {
         HexCreativeTabs.registerCreativeTabs(bind(BuiltInRegistries.CREATIVE_MODE_TAB))
 
         HexSounds.registerSounds(bind(BuiltInRegistries.SOUND_EVENT))
+        HexCassetteSounds.registerSounds(bind(BuiltInRegistries.SOUND_EVENT))
         HexBlocks.registerBlocks(bind(BuiltInRegistries.BLOCK))
         HexBlocks.registerBlockItems(bind(BuiltInRegistries.ITEM))
         HexBlockEntities.registerTiles(bind(BuiltInRegistries.BLOCK_ENTITY_TYPE))
         HexItems.registerItems(bind(BuiltInRegistries.ITEM))
+        HexCassetteItems.registerItems(bind(BuiltInRegistries.ITEM))
 
         HexDebugRegistry.registerBlocks(bind(BuiltInRegistries.BLOCK))
         HexDebugRegistry.registerBlockItems(bind(BuiltInRegistries.ITEM))
@@ -176,6 +197,7 @@ object FabricHexInitializer : ModInitializer {
         HexIotaTypes.registerTypes(bind(IXplatAbstractions.INSTANCE.iotaTypeRegistry))
         HexActions.register(bind(IXplatAbstractions.INSTANCE.actionRegistry))
         HexDebugActions.register(bind(IXplatAbstractions.INSTANCE.actionRegistry))
+        HexCassetteActions.register(bind(IXplatAbstractions.INSTANCE.actionRegistry))
         HexSpecialHandlers.register(bind(IXplatAbstractions.INSTANCE.specialHandlerRegistry))
         HexArithmetics.register(bind(IXplatAbstractions.INSTANCE.arithmeticRegistry))
         HexContinuationTypes.registerContinuations(bind(IXplatAbstractions.INSTANCE.continuationTypeRegistry))
