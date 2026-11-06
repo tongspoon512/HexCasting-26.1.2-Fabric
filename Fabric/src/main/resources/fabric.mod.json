@@ -71,6 +71,7 @@
       "hexcasting:harness",
       "hexcasting:patterns",
       "hexcasting:client_casting_stack",
+      "hexcassettes:cassettes",
       "hexcasting:pigment",
       "hexcasting:iota_holder",
       "hexcasting:media_holder",
