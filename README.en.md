@@ -25,7 +25,7 @@ On top of that, this branch also ports [HexDebug](https://github.com/object-Obje
 | Loader | Fabric Loader ≥ 0.20.1 |
 | Java | 25 |
 | Build | `:Fabric:build` / `:Fabric:jar` both pass and produce an installable jar |
-| Runtime verification | Client has been launched in a real instance and entered a world; casting, inline patterns, the guide book and the splicing table have all been verified in game |
+| Runtime verification | Client has been launched in a real instance and entered a world; casting, inline patterns, the guide book, the splicing table and the cassette screen have all been verified in game |
 | Forge | **Not ported**, not included in `settings.gradle`, and not built |
 
 Common and Fabric are compiled together: `Fabric/build.gradle` merges `Common`'s main sources into Fabric's `compileJava`, so `Common` is not a standalone artifact.
@@ -223,6 +223,19 @@ Following the pure-client accessibility layer of [tizu69/Hexcessible](https://gi
 Implementation: [GuiSpellcasting.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/GuiSpellcasting.kt) (state machine and drawing), [PatternKeyboard.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/PatternKeyboard.kt) (keys/signatures/fuzzy search), [PatternDocs.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/PatternDocs.kt) (guide docs and unlock filtering), [PatternAliases.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/PatternAliases.kt) (alias persistence).
 
 Text input uses 26.1's `charTyped` and `preeditUpdated`: IMEs can type Chinese directly, the hint box shows "Composing: …" while composing, and non-US keyboard layouts deliver actual characters. Pinyin search requires JustEnoughCharacters.
+
+### 11. Cassettes and delayed casting (ported from hexcassettes)
+
+A port of [miyucomics/hexcassettes](https://github.com/miyucomics/hexcassettes) that delays a spell to a later tick:
+
+- **Cassette item**: `hexcassettes:cassette`, edible; eating one grants slots equal to `ServerConfig.maxCassettes` (default 6). Death clears the queues but keeps the slots. Recipe: any music disc + 4 charged amethyst.
+- **Eight patterns**: Enqueue (delay plus optional label), Dequeue, Disqueue, Threading Reflection (slot count), Operating Reflection (busy labels), Program Distillation (inspect), Oracle Purification (remaining delay), State Reflection (current label). Enqueueing without a free cassette causes a "parallel processing" mishap and wipes every cassette.
+- **State and sync**: slots and queues are persisted through a Cardinal Components player component; the server decrements delays every tick and pushes a sync whenever busy slots change, with a full sync request on login.
+- **Cassette screen**: press `G` (`key.hexcassettes.ponder_cassette`) to open a 32×16 slot overview showing each busy cassette's label; left-clicking a busy cassette removes it with an eject sound, while empty slots only play the failure click.
+- **Advancements and guide book**: two new entries ("Async Casting" and "Daemons") plus the `tape_worm`, `full_arsenal` and `quinio` advancements.
+- **Related fix**: 26.1 removed the `minecraft:music_discs` tag, so the vanilla "artifact" (`hexcasting:artifact`) recipe had been reduced to creeper-drop discs only. It now shares `hexcassettes:music_discs` with the cassette recipe (all 21 vanilla discs).
+
+Implementation: [CassetteState.kt](Fabric/src/main/java/miyucomics/hexcassettes/data/CassetteState.kt), [CassetteCastEnv.kt](Fabric/src/main/java/miyucomics/hexcassettes/CassetteCastEnv.kt), [HexCassetteActions.kt](Fabric/src/main/java/miyucomics/hexcassettes/actions/HexCassetteActions.kt), [CassetteScreen.kt](Fabric/src/main/java/miyucomics/hexcassettes/client/CassetteScreen.kt), [HexCardinalComponents.java](Fabric/src/main/java/at/petrak/hexcasting/fabric/cc/HexCardinalComponents.java).
 
 ## Installation
 

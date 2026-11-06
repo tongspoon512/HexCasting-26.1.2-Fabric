@@ -25,7 +25,7 @@ Hex Casting 的 **Minecraft 26.1.2（Fabric）** 移植分支。原模组由 pet
 | 加载器 | Fabric Loader ≥ 0.20.1 |
 | Java | 25 |
 | 构建 | `:Fabric:build` / `:Fabric:jar` 均通过，产出可安装 jar |
-| 运行验证 | 客户端已在真实实例中启动、进入世界；施法、内联图案、指南书、剪接台均已实机验证 |
+| 运行验证 | 客户端已在真实实例中启动、进入世界；施法、内联图案、指南书、剪接台、磁带界面均已实机验证 |
 | Forge | **未移植**，未在 `settings.gradle` 中 include，不参与构建 |
 
 Common 与 Fabric 是合并编译的：`Fabric/build.gradle` 会把 `Common` 的主源码并入 Fabric 的 `compileJava`，因此 Common 并不是独立的编译产物。
@@ -223,6 +223,19 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
 实现位置：[GuiSpellcasting.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/GuiSpellcasting.kt)（状态机与绘制）、[PatternKeyboard.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/PatternKeyboard.kt)（键位/签名/模糊搜索）、[PatternDocs.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/PatternDocs.kt)（指南书说明与解锁过滤）、[PatternAliases.kt](Common/src/main/java/at/petrak/hexcasting/client/gui/PatternAliases.kt)（别名持久化）。
 
 文字输入走 26.1 的 `charTyped` 与 `preeditUpdated`：支持输入法直接输入中文，组字过程中提示框会显示「输入中：…」，非美式键盘布局也按实际字符接收；拼音搜索需要安装 JustEnoughCharacters。
+
+### 11. 磁带与延迟施法（移植自 hexcassettes）
+
+移植 [miyucomics/hexcassettes](https://github.com/miyucomics/hexcassettes)，把咒术延迟到未来某个 tick 再施放：
+
+- **磁带物品**：`hexcassettes:cassette`，可食用；吃下后按 `ServerConfig.maxCassettes`（默认 6）获得对应数量的槽位，死亡时清空队列但保留槽位。配方为任意音乐唱片 + 4 个充能紫水晶。
+- **八个图案**：入队列（带延迟与可选标签）、出队列、终止队列、线程之精思（槽位总数）、运作之精思（忙碌列表）、程序之馏化（查询）、先知之纯化（剩余延迟）、状态之精思（当前标签）。没有空闲磁带时入队列会招致「并行处理」事故并清空全部磁带。
+- **状态与同步**：槽位与队列通过 Cardinal Components 玩家组件持久化，服务端每 tick 递减延迟；忙碌槽位变化时自动同步到客户端，登录时也会请求一次全量同步。
+- **磁带界面**：按 `G`（`key.hexcassettes.ponder_cassette`）打开 32×16 的槽位总览，显示每个忙碌磁带的标签；左键点击忙碌磁带会将其移除并播放弹出音，点击空槽只播放失败音。
+- **进度与指南书**：新增「异步咒术」「守护进程」两篇指南书条目，以及 `tape_worm`、`full_arsenal`、`quinio` 三项进度。
+- **顺带修复**：26.1 移除了 `minecraft:music_discs` 标签，原版「造物」（`hexcasting:artifact`）配方一度退化为只接受苦力怕掉落唱片；现已与磁带配方共用 `hexcassettes:music_discs`（全部 21 张原版唱片）。
+
+实现位置：[CassetteState.kt](Fabric/src/main/java/miyucomics/hexcassettes/data/CassetteState.kt)、[CassetteCastEnv.kt](Fabric/src/main/java/miyucomics/hexcassettes/CassetteCastEnv.kt)、[HexCassetteActions.kt](Fabric/src/main/java/miyucomics/hexcassettes/actions/HexCassetteActions.kt)、[CassetteScreen.kt](Fabric/src/main/java/miyucomics/hexcassettes/client/CassetteScreen.kt)、[HexCardinalComponents.java](Fabric/src/main/java/at/petrak/hexcasting/fabric/cc/HexCardinalComponents.java)。
 
 ## 安装
 

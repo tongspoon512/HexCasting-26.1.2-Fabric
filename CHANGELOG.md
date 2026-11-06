@@ -13,6 +13,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - 磁带状态通过 Cardinal Components 玩家组件持久化，服务端每 tick 递减延迟并在槽位变化时同步；客户端登录时请求同步，新增 `G` 键打开的磁带总览界面，点击忙碌磁带可将其移除。
 - 指南书新增「异步施法」与「守护进程」条目，并新增 `tape_worm`、`full_arsenal`、`quinio` 三项进度。
 
+### Fixed
+
+- `hexcassettes:cassettes` 玩家组件未在 `fabric.mod.json` 的 `custom.cardinal-components` 中声明，导致客户端启动时 CCA 抛错崩溃；已补声明。
+- 磁带配方引用了 26.1 已移除的 `minecraft:music_discs` 标签，导致配方整条被丢弃；改为 `hexcassettes:music_discs`（全部 21 张原版唱片）。
+- 原版「造物」（`hexcasting:artifact`）配方此前退回 `minecraft:creeper_drop_music_discs`，只接受苦力怕掉落唱片；现与磁带配方共用 `hexcassettes:music_discs`，造物等新唱片也可参与合成。
+
 ## `0.11.4-fabric-build_15` - 2026-11-06
 
 ### Added
