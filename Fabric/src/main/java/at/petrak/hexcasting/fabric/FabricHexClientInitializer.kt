@@ -44,7 +44,10 @@ object FabricHexClientInitializer : ClientModInitializer {
             SplicingTableScreen(menu, inv, title)
         }
 
-        LevelRenderEvents.AFTER_TRANSLUCENT_TERRAIN.register { ctx ->
+        // 26.1 executes custom geometry only during renderSolidFeatures/renderTranslucentFeatures; anything
+        // submitted afterwards (e.g. AFTER_TRANSLUCENT_TERRAIN, which fires after the translucent terrain
+        // group) is dropped by clearSubmitNodes. COLLECT_SUBMITS fires right before the feature passes.
+        LevelRenderEvents.COLLECT_SUBMITS.register { ctx ->
             HexAdditionalRenderers.overlayLevel(ctx.poseStack(), ctx.submitNodeCollector())
         }
         HudElementRegistry.addLast(SCRYING_LENS_OVERLAY, HudElement { graphics, deltaTracker ->

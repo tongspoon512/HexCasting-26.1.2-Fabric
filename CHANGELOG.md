@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_19` - 2026-11-07
+
+### Fixed
+
+- 修复哨卫仍然无法渲染：原先注册在 `AFTER_TRANSLUCENT_TERRAIN`，该事件在半透明地形之后才触发，而 26.1 只在 `renderSolidFeatures` / `renderTranslucentFeatures` 阶段执行自定义几何，之后提交的节点会被 `clearSubmitNodes` 丢弃。改为在 `COLLECT_SUBMITS` 提交，保证同一帧内被渲染。
+
 ## `0.11.4-fabric-build_18` - 2026-11-07
 
 ### Added
