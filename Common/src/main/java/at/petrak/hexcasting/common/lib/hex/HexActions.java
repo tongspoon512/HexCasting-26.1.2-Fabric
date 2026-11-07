@@ -282,6 +282,8 @@ public class HexActions {
         new ActionRegistryEntry(HexPattern.fromAngles("qdqawwaww", HexDir.EAST), OpErase.INSTANCE));
     public static final ActionRegistryEntry PICKUP_ITEM = make("pickup_item",
         new ActionRegistryEntry(HexPattern.fromAngles("deeeedw", HexDir.EAST), OpPickupItem.INSTANCE));
+    public static final ActionRegistryEntry GAIN_EXPERIENCE = make("gain_experience",
+        new ActionRegistryEntry(HexPattern.fromAngles("ddeqede", HexDir.EAST), OpGainExperience.INSTANCE));
     public static final ActionRegistryEntry EDIFY = make("edify",
         new ActionRegistryEntry(HexPattern.fromAngles("wqaqwd", HexDir.NORTH_EAST), OpEdifySapling.INSTANCE));
 
