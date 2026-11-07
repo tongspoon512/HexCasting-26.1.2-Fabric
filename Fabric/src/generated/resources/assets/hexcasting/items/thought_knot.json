@@ -1,6 +1,18 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "hexcasting:item/thought_knot"
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "hexcasting:item/thought_knot"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "hexcasting:item/thought_knot_written"
+    },
+    "predicate": "minecraft:custom_data",
+    "property": "minecraft:component",
+    "value": {
+      "data": {}
+    }
   }
 }

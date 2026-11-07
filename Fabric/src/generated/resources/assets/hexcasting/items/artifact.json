@@ -1,6 +1,202 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "hexcasting:item/artifact"
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:condition",
+      "on_false": {
+        "type": "minecraft:condition",
+        "on_false": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:condition",
+            "on_false": {
+              "type": "minecraft:condition",
+              "on_false": {
+                "type": "minecraft:condition",
+                "on_false": {
+                  "type": "minecraft:condition",
+                  "on_false": {
+                    "type": "minecraft:model",
+                    "model": "hexcasting:item/artifact"
+                  },
+                  "on_true": {
+                    "type": "minecraft:model",
+                    "model": "hexcasting:item/artifact_0_filled"
+                  },
+                  "predicate": "minecraft:custom_data",
+                  "property": "minecraft:component",
+                  "value": {
+                    "patterns": [
+                      {}
+                    ]
+                  }
+                },
+                "on_true": {
+                  "type": "minecraft:condition",
+                  "on_false": {
+                    "type": "minecraft:model",
+                    "model": "hexcasting:item/artifact_1"
+                  },
+                  "on_true": {
+                    "type": "minecraft:model",
+                    "model": "hexcasting:item/artifact_1_filled"
+                  },
+                  "predicate": "minecraft:custom_data",
+                  "property": "minecraft:component",
+                  "value": {
+                    "patterns": [
+                      {}
+                    ]
+                  }
+                },
+                "predicate": "minecraft:custom_data",
+                "property": "minecraft:component",
+                "value": {
+                  "variant": 1
+                }
+              },
+              "on_true": {
+                "type": "minecraft:condition",
+                "on_false": {
+                  "type": "minecraft:model",
+                  "model": "hexcasting:item/artifact_2"
+                },
+                "on_true": {
+                  "type": "minecraft:model",
+                  "model": "hexcasting:item/artifact_2_filled"
+                },
+                "predicate": "minecraft:custom_data",
+                "property": "minecraft:component",
+                "value": {
+                  "patterns": [
+                    {}
+                  ]
+                }
+              },
+              "predicate": "minecraft:custom_data",
+              "property": "minecraft:component",
+              "value": {
+                "variant": 2
+              }
+            },
+            "on_true": {
+              "type": "minecraft:condition",
+              "on_false": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/artifact_3"
+              },
+              "on_true": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/artifact_3_filled"
+              },
+              "predicate": "minecraft:custom_data",
+              "property": "minecraft:component",
+              "value": {
+                "patterns": [
+                  {}
+                ]
+              }
+            },
+            "predicate": "minecraft:custom_data",
+            "property": "minecraft:component",
+            "value": {
+              "variant": 3
+            }
+          },
+          "on_true": {
+            "type": "minecraft:condition",
+            "on_false": {
+              "type": "minecraft:model",
+              "model": "hexcasting:item/artifact_4"
+            },
+            "on_true": {
+              "type": "minecraft:model",
+              "model": "hexcasting:item/artifact_4_filled"
+            },
+            "predicate": "minecraft:custom_data",
+            "property": "minecraft:component",
+            "value": {
+              "patterns": [
+                {}
+              ]
+            }
+          },
+          "predicate": "minecraft:custom_data",
+          "property": "minecraft:component",
+          "value": {
+            "variant": 4
+          }
+        },
+        "on_true": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "hexcasting:item/artifact_5"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "hexcasting:item/artifact_5_filled"
+          },
+          "predicate": "minecraft:custom_data",
+          "property": "minecraft:component",
+          "value": {
+            "patterns": [
+              {}
+            ]
+          }
+        },
+        "predicate": "minecraft:custom_data",
+        "property": "minecraft:component",
+        "value": {
+          "variant": 5
+        }
+      },
+      "on_true": {
+        "type": "minecraft:condition",
+        "on_false": {
+          "type": "minecraft:model",
+          "model": "hexcasting:item/artifact_6"
+        },
+        "on_true": {
+          "type": "minecraft:model",
+          "model": "hexcasting:item/artifact_6_filled"
+        },
+        "predicate": "minecraft:custom_data",
+        "property": "minecraft:component",
+        "value": {
+          "patterns": [
+            {}
+          ]
+        }
+      },
+      "predicate": "minecraft:custom_data",
+      "property": "minecraft:component",
+      "value": {
+        "variant": 6
+      }
+    },
+    "on_true": {
+      "type": "minecraft:condition",
+      "on_false": {
+        "type": "minecraft:model",
+        "model": "hexcasting:item/artifact_7"
+      },
+      "on_true": {
+        "type": "minecraft:model",
+        "model": "hexcasting:item/artifact_7_filled"
+      },
+      "predicate": "minecraft:custom_data",
+      "property": "minecraft:component",
+      "value": {
+        "patterns": [
+          {}
+        ]
+      }
+    },
+    "predicate": "minecraft:custom_data",
+    "property": "minecraft:component",
+    "value": {
+      "variant": 7
+    }
   }
 }

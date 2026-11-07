@@ -1,5 +1,6 @@
 package at.petrak.hexcasting.fabric.datagen;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
@@ -10,7 +11,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.IntFunction;
 
 /**
  * 26.1 resolves item visuals through {@code assets/<namespace>/items/<id>.json} item definitions;
@@ -26,9 +29,10 @@ public class HexItemModelDefinitionProvider implements DataProvider {
      * render a texture instead of the missing model.
      */
     private static final Map<String, String> STATIC_MODELS = new HashMap<>();
+    private static final Set<String> PACKAGED_ITEMS = Set.of("artifact", "trinket", "cypher", "ancient_cypher");
+    private static final int VARIANTS = 8;
 
     static {
-        STATIC_MODELS.put("slate", "item/slate_blank");
         STATIC_MODELS.put("scroll_small", "item/scroll_pristine_small");
         STATIC_MODELS.put("scroll_medium", "item/scroll_pristine_medium");
         STATIC_MODELS.put("scroll", "item/scroll_pristine_large");
@@ -58,10 +62,19 @@ public class HexItemModelDefinitionProvider implements DataProvider {
                 continue;
             }
 
-            var model = new JsonObject();
-            model.addProperty("type", "minecraft:model");
-            model.addProperty("model", NAMESPACE + ":"
-                + STATIC_MODELS.getOrDefault(id.getPath(), "item/" + id.getPath()));
+            JsonObject model;
+            var path = id.getPath();
+            if ("focus".equals(path)) {
+                model = sealableVariantModel(path);
+            } else if ("thought_knot".equals(path)) {
+                model = thoughtKnotModel();
+            } else if ("slate".equals(path)) {
+                model = slateModel();
+            } else if (PACKAGED_ITEMS.contains(path)) {
+                model = packagedModel(path);
+            } else {
+                model = simpleModel(STATIC_MODELS.getOrDefault(path, "item/" + path));
+            }
 
             var root = new JsonObject();
             root.add("model", model);
@@ -70,6 +83,87 @@ public class HexItemModelDefinitionProvider implements DataProvider {
         }
 
         return CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new));
+    }
+
+    private static JsonObject simpleModel(String path) {
+        var model = new JsonObject();
+        model.addProperty("type", "minecraft:model");
+        model.addProperty("model", NAMESPACE + ":" + path);
+        return model;
+    }
+
+    private static JsonObject componentCondition(JsonObject nbt, JsonObject onTrue, JsonObject onFalse) {
+        // minecraft:component 的 Codec 是 dispatchMap("predicate", ...)，字段在条件对象上平铺：
+        // predicate 是谓词类型 id（字符串），value 是该谓词的值（这里是部分匹配的 NBT）。
+        var condition = new JsonObject();
+        condition.addProperty("type", "minecraft:condition");
+        condition.addProperty("property", "minecraft:component");
+        condition.addProperty("predicate", "minecraft:custom_data");
+        condition.add("value", nbt);
+        condition.add("on_true", onTrue);
+        condition.add("on_false", onFalse);
+        return condition;
+    }
+
+    private static JsonObject hasComponent(String componentId, JsonObject onTrue, JsonObject onFalse) {
+        var condition = new JsonObject();
+        condition.addProperty("type", "minecraft:condition");
+        condition.addProperty("property", "minecraft:has_component");
+        condition.addProperty("component", componentId);
+        condition.add("on_true", onTrue);
+        condition.add("on_false", onFalse);
+        return condition;
+    }
+
+    private static JsonObject variantChain(IntFunction<JsonObject> statesForVariant) {
+        var root = statesForVariant.apply(0);
+        for (var variant = 1; variant < VARIANTS; variant++) {
+            var nbt = new JsonObject();
+            nbt.addProperty("variant", variant);
+            root = componentCondition(nbt, statesForVariant.apply(variant), root);
+        }
+        return root;
+    }
+
+    private static JsonObject sealableVariantModel(String path) {
+        return variantChain(variant -> {
+            var sealed = simpleModel("item/" + path + "_" + variant + "_sealed");
+            var filled = simpleModel("item/" + path + "_" + variant + "_filled");
+            var plain = simpleModel(variant == 0 ? "item/" + path : "item/" + path + "_" + variant);
+
+            var sealedTag = new JsonObject();
+            sealedTag.addProperty("sealed", true);
+            var dataTag = new JsonObject();
+            dataTag.add("data", new JsonObject());
+
+            return componentCondition(sealedTag, sealed, componentCondition(dataTag, filled, plain));
+        });
+    }
+
+    private static JsonObject thoughtKnotModel() {
+        var dataTag = new JsonObject();
+        dataTag.add("data", new JsonObject());
+        return componentCondition(dataTag,
+            simpleModel("item/thought_knot_written"), simpleModel("item/thought_knot"));
+    }
+
+    private static JsonObject slateModel() {
+        return hasComponent("minecraft:block_entity_data",
+            simpleModel("item/slate_written"), simpleModel("item/slate_blank"));
+    }
+
+    private static JsonObject packagedModel(String path) {
+        return variantChain(variant -> {
+            var filled = simpleModel("item/" + path + "_" + variant + "_filled");
+            var plain = simpleModel(variant == 0 ? "item/" + path : "item/" + path + "_" + variant);
+
+            var patternsTag = new JsonObject();
+            var patterns = new JsonArray();
+            patterns.add(new JsonObject());
+            patternsTag.add("patterns", patterns);
+
+            return componentCondition(patternsTag, filled, plain);
+        });
     }
 
     @Override

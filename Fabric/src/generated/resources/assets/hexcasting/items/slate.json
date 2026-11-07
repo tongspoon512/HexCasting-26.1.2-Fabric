@@ -1,6 +1,15 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "hexcasting:item/slate_blank"
+    "type": "minecraft:condition",
+    "component": "minecraft:block_entity_data",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "hexcasting:item/slate_blank"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "hexcasting:item/slate_written"
+    },
+    "property": "minecraft:has_component"
   }
 }
