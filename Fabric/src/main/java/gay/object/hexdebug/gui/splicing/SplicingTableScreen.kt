@@ -83,6 +83,11 @@ class SplicingTableScreen(
             FabricPacketHandler.sendToServer(MsgSplicingTableDrawPatternC2S(pattern))
         }
         guiSpellcasting.embed(staffWidth, staffHeight)
+        // The search/alias overlay is drawn by this screen outside the grid scissor.
+        guiSpellcasting.deferOverlay = true
+        // ...and may use the whole table area, not just the 160x160 mini grid.
+        guiSpellcasting.overlayBoundsWidth = -staffMinXOffset + imageWidth + 46
+        guiSpellcasting.overlayBoundsHeight = imageHeight - staffMinYOffset
 
         clearGridButton = ClearGridButton().also {
             it.visible = hasStaffItem
@@ -191,6 +196,25 @@ class SplicingTableScreen(
         } else {
             blit(graphics, staffSlotMinX, staffSlotMinY, 232, 328, staffSlotWidth, staffSlotHeight)
         }
+    }
+
+    override fun extractRenderState(
+        graphics: GuiGraphicsExtractor,
+        mouseX: Int,
+        mouseY: Int,
+        partialTick: Float,
+    ) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick)
+
+        // The staff's search/alias/hint popup lives in grid-local coordinates, but it must
+        // not be clipped to the 160x160 mini grid, otherwise long suggestion lists and
+        // pattern docs are cut off. Draw it here, on top of the table, without the scissor.
+        if (!hasStaffItem) return
+        val pose = graphics.pose()
+        pose.pushMatrix()
+        pose.translate(staffMinX.toFloat(), staffMinY.toFloat())
+        guiSpellcasting.extractOverlay(graphics, mouseX - staffMinX, mouseY - staffMinY)
+        pose.popMatrix()
     }
 
     private fun isEdgeInRange(index: Int) =

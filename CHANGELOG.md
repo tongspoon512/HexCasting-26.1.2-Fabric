@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - 磁带配方引用了 26.1 已移除的 `minecraft:music_discs` 标签，导致配方整条被丢弃；改为 `hexcassettes:music_discs`（全部 21 张原版唱片）。
 - 原版「造物」（`hexcasting:artifact`）配方此前退回 `minecraft:creeper_drop_music_discs`，只接受苦力怕掉落唱片；现与磁带配方共用 `hexcassettes:music_discs`，造物等新唱片也可参与合成。
 - 26.1 移除了旧版 `ItemProperties` 与模型 `overrides`，导致核心（存有 iota 时的填充贴图）、结念绳子（写入后的贴图）、石板、造物/饰品/护符/远古护符（变体与已存图案贴图）的状态贴图全部失效。现改用 26.1 的 `minecraft:condition` + `minecraft:component` 物品模型定义，按 `custom_data` 的 `data` / `sealed` / `variant` / `patterns` 与 `minecraft:block_entity_data` 选择对应模型。
+- 剪接台的迷你法杖网格中，图案搜索 / 别名 / 按键提示弹窗原先被 160×160 网格的裁剪区域截断，长建议列表与图案文档无法完整显示；现改为在表格层之上、网格裁剪之外绘制，并按整个表格区域限制弹窗位置。
 
 ## `0.11.4-fabric-build_15` - 2026-11-06
 

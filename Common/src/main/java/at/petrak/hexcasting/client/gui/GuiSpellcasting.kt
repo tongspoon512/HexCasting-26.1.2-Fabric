@@ -87,6 +87,16 @@ class GuiSpellcasting constructor(
      */
     var meshScissor: ScreenRectangle? = null
 
+    /**
+     * When true, the search/alias/hint overlay is not drawn by [extractRenderState]; the host screen
+     * draws it itself via [extractOverlay] so it can escape the embedded grid's scissor rectangle.
+     */
+    var deferOverlay: Boolean = false
+
+    /** Optional bounds (in grid-local coordinates) used to clamp the overlay popup when embedded. */
+    var overlayBoundsWidth: Int? = null
+    var overlayBoundsHeight: Int? = null
+
     init {
         for ((pattern, origin) in patterns) {
             this.usedSpots.addAll(pattern.positions(origin))
@@ -1019,7 +1029,14 @@ class GuiSpellcasting constructor(
             matrix.popMatrix()
         }
 
-        drawCastingOverlay(graphics, font, pMouseX, pMouseY)
+        if (!deferOverlay) {
+            drawCastingOverlay(graphics, font, pMouseX, pMouseY)
+        }
+    }
+
+    /** Draws only the hint/search overlay in this grid's local coordinate space. */
+    fun extractOverlay(graphics: GuiGraphicsExtractor, mouseX: Int, mouseY: Int) {
+        drawCastingOverlay(graphics, Minecraft.getInstance().font, mouseX, mouseY)
     }
 
     private fun drawPatternPreview(
@@ -1247,8 +1264,10 @@ class GuiSpellcasting constructor(
         if (lines.isEmpty()) return
         val boxWidth = lines.maxOf { font.width(it.first) } + 8
         val boxHeight = lines.size * 10 + 4
-        val bx = x.coerceIn(2, (this.width - boxWidth - 2).coerceAtLeast(2))
-        val by = y.coerceIn(2, (this.height - boxHeight - 2).coerceAtLeast(2))
+        val clampWidth = this.overlayBoundsWidth ?: this.width
+        val clampHeight = this.overlayBoundsHeight ?: this.height
+        val bx = x.coerceIn(2, (clampWidth - boxWidth - 2).coerceAtLeast(2))
+        val by = y.coerceIn(2, (clampHeight - boxHeight - 2).coerceAtLeast(2))
         drawBox(graphics, bx.toFloat(), by.toFloat(), boxWidth.toFloat(), boxHeight.toFloat())
 
         var textY = by + 3
