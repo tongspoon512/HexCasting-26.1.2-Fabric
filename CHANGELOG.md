@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_17` - 2026-11-07
+
+### Added
+
+- 新增图案「获得经验」（`hexcasting:gain_experience`）：输入一个经验球实体，把该球的经验值直接授予施法者并移除经验球，效果等同于玩家拾取该经验球。
+- 新增 `hexparse/` 文档：卓越哨卫 8×1×8 矿石挖掘的磁带 quine 咒术，以及哨卫同层的施法范围向量表。
+
+### Fixed
+
+- 挖掘咒术的拾取不再使用 `get_entity/item`（每格只返回最近一个，且查询框以哨卫脚底为中心、与方块中心差 0.5 格时会因 AABB 边界严格相交而漏查），改为 `zone_entity/item`（半径 2）取出该处全部掉落物并递归遍历逐个 `pickup_item`。
+
 ## `0.11.4-fabric-build_16` - 2026-11-06
 
 ### Added
