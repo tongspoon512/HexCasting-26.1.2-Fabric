@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_18` - 2026-11-07
+
+### Added
+
+- 新增图案「高阶拾取」（`hexcasting:advanced_pickup`）：输入一个掉落物实体与一个容器坐标，按原版漏斗的规则（`HopperBlockEntity.addItem`）把物品送入该容器，放不下的部分留在掉落物实体上。
+- 指南书新增「高阶拾取」与「获得经验」两篇条目，各自附带图案页。
+
+### Fixed
+
+- 修复哨卫无法渲染：26.1 的线段管线依赖顶点属性 `LineWidth` 在屏幕空间展开四边形，原代码未设置该属性（默认为 0，四边形面积为零），现补上 `setLineWidth(5f)`，与上游线宽一致。
+
 ## `0.11.4-fabric-build_17` - 2026-11-07
 
 ### Added

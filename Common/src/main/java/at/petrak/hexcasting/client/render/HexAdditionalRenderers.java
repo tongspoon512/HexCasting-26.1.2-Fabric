@@ -73,7 +73,10 @@ public class HexAdditionalRenderers {
         var colProvider = pigment.getColorProvider();
 
         // 26.1 has no immediate-mode line drawing; the icosahedron is submitted as one custom geometry batch.
+        // The line pipeline expands each vertex into a screen-space quad whose width comes from the per-vertex
+        // LineWidth attribute. Leaving it unset (0) collapses every quad to zero area, so the sentinel vanishes.
         collector.submitCustomGeometry(ps, RenderTypes.LINES_TRANSLUCENT, (pose, buf) -> {
+            final float lineWidth = 5f;
             BiConsumer<float[], float[]> v = (l, r) -> {
                 int lcolor = colProvider.getColor(time, new Vec3(l[0], l[1], l[2])),
                     rcolor = colProvider.getColor(time, new Vec3(r[0], r[1], r[2]));
@@ -81,10 +84,12 @@ public class HexAdditionalRenderers {
                 normal.normalize();
                 buf.addVertex(pose, l[0], l[1], l[2])
                     .setColor(lcolor)
-                    .setNormal(pose, normal.x(), normal.y(), normal.z());
+                    .setNormal(pose, normal.x(), normal.y(), normal.z())
+                    .setLineWidth(lineWidth);
                 buf.addVertex(pose, r[0], r[1], r[2])
                     .setColor(rcolor)
-                    .setNormal(pose, -normal.x(), -normal.y(), -normal.z());
+                    .setNormal(pose, -normal.x(), -normal.y(), -normal.z())
+                    .setLineWidth(lineWidth);
             };
 
             // Icosahedron inscribed inside the unit sphere
