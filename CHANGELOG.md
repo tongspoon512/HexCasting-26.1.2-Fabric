@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_20` - 2026-11-08
+
+### Fixed
+
+- 核心与结念绳的 iota 标识层不再显示为灰色：26.1 的物品着色改为物品定义里的数据驱动 `tints`。新增 `hexcasting:iota_storage_color` 着色源（通过 mixin 注册进 `ItemTintSources` 的私有 id 映射），并给 `focus_*_filled`、`focus_*_sealed`、`thought_knot_written` 的 `minecraft:model` 节点加上 `[白色, iota 颜色]` 两层着色，灰度遮罩层重新按存入的 iota 着色。
+- 远古卷轴的贴图恢复正常：物品定义里新增 `hexcasting:custom_data_tag` 条件（检测 `op_id` 是否存在），`scroll`、`scroll_medium`、`scroll_small` 现在会在远古/崭新两种贴图之间切换。
+- 造物（以及合成卷轴/饰品/远古秘文）的变体贴图恢复正常：内置 `minecraft:component` 谓词用 `JsonOps` 解析 NBT，小整数会变成 `ByteTag`，而 `variant` 是 `putInt` 写入的 `IntTag`，谓词永远匹配失败，导致所有变体都退回 0 号。新增 `hexcasting:variant` 条件按真正的 variant 值选择模型（含填装后的额外覆盖层）。
+
 ## `0.11.4-fabric-build_19` - 2026-11-07
 
 ### Fixed

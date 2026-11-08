@@ -23,7 +23,16 @@
                     },
                     "on_true": {
                       "type": "minecraft:model",
-                      "model": "hexcasting:item/focus_0_filled"
+                      "model": "hexcasting:item/focus_0_filled",
+                      "tints": [
+                        {
+                          "type": "minecraft:constant",
+                          "value": -1
+                        },
+                        {
+                          "type": "hexcasting:iota_storage_color"
+                        }
+                      ]
                     },
                     "predicate": "minecraft:custom_data",
                     "property": "minecraft:component",
@@ -33,7 +42,16 @@
                   },
                   "on_true": {
                     "type": "minecraft:model",
-                    "model": "hexcasting:item/focus_0_sealed"
+                    "model": "hexcasting:item/focus_0_sealed",
+                    "tints": [
+                      {
+                        "type": "minecraft:constant",
+                        "value": -1
+                      },
+                      {
+                        "type": "hexcasting:iota_storage_color"
+                      }
+                    ]
                   },
                   "predicate": "minecraft:custom_data",
                   "property": "minecraft:component",
@@ -51,7 +69,16 @@
                     },
                     "on_true": {
                       "type": "minecraft:model",
-                      "model": "hexcasting:item/focus_1_filled"
+                      "model": "hexcasting:item/focus_1_filled",
+                      "tints": [
+                        {
+                          "type": "minecraft:constant",
+                          "value": -1
+                        },
+                        {
+                          "type": "hexcasting:iota_storage_color"
+                        }
+                      ]
                     },
                     "predicate": "minecraft:custom_data",
                     "property": "minecraft:component",
@@ -61,7 +88,16 @@
                   },
                   "on_true": {
                     "type": "minecraft:model",
-                    "model": "hexcasting:item/focus_1_sealed"
+                    "model": "hexcasting:item/focus_1_sealed",
+                    "tints": [
+                      {
+                        "type": "minecraft:constant",
+                        "value": -1
+                      },
+                      {
+                        "type": "hexcasting:iota_storage_color"
+                      }
+                    ]
                   },
                   "predicate": "minecraft:custom_data",
                   "property": "minecraft:component",
@@ -69,11 +105,8 @@
                     "sealed": true
                   }
                 },
-                "predicate": "minecraft:custom_data",
-                "property": "minecraft:component",
-                "value": {
-                  "variant": 1
-                }
+                "property": "hexcasting:variant",
+                "variant": 1
               },
               "on_true": {
                 "type": "minecraft:condition",
@@ -85,7 +118,16 @@
                   },
                   "on_true": {
                     "type": "minecraft:model",
-                    "model": "hexcasting:item/focus_2_filled"
+                    "model": "hexcasting:item/focus_2_filled",
+                    "tints": [
+                      {
+                        "type": "minecraft:constant",
+                        "value": -1
+                      },
+                      {
+                        "type": "hexcasting:iota_storage_color"
+                      }
+                    ]
                   },
                   "predicate": "minecraft:custom_data",
                   "property": "minecraft:component",
@@ -95,7 +137,16 @@
                 },
                 "on_true": {
                   "type": "minecraft:model",
-                  "model": "hexcasting:item/focus_2_sealed"
+                  "model": "hexcasting:item/focus_2_sealed",
+                  "tints": [
+                    {
+                      "type": "minecraft:constant",
+                      "value": -1
+                    },
+                    {
+                      "type": "hexcasting:iota_storage_color"
+                    }
+                  ]
                 },
                 "predicate": "minecraft:custom_data",
                 "property": "minecraft:component",
@@ -103,11 +154,8 @@
                   "sealed": true
                 }
               },
-              "predicate": "minecraft:custom_data",
-              "property": "minecraft:component",
-              "value": {
-                "variant": 2
-              }
+              "property": "hexcasting:variant",
+              "variant": 2
             },
             "on_true": {
               "type": "minecraft:condition",
@@ -119,7 +167,16 @@
                 },
                 "on_true": {
                   "type": "minecraft:model",
-                  "model": "hexcasting:item/focus_3_filled"
+                  "model": "hexcasting:item/focus_3_filled",
+                  "tints": [
+                    {
+                      "type": "minecraft:constant",
+                      "value": -1
+                    },
+                    {
+                      "type": "hexcasting:iota_storage_color"
+                    }
+                  ]
                 },
                 "predicate": "minecraft:custom_data",
                 "property": "minecraft:component",
@@ -129,7 +186,16 @@
               },
               "on_true": {
                 "type": "minecraft:model",
-                "model": "hexcasting:item/focus_3_sealed"
+                "model": "hexcasting:item/focus_3_sealed",
+                "tints": [
+                  {
+                    "type": "minecraft:constant",
+                    "value": -1
+                  },
+                  {
+                    "type": "hexcasting:iota_storage_color"
+                  }
+                ]
               },
               "predicate": "minecraft:custom_data",
               "property": "minecraft:component",
@@ -137,11 +203,8 @@
                 "sealed": true
               }
             },
-            "predicate": "minecraft:custom_data",
-            "property": "minecraft:component",
-            "value": {
-              "variant": 3
-            }
+            "property": "hexcasting:variant",
+            "variant": 3
           },
           "on_true": {
             "type": "minecraft:condition",
@@ -153,7 +216,16 @@
               },
               "on_true": {
                 "type": "minecraft:model",
-                "model": "hexcasting:item/focus_4_filled"
+                "model": "hexcasting:item/focus_4_filled",
+                "tints": [
+                  {
+                    "type": "minecraft:constant",
+                    "value": -1
+                  },
+                  {
+                    "type": "hexcasting:iota_storage_color"
+                  }
+                ]
               },
               "predicate": "minecraft:custom_data",
               "property": "minecraft:component",
@@ -163,7 +235,16 @@
             },
             "on_true": {
               "type": "minecraft:model",
-              "model": "hexcasting:item/focus_4_sealed"
+              "model": "hexcasting:item/focus_4_sealed",
+              "tints": [
+                {
+                  "type": "minecraft:constant",
+                  "value": -1
+                },
+                {
+                  "type": "hexcasting:iota_storage_color"
+                }
+              ]
             },
             "predicate": "minecraft:custom_data",
             "property": "minecraft:component",
@@ -171,11 +252,8 @@
               "sealed": true
             }
           },
-          "predicate": "minecraft:custom_data",
-          "property": "minecraft:component",
-          "value": {
-            "variant": 4
-          }
+          "property": "hexcasting:variant",
+          "variant": 4
         },
         "on_true": {
           "type": "minecraft:condition",
@@ -187,7 +265,16 @@
             },
             "on_true": {
               "type": "minecraft:model",
-              "model": "hexcasting:item/focus_5_filled"
+              "model": "hexcasting:item/focus_5_filled",
+              "tints": [
+                {
+                  "type": "minecraft:constant",
+                  "value": -1
+                },
+                {
+                  "type": "hexcasting:iota_storage_color"
+                }
+              ]
             },
             "predicate": "minecraft:custom_data",
             "property": "minecraft:component",
@@ -197,7 +284,16 @@
           },
           "on_true": {
             "type": "minecraft:model",
-            "model": "hexcasting:item/focus_5_sealed"
+            "model": "hexcasting:item/focus_5_sealed",
+            "tints": [
+              {
+                "type": "minecraft:constant",
+                "value": -1
+              },
+              {
+                "type": "hexcasting:iota_storage_color"
+              }
+            ]
           },
           "predicate": "minecraft:custom_data",
           "property": "minecraft:component",
@@ -205,11 +301,8 @@
             "sealed": true
           }
         },
-        "predicate": "minecraft:custom_data",
-        "property": "minecraft:component",
-        "value": {
-          "variant": 5
-        }
+        "property": "hexcasting:variant",
+        "variant": 5
       },
       "on_true": {
         "type": "minecraft:condition",
@@ -221,7 +314,16 @@
           },
           "on_true": {
             "type": "minecraft:model",
-            "model": "hexcasting:item/focus_6_filled"
+            "model": "hexcasting:item/focus_6_filled",
+            "tints": [
+              {
+                "type": "minecraft:constant",
+                "value": -1
+              },
+              {
+                "type": "hexcasting:iota_storage_color"
+              }
+            ]
           },
           "predicate": "minecraft:custom_data",
           "property": "minecraft:component",
@@ -231,7 +333,16 @@
         },
         "on_true": {
           "type": "minecraft:model",
-          "model": "hexcasting:item/focus_6_sealed"
+          "model": "hexcasting:item/focus_6_sealed",
+          "tints": [
+            {
+              "type": "minecraft:constant",
+              "value": -1
+            },
+            {
+              "type": "hexcasting:iota_storage_color"
+            }
+          ]
         },
         "predicate": "minecraft:custom_data",
         "property": "minecraft:component",
@@ -239,11 +350,8 @@
           "sealed": true
         }
       },
-      "predicate": "minecraft:custom_data",
-      "property": "minecraft:component",
-      "value": {
-        "variant": 6
-      }
+      "property": "hexcasting:variant",
+      "variant": 6
     },
     "on_true": {
       "type": "minecraft:condition",
@@ -255,7 +363,16 @@
         },
         "on_true": {
           "type": "minecraft:model",
-          "model": "hexcasting:item/focus_7_filled"
+          "model": "hexcasting:item/focus_7_filled",
+          "tints": [
+            {
+              "type": "minecraft:constant",
+              "value": -1
+            },
+            {
+              "type": "hexcasting:iota_storage_color"
+            }
+          ]
         },
         "predicate": "minecraft:custom_data",
         "property": "minecraft:component",
@@ -265,7 +382,16 @@
       },
       "on_true": {
         "type": "minecraft:model",
-        "model": "hexcasting:item/focus_7_sealed"
+        "model": "hexcasting:item/focus_7_sealed",
+        "tints": [
+          {
+            "type": "minecraft:constant",
+            "value": -1
+          },
+          {
+            "type": "hexcasting:iota_storage_color"
+          }
+        ]
       },
       "predicate": "minecraft:custom_data",
       "property": "minecraft:component",
@@ -273,10 +399,7 @@
         "sealed": true
       }
     },
-    "predicate": "minecraft:custom_data",
-    "property": "minecraft:component",
-    "value": {
-      "variant": 7
-    }
+    "property": "hexcasting:variant",
+    "variant": 7
   }
 }

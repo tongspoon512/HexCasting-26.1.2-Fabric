@@ -7,7 +7,16 @@
     },
     "on_true": {
       "type": "minecraft:model",
-      "model": "hexcasting:item/thought_knot_written"
+      "model": "hexcasting:item/thought_knot_written",
+      "tints": [
+        {
+          "type": "minecraft:constant",
+          "value": -1
+        },
+        {
+          "type": "hexcasting:iota_storage_color"
+        }
+      ]
     },
     "predicate": "minecraft:custom_data",
     "property": "minecraft:component",

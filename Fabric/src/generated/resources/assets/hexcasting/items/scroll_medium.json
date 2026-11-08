@@ -1,6 +1,15 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "hexcasting:item/scroll_pristine_medium"
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "hexcasting:item/scroll_pristine_medium"
+    },
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "hexcasting:item/scroll_ancient_medium"
+    },
+    "property": "hexcasting:custom_data_tag",
+    "tag": "op_id"
   }
 }

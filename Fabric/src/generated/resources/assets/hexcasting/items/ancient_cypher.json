@@ -49,11 +49,8 @@
                     ]
                   }
                 },
-                "predicate": "minecraft:custom_data",
-                "property": "minecraft:component",
-                "value": {
-                  "variant": 1
-                }
+                "property": "hexcasting:variant",
+                "variant": 1
               },
               "on_true": {
                 "type": "minecraft:condition",
@@ -73,11 +70,8 @@
                   ]
                 }
               },
-              "predicate": "minecraft:custom_data",
-              "property": "minecraft:component",
-              "value": {
-                "variant": 2
-              }
+              "property": "hexcasting:variant",
+              "variant": 2
             },
             "on_true": {
               "type": "minecraft:condition",
@@ -97,11 +91,8 @@
                 ]
               }
             },
-            "predicate": "minecraft:custom_data",
-            "property": "minecraft:component",
-            "value": {
-              "variant": 3
-            }
+            "property": "hexcasting:variant",
+            "variant": 3
           },
           "on_true": {
             "type": "minecraft:condition",
@@ -121,11 +112,8 @@
               ]
             }
           },
-          "predicate": "minecraft:custom_data",
-          "property": "minecraft:component",
-          "value": {
-            "variant": 4
-          }
+          "property": "hexcasting:variant",
+          "variant": 4
         },
         "on_true": {
           "type": "minecraft:condition",
@@ -145,11 +133,8 @@
             ]
           }
         },
-        "predicate": "minecraft:custom_data",
-        "property": "minecraft:component",
-        "value": {
-          "variant": 5
-        }
+        "property": "hexcasting:variant",
+        "variant": 5
       },
       "on_true": {
         "type": "minecraft:condition",
@@ -169,11 +154,8 @@
           ]
         }
       },
-      "predicate": "minecraft:custom_data",
-      "property": "minecraft:component",
-      "value": {
-        "variant": 6
-      }
+      "property": "hexcasting:variant",
+      "variant": 6
     },
     "on_true": {
       "type": "minecraft:condition",
@@ -193,10 +175,7 @@
         ]
       }
     },
-    "predicate": "minecraft:custom_data",
-    "property": "minecraft:component",
-    "value": {
-      "variant": 7
-    }
+    "property": "hexcasting:variant",
+    "variant": 7
   }
 }
