@@ -70,6 +70,15 @@ public final class HexCreatingPonder {
             items.forComponents(HexCreatingItems.THOUGHT_KEY_PATTERN_SPELL_1)
                 .addStoryBoard(EMPTY_5_5, PatternScenes1::edifyTreePattern)
                 .addStoryBoard(EMPTY_5_5, PatternScenes1::edifyTreePractice);
+
+            items.forComponents(HexCreatingItems.THOUGHT_KEY_ANALYTICAL_ENGINE)
+                .addStoryBoard(EMPTY_5_5, AnalyticalEngineScenes::controller);
+
+            items.forComponents(HexCreatingItems.THOUGHT_KEY_ANALYTICAL_ENGINE_PROGRAM)
+                .addStoryBoard(EMPTY_5_5, AnalyticalEngineScenes::program);
+
+            items.forComponents(HexCreatingItems.THOUGHT_KEY_ANALYTICAL_ENGINE_NETWORK)
+                .addStoryBoard(EMPTY_5_5, AnalyticalEngineScenes::network);
         }
     }
 }

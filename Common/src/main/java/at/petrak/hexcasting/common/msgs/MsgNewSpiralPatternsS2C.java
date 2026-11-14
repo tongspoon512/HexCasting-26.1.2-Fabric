@@ -1,9 +1,8 @@
 package at.petrak.hexcasting.common.msgs;
 
 import at.petrak.hexcasting.api.casting.math.HexPattern;
-import at.petrak.hexcasting.xplat.IClientXplatAbstractions;
+import at.petrak.hexcasting.client.ClientMessageHandlers;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 
@@ -40,17 +39,6 @@ public record MsgNewSpiralPatternsS2C(UUID playerUUID, List<HexPattern> patterns
     }
 
     public static void handle(MsgNewSpiralPatternsS2C self) {
-        Minecraft.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                var mc = Minecraft.getInstance();
-                assert mc.level != null;
-                var player = mc.level.getPlayerByUUID(self.playerUUID);
-                var stack = IClientXplatAbstractions.INSTANCE.getClientCastingStack(player);
-
-                for (var pattern : self.patterns)
-                    stack.addPattern(pattern, self.lifetime);
-            }
-        });
+        ClientMessageHandlers.newSpiralPatterns(self);
     }
 }

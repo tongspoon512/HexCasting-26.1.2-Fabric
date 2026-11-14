@@ -23,9 +23,9 @@ import static at.petrak.hexcasting.api.HexAPI.modLoc;
  * @see PatternTooltip the associated data for this
  */
 public class PatternTooltipComponent implements ClientTooltipComponent {
-    public static final Identifier PRISTINE_BG = modLoc("textures/gui/scroll.png");
-    public static final Identifier ANCIENT_BG = modLoc("textures/gui/scroll_ancient.png");
-    public static final Identifier SLATE_BG = modLoc("textures/gui/slate.png");
+    public static final Identifier PRISTINE_BG = PatternTooltip.PRISTINE_BG;
+    public static final Identifier ANCIENT_BG = PatternTooltip.ANCIENT_BG;
+    public static final Identifier SLATE_BG = PatternTooltip.SLATE_BG;
 
     private static final float RENDER_SIZE = 128f;
     private static final int TEXTURE_SIZE = 48;

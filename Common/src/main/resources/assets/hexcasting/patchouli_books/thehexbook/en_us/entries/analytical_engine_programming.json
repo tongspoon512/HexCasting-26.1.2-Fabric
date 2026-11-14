@@ -1,0 +1,25 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "name": "hexcreating.page.analytical_engine_programming.title",
+  "icon": "hexcreating:paper_reel",
+  "category": "hexcasting:items",
+  "advancement": "hexcasting:enlightenment",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "hexcreating:paper_reel",
+      "text": "hexcreating.page.analytical_engine_programming.0"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcreating.page.analytical_engine_programming.1"
+    }
+  ]
+}

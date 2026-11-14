@@ -8,6 +8,9 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import pub.pigeon.yggdyy.hexcreating.HexCreatingCompat;
+import pub.pigeon.yggdyy.hexcreating.blocks.analytical_engine.AnalyticalEngineAluBlock;
+import pub.pigeon.yggdyy.hexcreating.blocks.analytical_engine.AnalyticalEngineControllerBlock;
+import pub.pigeon.yggdyy.hexcreating.blocks.analytical_engine.AnalyticalEngineKineticInterfaceBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.board.BoardBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_amplifier.CircleAmplifierBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_inputer.CircleInputerBlock;
@@ -68,11 +71,11 @@ public final class HexCreatingBlocks {
         metalProps("iota_pack_observer"));
 
     public static final Block ANALYTICAL_ENGINE_CONTROLLER = block("analytical_engine_controller",
-        AnalyticalEngineBlock::new, metalProps("analytical_engine_controller"));
+        AnalyticalEngineControllerBlock::new, metalProps("analytical_engine_controller"));
     public static final Block ANALYTICAL_ENGINE_ALU = block("analytical_engine_alu",
-        AnalyticalEngineBlock::new, metalProps("analytical_engine_alu"));
+        AnalyticalEngineAluBlock::new, metalProps("analytical_engine_alu"));
     public static final Block ANALYTICAL_ENGINE_KINETIC_INTERFACE =
-        block("analytical_engine_kinetic_interface", AnalyticalEngineBlock::new,
+        block("analytical_engine_kinetic_interface", AnalyticalEngineKineticInterfaceBlock::new,
             metalProps("analytical_engine_kinetic_interface"));
 
     public static final Block MEDIA = block("media",

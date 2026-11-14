@@ -1,10 +1,11 @@
 package at.petrak.hexcasting.common.recipe.ingredient.brainsweep;
 
+import at.petrak.hexcasting.client.ClientTranslations;
+import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import com.google.gson.JsonObject;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -44,7 +45,8 @@ public class EntityTagIngredient extends BrainsweepeeIngredient {
     @Override
     public Component getName() {
         String key = tagKey(this.entityTypeTag.location());
-        boolean moddersDidAGoodJob = I18n.exists(key);
+        boolean moddersDidAGoodJob = IXplatAbstractions.INSTANCE.isPhysicalClient()
+            && ClientTranslations.exists(key);
         return moddersDidAGoodJob
             ? Component.translatable(key)
             : Component.literal("#" + this.entityTypeTag.location());
@@ -54,7 +56,8 @@ public class EntityTagIngredient extends BrainsweepeeIngredient {
     public List<Component> getTooltip(boolean advanced) {
         Identifier loc = this.entityTypeTag.location();
         String key = tagKey(loc);
-        boolean moddersDidAGoodJob = I18n.exists(key);
+        boolean moddersDidAGoodJob = IXplatAbstractions.INSTANCE.isPhysicalClient()
+            && ClientTranslations.exists(key);
 
         var out = new ArrayList<Component>();
         out.add(moddersDidAGoodJob

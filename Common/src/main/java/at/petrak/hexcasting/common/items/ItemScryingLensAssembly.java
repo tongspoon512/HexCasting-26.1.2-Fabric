@@ -1,8 +1,7 @@
 package at.petrak.hexcasting.common.items;
 
-import at.petrak.hexcasting.client.gui.GridSpacingScreen;
+import at.petrak.hexcasting.client.ClientItemHooks;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -26,7 +25,7 @@ public class ItemScryingLensAssembly extends Item {
     @Override
     public InteractionResult use(Level world, Player player, InteractionHand hand) {
         if (world.isClientSide()) {
-            Minecraft.getInstance().setScreen(new GridSpacingScreen());
+            ClientItemHooks.openGridSpacing();
         }
         return InteractionResult.SUCCESS.heldItemTransformedTo(player.getItemInHand(hand));
     }

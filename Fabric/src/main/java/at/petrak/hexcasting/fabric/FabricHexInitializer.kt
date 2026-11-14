@@ -117,7 +117,10 @@ object FabricHexInitializer : ModInitializer {
         ServerTickEvents.END_LEVEL_TICK.register(OpFlight::tickAllPlayers)
         ServerTickEvents.END_LEVEL_TICK.register(OpAltiora::checkAllPlayers)
         ServerTickEvents.END_LEVEL_TICK.register { level -> PersonalMediaRegen.tick(level) }
-        ServerPlayConnectionEvents.DISCONNECT.register { handler, _ -> PersonalManaHolder.forget(handler.player) }
+        ServerPlayConnectionEvents.DISCONNECT.register { handler, _ ->
+            PersonalManaHolder.forget(handler.player)
+            OpScheduleCall.forgetPlayer(handler.player)
+        }
         ServerLifecycleEvents.SERVER_STARTED.register { PersonalManaHolder.clearCaches() }
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register { _, _, _ -> PersonalManaHolder.clearCaches() }
 
@@ -183,6 +186,7 @@ object FabricHexInitializer : ModInitializer {
             pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.registerItems(bind(BuiltInRegistries.ITEM))
             pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.registerBlockEntities(bind(BuiltInRegistries.BLOCK_ENTITY_TYPE))
             pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.registerActions(bind(IXplatAbstractions.INSTANCE.actionRegistry))
+            pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.registerIotaTypes(bind(IXplatAbstractions.INSTANCE.iotaTypeRegistry))
             pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.init()
         }
 

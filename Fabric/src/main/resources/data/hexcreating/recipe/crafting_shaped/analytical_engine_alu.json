@@ -1,0 +1,25 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "key": {
+    "A": "create:brass_sheet",
+    "B": "hexcasting:amethyst_dust",
+    "C": "create:brass_casing"
+  },
+  "result": {
+    "id": "hexcreating:analytical_engine_alu",
+    "count": 1
+  }
+}

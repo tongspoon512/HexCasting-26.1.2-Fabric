@@ -1,8 +1,7 @@
 package at.petrak.hexcasting.common.msgs;
 
-import at.petrak.hexcasting.common.entities.EntityWallScroll;
+import at.petrak.hexcasting.client.ClientMessageHandlers;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 
@@ -33,16 +32,6 @@ public record MsgRecalcWallScrollDisplayS2C(int entityId, boolean showStrokeOrde
     }
 
     public static void handle(MsgRecalcWallScrollDisplayS2C msg) {
-        Minecraft.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                var mc = Minecraft.getInstance();
-                var entity = mc.level.getEntity(msg.entityId);
-                if (entity instanceof EntityWallScroll scroll
-                    && scroll.getShowsStrokeOrder() != msg.showStrokeOrder) {
-                    scroll.recalculateDisplay();
-                }
-            }
-        });
+        ClientMessageHandlers.recalcWallScrollDisplay(msg);
     }
 }

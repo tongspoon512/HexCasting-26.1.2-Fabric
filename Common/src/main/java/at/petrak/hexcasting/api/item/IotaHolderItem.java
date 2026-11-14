@@ -5,12 +5,10 @@ import at.petrak.hexcasting.api.casting.iota.IotaType;
 import at.petrak.hexcasting.api.utils.HexUtils;
 import at.petrak.hexcasting.api.utils.NBTHelper;
 import at.petrak.hexcasting.api.mod.HexConfig;
-import at.petrak.hexcasting.client.ClientTickCounter;
+import at.petrak.hexcasting.client.ClientItemHooks;
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -76,7 +74,7 @@ public interface IotaHolderItem {
                 }
             }
 
-            return 0xFF000000 | Mth.hsvToRgb(ClientTickCounter.getTotal() * 2 % 360 / 360F, 0.75F, 1F);
+            return ClientItemHooks.rainbowOverrideColor();
         }
 
         var tag = this.readIotaTag(stack);
@@ -107,26 +105,6 @@ public interface IotaHolderItem {
 
     static void appendHoverText(IotaHolderItem self, ItemStack stack, List<Component> components,
         TooltipFlag flag) {
-        var datumTag = self.readIotaTag(stack);
-        if (datumTag != null) {
-            var mc = Minecraft.getInstance();
-            var font = mc.font;
-            var prefix = Component.translatable("hexcasting.spelldata.onitem", Component.empty());
-            // wrap to the width of the screen, leaving room for the margins and the first-line prefix
-            var maxWidth = Math.max(80, mc.getWindow().getGuiScaledWidth()
-                - TOOLTIP_SCREEN_MARGIN - font.width(prefix));
-            var lines = IotaType.getDisplayLines(datumTag, font, maxWidth);
-            components.add(Component.translatable("hexcasting.spelldata.onitem", lines.get(0)));
-            for (int i = 1; i < lines.size(); i++) {
-                components.add(Component.literal("    ").append(lines.get(i)));
-            }
-
-            if (flag.isAdvanced() && (HexConfig.client() == null || HexConfig.client().advancedTooltipsShowsIotaNBT())) {
-                components.add(Component.literal("").append(NbtUtils.toPrettyComponent(datumTag)));
-            }
-        } else if (NBTHelper.hasString(stack, IotaHolderItem.TAG_OVERRIDE_VISUALLY)) {
-            components.add(Component.translatable("hexcasting.spelldata.onitem",
-                Component.translatable("hexcasting.spelldata.anything").withStyle(ChatFormatting.LIGHT_PURPLE)));
-        }
+        ClientItemHooks.appendIotaHoverText(self, stack, components, flag);
     }
 }

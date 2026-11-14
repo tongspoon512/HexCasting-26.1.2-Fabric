@@ -264,7 +264,7 @@ public class ItemCreativeUnlocker extends Item implements MediaHolderItem {
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display,
         Consumer<Component> tooltipComponents, TooltipFlag isAdvanced) {
-        Component emphasized = infiniteMedia(net.minecraft.client.Minecraft.getInstance().level);
+        Component emphasized = infiniteMedia(at.petrak.hexcasting.client.ClientItemHooks.currentLevel());
 
         MutableComponent modName = Component.translatable("item.hexcasting.creative_unlocker.mod_name").withStyle(
             (s) -> s.withColor(ItemMediaHolder.HEX_COLOR));

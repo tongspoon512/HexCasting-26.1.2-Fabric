@@ -11,6 +11,12 @@
     },
     "facing=west": {
       "model": "hexcreating:block/analytical_engine_kinetic_interface_1"
+    },
+    "facing=up": {
+      "model": "hexcreating:block/analytical_engine_kinetic_interface_1"
+    },
+    "facing=down": {
+      "model": "hexcreating:block/analytical_engine_kinetic_interface_1"
     }
   }
 }

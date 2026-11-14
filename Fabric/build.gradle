@@ -99,6 +99,7 @@ dependencies {
     }
 
     compileOnly("mezz.jei:jei-${minecraftVersion}-fabric-api:${jeiVersion}")
+    compileOnly("mezz.jei:jei-${minecraftVersion}-common:${jeiVersion}")
     runtimeOnly("mezz.jei:jei-${minecraftVersion}-fabric:${jeiVersion}")
 
     compileOnly("com.github.Virtuoel:Pehkui:${pehkuiVersion}", {

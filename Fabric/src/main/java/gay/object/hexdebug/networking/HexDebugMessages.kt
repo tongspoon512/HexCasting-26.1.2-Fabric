@@ -3,11 +3,11 @@ package gay.`object`.hexdebug.networking
 import at.petrak.hexcasting.api.casting.math.HexPattern
 import at.petrak.hexcasting.common.msgs.IMessage
 import gay.`object`.hexdebug.HexDebug
+import gay.`object`.hexdebug.client.HexDebugClientHandlers
 import gay.`object`.hexdebug.gui.splicing.SplicingTableMenu
 import gay.`object`.hexdebug.splicing.SplicingTableAction
 import gay.`object`.hexdebug.splicing.SplicingTableClientView
 import io.netty.buffer.ByteBuf
-import net.minecraft.client.Minecraft
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.Identifier
@@ -198,12 +198,7 @@ class MsgSplicingTableNewDataS2C(val data: SplicingTableClientView) : IMessage {
 
         @JvmStatic
         fun handle(msg: MsgSplicingTableNewDataS2C) {
-            Minecraft.getInstance().execute {
-                val screen = Minecraft.getInstance().screen
-                if (screen is gay.`object`.hexdebug.gui.splicing.SplicingTableScreen) {
-                    screen.receiveData(msg)
-                }
-            }
+            HexDebugClientHandlers.receiveSplicingTableData(msg)
         }
     }
 }

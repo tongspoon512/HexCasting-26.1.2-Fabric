@@ -26,7 +26,8 @@ public final class HexCreatingItems {
         p -> new SequencedAssemblyItem(p.stacksTo(1)));
     public static final Item SQUARE = register("square", SquareItem::new);
     public static final Item PRINTED_PAPER = register("printed_paper", PrintedPaperItem::new);
-    public static final Item PAPER_REEL = register("paper_reel", p -> new Item(p.stacksTo(1).durability(1024)));
+    public static final Item PAPER_REEL = register("paper_reel",
+        p -> new PaperReelItem(p.stacksTo(1).durability(1024)));
     public static final Item MEDIA_BUCKET = register("media_bucket",
         p -> new net.minecraft.world.item.BucketItem(
             pub.pigeon.yggdyy.hexcreating.fluids.HexCreatingFluids.MEDIA, p.stacksTo(1)));
@@ -40,6 +41,11 @@ public final class HexCreatingItems {
     public static final Item THOUGHT_KEY_PATTERN_CONSTANTS = thoughtKey("pattern_constants");
     public static final Item THOUGHT_KEY_PATTERN_CALCULATE = thoughtKey("pattern_calculate");
     public static final Item THOUGHT_KEY_PATTERN_SPELL_1 = thoughtKey("pattern_spell_1");
+    public static final Item THOUGHT_KEY_ANALYTICAL_ENGINE = thoughtKey("analytical_engine");
+    public static final Item THOUGHT_KEY_ANALYTICAL_ENGINE_PROGRAM =
+        thoughtKey("analytical_engine_program");
+    public static final Item THOUGHT_KEY_ANALYTICAL_ENGINE_NETWORK =
+        thoughtKey("analytical_engine_network");
 
     private HexCreatingItems() {
     }

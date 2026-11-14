@@ -1,0 +1,27 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    "CDC",
+    "AEA"
+  ],
+  "key": {
+    "A": "create:brass_sheet",
+    "B": "create:precision_mechanism",
+    "C": "create:brass_casing",
+    "D": "hexcasting:amethyst_dust",
+    "E": "minecraft:comparator"
+  },
+  "result": {
+    "id": "hexcreating:analytical_engine_controller",
+    "count": 1
+  }
+}

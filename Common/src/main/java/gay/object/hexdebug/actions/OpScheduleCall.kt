@@ -21,6 +21,7 @@ import at.petrak.hexcasting.api.mod.HexConfig
 import gay.`object`.hexdebug.HexDebug
 import gay.`object`.hexdebug.ext.SilencedCastingEnv
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerPlayer
 import java.util.ArrayDeque
 import java.util.WeakHashMap
 
@@ -83,19 +84,25 @@ object OpScheduleCall : ConstMediaAction {
             if (tick < myAge) return false
             try {
                 action(tick)
+            } catch (e: StackOverflowError) {
+                // A deferred spell must never let an Error escape into the server tick loop.
+                report(MishapEvalTooMuch())
             } catch (e: Exception) {
-                val mishap = MishapInternalException(e)
-                val msg = mishap.errorMessageWithName(env, Mishap.Context(null, null))
-                if (env is CircleCastEnv) {
-                    val impetus = env.impetus
-                    if (msg != null && impetus != null) impetus.postPrint(msg)
-                } else {
-                    val caster = env.caster
-                    if (msg != null && caster != null) caster.sendSystemMessage(msg)
-                }
+                report(MishapInternalException(e))
             }
             executed = true
             return true
+        }
+
+        private fun report(mishap: Mishap) {
+            val msg = mishap.errorMessageWithName(env, Mishap.Context(null, null))
+            if (env is CircleCastEnv) {
+                val impetus = env.impetus
+                if (msg != null && impetus != null) impetus.postPrint(msg)
+            } else {
+                val caster = env.caster
+                if (msg != null && caster != null) caster.sendSystemMessage(msg)
+            }
         }
     }
 
@@ -169,6 +176,16 @@ object OpScheduleCall : ConstMediaAction {
     @JvmStatic
     fun ResetQueue(server: MinecraftServer) {
         TaskMap.clear()
+    }
+
+    /**
+     * Drops every pending task owned by (or casting as) the given player. Called when the player
+     * disconnects so deferred spells never run against an offline caster.
+     */
+    @JvmStatic
+    fun forgetPlayer(player: ServerPlayer) {
+        TaskMap.keys.removeIf { key -> key === player }
+        TaskMap.entries.removeIf { (_, pool) -> pool.queue.any { it.env.caster === player } }
     }
 
     fun QueryScheduledCode(env: CastingEnvironment): SpellList? {

@@ -5,7 +5,6 @@ import at.petrak.hexcasting.api.casting.iota.PatternIota;
 import at.petrak.hexcasting.api.casting.math.HexPattern;
 import at.petrak.hexcasting.api.item.IotaHolderItem;
 import at.petrak.hexcasting.api.utils.NBTHelper;
-import at.petrak.hexcasting.client.gui.PatternTooltipComponent;
 import at.petrak.hexcasting.common.entities.EntityWallScroll;
 import at.petrak.hexcasting.common.lib.hex.HexIotaTypes;
 import at.petrak.hexcasting.common.misc.PatternTooltip;
@@ -219,8 +218,8 @@ public class ItemScroll extends Item implements IotaHolderItem {
             return Optional.of(new PatternTooltip(
                 pattern,
                 NBTHelper.hasString(stack, TAG_OP_ID)
-                    ? PatternTooltipComponent.ANCIENT_BG
-                    : PatternTooltipComponent.PRISTINE_BG));
+                    ? PatternTooltip.ANCIENT_BG
+                    : PatternTooltip.PRISTINE_BG));
         }
 
         return Optional.empty();

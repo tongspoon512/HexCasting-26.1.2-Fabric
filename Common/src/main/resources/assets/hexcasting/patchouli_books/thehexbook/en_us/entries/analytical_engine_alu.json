@@ -1,0 +1,26 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "name": "hexcreating.page.analytical_engine_alu.title",
+  "icon": "hexcreating:analytical_engine_alu",
+  "category": "hexcasting:items",
+  "advancement": "hexcasting:enlightenment",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "hexcreating:analytical_engine_alu",
+      "text": "hexcreating.page.analytical_engine_alu.0"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hexcreating:crafting_shaped/analytical_engine_alu",
+      "text": "hexcreating.page.analytical_engine_alu.1"
+    }
+  ]
+}

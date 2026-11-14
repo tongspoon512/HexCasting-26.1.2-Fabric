@@ -4,6 +4,9 @@ import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import pub.pigeon.yggdyy.hexcreating.blocks.analytical_engine.AnalyticalEngineAluBlockEntity;
+import pub.pigeon.yggdyy.hexcreating.blocks.analytical_engine.AnalyticalEngineControllerBlockEntity;
+import pub.pigeon.yggdyy.hexcreating.blocks.analytical_engine.AnalyticalEngineKineticInterfaceBlockEntity;
 import pub.pigeon.yggdyy.hexcreating.blocks.board.BoardBlockEntity;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_amplifier.CircleAmplifierBlockEntity;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_inputer.CircleInputerBlockEntity;
@@ -36,6 +39,20 @@ public final class HexCreatingBlockEntities {
         register("simple_iota_buffer", (pos, state) -> new SimpleIotaBlock.BufferBlockEntity(pos, state, false),
             HexCreatingBlocks.IOTA_READER, HexCreatingBlocks.IOTA_WRITER,
             HexCreatingBlocks.IOTA_WIRE_CONNECTOR, HexCreatingBlocks.IOTA_PACK_OBSERVER);
+
+    public static final BlockEntityType<AnalyticalEngineControllerBlockEntity> ANALYTICAL_ENGINE_CONTROLLER =
+        register("analytical_engine_controller",
+            (pos, state) -> new AnalyticalEngineControllerBlockEntity(pos, state),
+            HexCreatingBlocks.ANALYTICAL_ENGINE_CONTROLLER);
+
+    public static final BlockEntityType<AnalyticalEngineAluBlockEntity> ANALYTICAL_ENGINE_ALU =
+        register("analytical_engine_alu", AnalyticalEngineAluBlockEntity::new,
+            HexCreatingBlocks.ANALYTICAL_ENGINE_ALU);
+
+    public static final BlockEntityType<AnalyticalEngineKineticInterfaceBlockEntity>
+        ANALYTICAL_ENGINE_KINETIC_INTERFACE = register("analytical_engine_kinetic_interface",
+        AnalyticalEngineKineticInterfaceBlockEntity::new,
+        HexCreatingBlocks.ANALYTICAL_ENGINE_KINETIC_INTERFACE);
 
     private HexCreatingBlockEntities() {
     }

@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_24` - 2026-11-14
+
+### Added
+
+- 新增「分析机」三件套：分析机控制单元（执行程序、持有栈/端口/媒质缓冲）、计算单元（每相邻一台提升程序长度、栈深与每 tick 指令数）、动力单元（接入 Create 应力网络）。
+- 分析机程序系统：纸卷（Paper Reel）写入程序后放入控制单元，支持跳转、条件跳转、等待、读取、输出与停机指令；每台机器每 tick 最多执行 32 条指令，自环 3 tick 触发端口冲突。
+- Iota 网络：连接器支持频道与子网中继，`path:` 前缀防止回环；护目镜可查看分析机状态、故障原因与端口配置。
+- 指南书新增 4 篇分析机条目；新增 3 把思维之匙与 3 个 Create Ponder 思索场景（基础、程序、Iota 网络）。
+
+### Fixed
+
+- 修复专用服务端 `./gradlew runServer` 启动崩溃（`NoClassDefFoundError: net/minecraft/client/gui/screens/Screen`）：把物品、方块实体、消息、配方原料与指令中的客户端调用全部隔离到 `client` 辅助类，服务端不再加载 `net.minecraft.client.*`。
+- 修复拖延法术的三处问题：玩家断线时清理待执行任务、捕获延迟执行中的 `StackOverflowError`、`mind_env/running_code` 补上 `enablesMindEnvActions` 配置门控。
+- 修复部分 hexcreating 配方在 JEI 中不显示：改用 `Internal.getClientSyncedRecipes()` 获取服务端同步的配方表。
+- 修复分析机三个合成配方的 JSON 语法（26.1 的 ingredient 需要纯字符串），此前在服务端解析失败。
+
 ## `0.11.4-fabric-build_20` - 2026-11-08
 
 ### Fixed

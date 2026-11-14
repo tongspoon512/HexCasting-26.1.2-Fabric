@@ -1,16 +1,52 @@
 {
   "variants": {
-    "facing=north": {
+    "facing=north,status=idle": {
       "model": "hexcreating:block/analytical_engine_controller_1"
     },
-    "facing=south": {
+    "facing=south,status=idle": {
       "model": "hexcreating:block/analytical_engine_controller_1"
     },
-    "facing=east": {
+    "facing=east,status=idle": {
       "model": "hexcreating:block/analytical_engine_controller_1"
     },
-    "facing=west": {
+    "facing=west,status=idle": {
       "model": "hexcreating:block/analytical_engine_controller_1"
+    },
+    "facing=north,status=ready": {
+      "model": "hexcreating:block/analytical_engine_controller_1"
+    },
+    "facing=south,status=ready": {
+      "model": "hexcreating:block/analytical_engine_controller_1"
+    },
+    "facing=east,status=ready": {
+      "model": "hexcreating:block/analytical_engine_controller_1"
+    },
+    "facing=west,status=ready": {
+      "model": "hexcreating:block/analytical_engine_controller_1"
+    },
+    "facing=north,status=running": {
+      "model": "hexcreating:block/analytical_engine_controller_2"
+    },
+    "facing=south,status=running": {
+      "model": "hexcreating:block/analytical_engine_controller_2"
+    },
+    "facing=east,status=running": {
+      "model": "hexcreating:block/analytical_engine_controller_2"
+    },
+    "facing=west,status=running": {
+      "model": "hexcreating:block/analytical_engine_controller_2"
+    },
+    "facing=north,status=error": {
+      "model": "hexcreating:block/analytical_engine_controller_2"
+    },
+    "facing=south,status=error": {
+      "model": "hexcreating:block/analytical_engine_controller_2"
+    },
+    "facing=east,status=error": {
+      "model": "hexcreating:block/analytical_engine_controller_2"
+    },
+    "facing=west,status=error": {
+      "model": "hexcreating:block/analytical_engine_controller_2"
     }
   }
 }

@@ -1,15 +1,12 @@
 package at.petrak.hexcasting.common.msgs;
 
 import at.petrak.hexcasting.api.utils.HexUtils;
-import at.petrak.hexcasting.common.entities.EntityWallScroll;
-import at.petrak.hexcasting.common.entities.HexEntities;
-import net.minecraft.client.Minecraft;
+import at.petrak.hexcasting.client.ClientMessageHandlers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -53,22 +50,6 @@ public record MsgNewWallScrollS2C(int entityId, UUID uuid, BlockPos pos, Directi
     }
 
     public static void handle(MsgNewWallScrollS2C self) {
-        Minecraft.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                var player = Minecraft.getInstance().player;
-                if (player != null) {
-                    var inner = new ClientboundAddEntityPacket(self.entityId, self.uuid,
-                        self.pos.getX() + 0.5, self.pos.getY() + 0.5, self.pos.getZ() + 0.5,
-                        0f, 0f, HexEntities.WALL_SCROLL, 0, Vec3.ZERO, 0);
-                    player.connection.handleAddEntity(inner);
-                    var e = player.level().getEntity(self.entityId);
-                    if (e instanceof EntityWallScroll scroll) {
-                        scroll.readSpawnData(self.pos, self.dir, self.scrollItem, self.showsStrokeOrder,
-                            self.blockSize);
-                    }
-                }
-            }
-        });
+        ClientMessageHandlers.newWallScroll(self);
     }
 }

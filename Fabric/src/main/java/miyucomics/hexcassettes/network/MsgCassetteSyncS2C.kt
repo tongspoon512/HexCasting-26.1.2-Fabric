@@ -3,7 +3,6 @@ package miyucomics.hexcassettes.network
 import at.petrak.hexcasting.common.msgs.IMessage
 import miyucomics.hexcassettes.HexCassettes
 import miyucomics.hexcassettes.client.CassetteClientStorage
-import net.minecraft.client.Minecraft
 import net.minecraft.network.FriendlyByteBuf
 import io.netty.buffer.ByteBuf
 import net.minecraft.resources.Identifier
@@ -38,9 +37,7 @@ data class MsgCassetteSyncS2C(val owned: Int, val keys: List<String>) : IMessage
 
         @JvmStatic
         fun handle(msg: MsgCassetteSyncS2C) {
-            Minecraft.getInstance().execute {
-                CassetteClientStorage.update(msg.owned, msg.keys)
-            }
+            CassetteClientStorage.applySync(msg.owned, msg.keys)
         }
     }
 }

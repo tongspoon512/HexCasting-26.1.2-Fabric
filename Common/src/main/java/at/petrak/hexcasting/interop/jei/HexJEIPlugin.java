@@ -13,6 +13,7 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.common.Internal;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
@@ -21,7 +22,9 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static at.petrak.hexcasting.api.HexAPI.modLoc;
 
@@ -55,20 +58,27 @@ public class HexJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(@NotNull IRecipeRegistration registration) {
-        Level level = Minecraft.getInstance().level;
-        if (level != null) {
-            // 26.1 no longer syncs the full recipe list to the client, so only an integrated-server
-            // RecipeManager can be enumerated here.
-            var brainsweeps = new ArrayList<BrainsweepRecipe>();
-            if (level.recipeAccess() instanceof RecipeManager manager) {
+        // 26.1 no longer exposes the full recipe list through ClientLevel#recipeAccess, so read the
+        // map JEI syncs from the server the same way Create's own JEI plugin does.
+        var brainsweeps = new ArrayList<BrainsweepRecipe>();
+        Set<BrainsweepRecipe> seen = new HashSet<>();
+        for (var holder : Internal.getClientSyncedRecipes().values()) {
+            if (holder.value() instanceof BrainsweepRecipe recipe && seen.add(recipe)) {
+                brainsweeps.add(recipe);
+            }
+        }
+        if (brainsweeps.isEmpty()) {
+            // Fallback for an integrated server that still exposes a RecipeManager.
+            Level level = Minecraft.getInstance().level;
+            if (level != null && level.recipeAccess() instanceof RecipeManager manager) {
                 for (var holder : manager.getRecipes()) {
-                    if (holder.value() instanceof BrainsweepRecipe recipe) {
+                    if (holder.value() instanceof BrainsweepRecipe recipe && seen.add(recipe)) {
                         brainsweeps.add(recipe);
                     }
                 }
             }
-            registration.addRecipes(BRAINSWEEPING, brainsweeps);
         }
+        registration.addRecipes(BRAINSWEEPING, brainsweeps);
 
         if (PhialRecipeStackBuilder.shouldAddRecipe()) {
             registration.addRecipes(PHIAL, List.of(OpMakeBattery.INSTANCE));

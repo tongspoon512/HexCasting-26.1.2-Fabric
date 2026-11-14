@@ -1,8 +1,7 @@
 package at.petrak.hexcasting.common.msgs;
 
-import at.petrak.hexcasting.xplat.IClientXplatAbstractions;
+import at.petrak.hexcasting.client.ClientMessageHandlers;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 
@@ -32,15 +31,6 @@ public record MsgClearSpiralPatternsS2C(UUID playerUUID) implements IMessage {
     }
 
     public static void handle(MsgClearSpiralPatternsS2C self) {
-        Minecraft.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                var mc = Minecraft.getInstance();
-                assert mc.level != null;
-                var player = mc.level.getPlayerByUUID(self.playerUUID);
-                var stack = IClientXplatAbstractions.INSTANCE.getClientCastingStack(player);
-                stack.slowClear();
-            }
-        });
+        ClientMessageHandlers.clearSpiralPatterns(self);
     }
 }

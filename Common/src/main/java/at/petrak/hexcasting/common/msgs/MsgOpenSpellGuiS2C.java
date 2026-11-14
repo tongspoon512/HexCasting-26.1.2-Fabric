@@ -1,9 +1,8 @@
 package at.petrak.hexcasting.common.msgs;
 
 import at.petrak.hexcasting.api.casting.eval.ResolvedPattern;
-import at.petrak.hexcasting.client.gui.GuiSpellcasting;
+import at.petrak.hexcasting.client.ClientMessageHandlers;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.Identifier;
@@ -56,14 +55,6 @@ public record MsgOpenSpellGuiS2C(InteractionHand hand, List<ResolvedPattern> pat
     }
 
     public static void handle(MsgOpenSpellGuiS2C msg) {
-        Minecraft.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                var mc = Minecraft.getInstance();
-                mc.setScreen(
-                    new GuiSpellcasting(msg.hand(), msg.patterns(), msg.stack, msg.ravenmind,
-                        msg.parenCount));
-            }
-        });
+        ClientMessageHandlers.openSpellGui(msg);
     }
 }

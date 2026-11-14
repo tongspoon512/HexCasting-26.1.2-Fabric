@@ -1,7 +1,6 @@
 package at.petrak.hexcasting.common.items;
 
-import at.petrak.hexcasting.client.guidebook.GuideBookScreen;
-import net.minecraft.client.Minecraft;
+import at.petrak.hexcasting.client.ClientItemHooks;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -26,7 +25,7 @@ public class ItemGuideBook extends Item {
     @Override
     public InteractionResult use(Level world, Player player, InteractionHand hand) {
         if (world.isClientSide()) {
-            Minecraft.getInstance().setScreen(new GuideBookScreen());
+            ClientItemHooks.openGuideBook();
         }
         return InteractionResult.SUCCESS.heldItemTransformedTo(player.getItemInHand(hand));
     }

@@ -25,6 +25,8 @@ dependencies {
     // patchouli, inline, emi are not available for 26.1; stubbed in-project
 
     compileOnly "mezz.jei:jei-$minecraftVersion-common-api:$jeiVersion"
+    // Needed for the 26.1 recipe sync map (the client level no longer exposes recipes).
+    compileOnly "mezz.jei:jei-$minecraftVersion-common:$jeiVersion"
 
     // MoreIotas: 矩阵运算（随 Fabric jar 打包）
     implementation "org.ejml:ejml-simple:$ejmlVersion"

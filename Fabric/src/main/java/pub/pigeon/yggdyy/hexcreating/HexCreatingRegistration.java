@@ -56,6 +56,11 @@ public final class HexCreatingRegistration {
         pub.pigeon.yggdyy.hexcreating.cast.HexCreatingActions.INSTANCE.register(r);
     }
 
+    public static void registerIotaTypes(
+        BiConsumer<at.petrak.hexcasting.api.casting.iota.IotaType<?>, Identifier> r) {
+        pub.pigeon.yggdyy.hexcreating.blocks.analytical_engine.InstructionIotaType.register(r);
+    }
+
     public static void addCreativeTab(net.minecraft.world.item.CreativeModeTab.Output output) {
         BLOCK_ITEMS.values().forEach(output::accept);
         HexCreatingItems.all().values().forEach(output::accept);
