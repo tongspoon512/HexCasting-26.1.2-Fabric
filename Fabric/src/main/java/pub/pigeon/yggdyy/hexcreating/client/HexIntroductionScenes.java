@@ -1,0 +1,538 @@
+package pub.pigeon.yggdyy.hexcreating.client;
+
+import at.petrak.hexcasting.api.casting.iota.BooleanIota;
+import at.petrak.hexcasting.api.casting.iota.DoubleIota;
+import at.petrak.hexcasting.api.casting.iota.GarbageIota;
+import at.petrak.hexcasting.api.casting.iota.Iota;
+import at.petrak.hexcasting.api.casting.iota.ListIota;
+import at.petrak.hexcasting.api.casting.iota.NullIota;
+import at.petrak.hexcasting.api.casting.iota.PatternIota;
+import at.petrak.hexcasting.api.casting.iota.Vec3Iota;
+import at.petrak.hexcasting.api.casting.math.HexDir;
+import at.petrak.hexcasting.api.casting.math.HexPattern;
+import at.petrak.hexcasting.common.lib.HexItems;
+import com.zurrtum.create.client.ponder.api.PonderPalette;
+import com.zurrtum.create.client.ponder.api.scene.SceneBuilder;
+import com.zurrtum.create.client.ponder.api.scene.SceneBuildingUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.entity.vehicle.boat.Boat;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RedstoneLampBlock;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
+
+/**
+ * Port of the upstream HexIntroductionScenes to the Create 6 ponder API.
+ */
+public final class HexIntroductionScenes {
+    public static final int A_LONG_TIME = HexPonderUtils.A_LONG_TIME;
+
+    private HexIntroductionScenes() {
+    }
+
+    public static void hexcasting(SceneBuilder scene, SceneBuildingUtil util) {
+        scene.title("hexcasting_introduction", "The Overall Introduction to Hexcasting");
+        scene.configureBasePlate(0, 0, 5);
+
+        scene.world().showSection(util.select().layer(0), Direction.UP);
+        scene.world().showSection(util.select().layer(1), Direction.DOWN);
+
+        BlockPos staffBase = util.grid().at(2, 1, 2);
+        BlockPos amethystBase = util.grid().at(1, 1, 1);
+        BlockPos lensBase = util.grid().at(1, 1, 3);
+        BlockPos scrollBase = util.grid().at(3, 1, 3);
+        BlockPos focusBase = util.grid().at(3, 1, 1);
+        ItemStack staff = new ItemStack(HexItems.STAFF_EDIFIED);
+        ItemStack amethyst = new ItemStack(HexItems.CHARGED_AMETHYST);
+        ItemStack lens = new ItemStack(HexItems.SCRYING_LENS);
+        ItemStack scroll = new ItemStack(HexItems.SCROLL_LARGE);
+        ItemStack focus = new ItemStack(HexItems.FOCUS);
+
+        scene.world().createItemEntity(amethystBase.above().getCenter(), Vec3.ZERO, amethyst);
+        scene.overlay().showText(100)
+            .attachKeyFrame()
+            .text("Hexcasting is a magical mod where you are allowed to use amethyst as media, ")
+            .pointAt(util.vector().blockSurface(amethystBase, Direction.UP))
+            .placeNearTarget();
+        scene.idle(110);
+
+        scene.world().createItemEntity(staffBase.above().getCenter(), Vec3.ZERO, staff);
+        scene.overlay().showText(40)
+            .attachKeyFrame()
+            .text("and use a staff to...")
+            .pointAt(util.vector().blockSurface(staffBase, Direction.UP))
+            .placeNearTarget();
+        scene.idle(50);
+
+        scene.world().createItemEntity(scrollBase.above().getCenter(), Vec3.ZERO, scroll);
+        scene.world().createItemEntity(lensBase.above().getCenter(), Vec3.ZERO, lens);
+        scene.overlay().showText(60)
+            .attachKeyFrame()
+            .text("draw many patterns on a hexagonal dots field, ")
+            .pointAt(util.vector().blockSurface(lensBase, Direction.UP))
+            .placeNearTarget();
+        scene.idle(70);
+
+        scene.world().createItemEntity(focusBase.above().getCenter(), Vec3.ZERO, focus);
+        scene.overlay().showText(110)
+            .attachKeyFrame()
+            .text("to get, calculate and use the information (Iotas) in your information storage (Stack) to cast powerful spells.")
+            .pointAt(util.vector().blockSurface(focusBase, Direction.UP))
+            .placeNearTarget();
+        scene.idle(120);
+    }
+
+    public static void basicIotaEntity(SceneBuilder scene, SceneBuildingUtil util) {
+        scene.title("basic_iota_entity", "Basic Iotas - Entity");
+        scene.configureBasePlate(0, 0, 5);
+        scene.world().showSection(util.select().layer(0), Direction.UP);
+
+        scene.overlay().showText(60)
+            .text("The information needed to cast spells in HexCasting is called iota.")
+            .attachKeyFrame();
+        scene.idle(65);
+        scene.overlay().showText(80)
+            .text("Iotas have many types, and the most basic four are Entity Iota, Number Iota, Vector Iota and Boolean Iota")
+            .attachKeyFrame();
+        scene.idle(80);
+
+        Vec3 boatPos = util.grid().at(0, 1, 0).getCenter();
+        Vec3 villagerPos = util.grid().at(0, 1, 3).getCenter();
+        Vec3 itemPos = util.grid().at(3, 1, 0).getCenter();
+        scene.world().createEntity(world -> {
+            Boat boat = new Boat(EntityType.OAK_BOAT, world, () -> Items.OAK_BOAT);
+            boat.setPos(boatPos);
+            return boat;
+        });
+        scene.world().createEntity(world -> {
+            Villager villager = new Villager(EntityType.VILLAGER, world);
+            villager.setPos(villagerPos);
+            return villager;
+        });
+        scene.world().createItemEntity(itemPos, Vec3.ZERO, new ItemStack(Items.AMETHYST_BLOCK));
+        scene.idle(20);
+
+        scene.overlay().showText(60).text("The iota of entity represents a entity in the world.");
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .text("You need this type iota to show what is a spell's target.")
+            .attachKeyFrame();
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .pointAt(boatPos)
+            .text("It can be a boat, a minecraft, or other entities like them")
+            .attachKeyFrame();
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .pointAt(villagerPos)
+            .text("also living entities like villagers and zombies")
+            .attachKeyFrame();
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .pointAt(itemPos)
+            .text("Since item drops are also entities, Entity Iota can represent a drop of item")
+            .attachKeyFrame();
+        scene.idle(60);
+    }
+
+    public static void basicIotaNumber(SceneBuilder scene, SceneBuildingUtil util) {
+        scene.title("basic_iota_number", "Basic Iotas - Number");
+        scene.configureBasePlate(0, 0, 5);
+        scene.world().showSection(util.select().layer(0), Direction.UP);
+        BlockPos iotaPos = util.grid().at(4, 1, 4);
+
+        scene.overlay().showText(60)
+            .text("Number Iota represents a number (precisely a float number)")
+            .attachKeyFrame();
+        scene.idle(65);
+        scene.overlay().showText(130).text("For example...").attachKeyFrame();
+        scene.idle(10);
+
+        HexPonderUtils.IotaDisplay iotaDisplay1 = new HexPonderUtils.IotaDisplay(scene, util, new DoubleIota(1));
+        HexPonderUtils.IotaDisplay iotaDisplay2 = new HexPonderUtils.IotaDisplay(scene, util, new DoubleIota(3.14));
+        HexPonderUtils.IotaDisplay iotaDisplay3 = new HexPonderUtils.IotaDisplay(scene, util, new DoubleIota(-2.71));
+        HexPonderUtils.IotaDisplay iotaDisplay4 = new HexPonderUtils.IotaDisplay(scene, util, new DoubleIota(114514));
+        iotaDisplay1.setPos(iotaPos);
+        iotaDisplay2.setPos(iotaPos.above());
+        iotaDisplay3.setPos(iotaPos.west(2));
+        iotaDisplay4.setPos(iotaPos.west(4));
+        iotaDisplay1.showIota(120);
+        scene.idle(30);
+        iotaDisplay2.showIota(90);
+        scene.idle(30);
+        iotaDisplay3.showIota(60);
+        scene.idle(30);
+        iotaDisplay4.showIota(30);
+        scene.idle(30);
+    }
+
+    public static void basicIotaVector(SceneBuilder scene, SceneBuildingUtil util) {
+        scene.title("basic_iota_vector", "Basic Iota - Vector");
+        scene.configureBasePlate(0, 0, 5);
+        scene.world().showSection(util.select().layer(0), Direction.UP);
+        BlockPos iotaPos = util.grid().at(2, 1, 2);
+        HexPonderUtils.IotaDisplay iotaDisplay =
+            new HexPonderUtils.IotaDisplay(scene, util, new Vec3Iota(new Vec3(11, 45, 14)));
+        iotaDisplay.setPos(iotaPos);
+
+        scene.overlay().showText(60).text("Vector Iota represents a 3D vector.").attachKeyFrame();
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .text("It is usually shown in the form of (x, y, z)")
+            .attachKeyFrame();
+        iotaDisplay.showIota(190);
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .text("It is used to declare the position or direction (and so on) needed for spells.")
+            .attachKeyFrame();
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .text("If you don't know what is a vector, the Thought Key - Vector may help you")
+            .attachKeyFrame();
+        scene.idle(60);
+    }
+
+    public static void baseIotaBool(SceneBuilder scene, SceneBuildingUtil util) {
+        scene.title("basic_iota_bool", "Basic Iota - Boolean");
+        scene.configureBasePlate(0, 0, 5);
+        scene.world().showSection(util.select().layer(0), Direction.UP);
+        BlockPos iotaPos = util.grid().at(1, 1, 2);
+        HexPonderUtils.IotaDisplay iotaDisplay1 =
+            new HexPonderUtils.IotaDisplay(scene, util, new BooleanIota(false));
+        HexPonderUtils.IotaDisplay iotaDisplay2 =
+            new HexPonderUtils.IotaDisplay(scene, util, new BooleanIota(true));
+        iotaDisplay1.setPos(iotaPos);
+        iotaDisplay2.setPos(iotaPos);
+        BlockPos lightPos = util.grid().at(3, 1, 2);
+
+        scene.overlay().showText(60)
+            .text("Boolean Iota represents a state of True or False")
+            .attachKeyFrame();
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .text("It is used to presents whether a conclusion is right or wrong")
+            .attachKeyFrame();
+        scene.idle(65);
+
+        scene.world().setBlock(lightPos,
+            Blocks.REDSTONE_LAMP.defaultBlockState().setValue(RedstoneLampBlock.LIT, false), false);
+        scene.world().showSection(util.select().position(lightPos), Direction.DOWN);
+        scene.overlay().showText(60)
+            .text("Now the conclution of [This lamp is on] is wrong (False)")
+            .attachKeyFrame()
+            .pointAt(util.vector().blockSurface(lightPos, Direction.UP))
+            .placeNearTarget();
+        iotaDisplay1.showIota(60);
+        scene.idle(65);
+        iotaDisplay1.hideIota();
+
+        scene.world().setBlock(lightPos,
+            Blocks.REDSTONE_LAMP.defaultBlockState().setValue(RedstoneLampBlock.LIT, true), false);
+        scene.overlay().showText(60)
+            .text("But now the conclution of [This lamp is on] is right (True)")
+            .attachKeyFrame()
+            .pointAt(util.vector().blockSurface(lightPos, Direction.UP))
+            .placeNearTarget();
+        iotaDisplay2.showIota(60);
+        scene.idle(60);
+    }
+
+    public static void vector(SceneBuilder scene, SceneBuildingUtil util) {
+        scene.title("vector", "The most important iota - Vector");
+        scene.configureBasePlate(0, 0, 5);
+        scene.world().showSection(util.select().layer(0), Direction.UP);
+
+        scene.overlay().showText(50).text("You might don't know what is vector").attachKeyFrame();
+        scene.idle(55);
+        scene.overlay().showText(70)
+            .text("But you must know we can use a coordinate (x, y, z) to show a position in the world");
+        scene.idle(75);
+
+        HexPonderUtils.ArrowDisplay xAxis = new HexPonderUtils.ArrowDisplay(scene);
+        HexPonderUtils.ArrowDisplay yAxis = new HexPonderUtils.ArrowDisplay(scene);
+        HexPonderUtils.ArrowDisplay zAxis = new HexPonderUtils.ArrowDisplay(scene);
+        xAxis.start(new Vec3(0.1, 0, 0)).end(new Vec3(6, 0, 0)).color(PonderPalette.RED, PonderPalette.RED).size(0.5);
+        yAxis.start(new Vec3(0, 0.1, 0)).end(new Vec3(0, 6, 0)).color(PonderPalette.GREEN, PonderPalette.GREEN).size(0.5);
+        zAxis.start(new Vec3(0, 0, 0.1)).end(new Vec3(0, 0, 6)).color(PonderPalette.BLUE, PonderPalette.BLUE).size(0.5);
+        scene.overlay().showText(40)
+            .attachKeyFrame()
+            .text("This is origin point")
+            .pointAt(new Vec3(0, 0, 0))
+            .placeNearTarget();
+        scene.idle(45);
+        xAxis.show(A_LONG_TIME);
+        scene.overlay().showText(40)
+            .text("This is x axis")
+            .pointAt(new Vec3(6, 0, 0))
+            .placeNearTarget();
+        scene.idle(45);
+        yAxis.show(A_LONG_TIME);
+        scene.overlay().showText(40)
+            .text("This is y axis")
+            .pointAt(new Vec3(0, 6, 0))
+            .placeNearTarget();
+        scene.idle(45);
+        zAxis.show(A_LONG_TIME);
+        scene.overlay().showText(40)
+            .text("This is z axis")
+            .pointAt(new Vec3(0, 0, 6))
+            .placeNearTarget();
+        scene.idle(50);
+
+        scene.overlay().showText(50)
+            .attachKeyFrame()
+            .text("So now we can represent point by the axis");
+        scene.idle(55);
+        scene.overlay().showText(360).text("For example, point (2, 3, 1)...");
+        scene.idle(40);
+        scene.overlay().showText(50)
+            .attachKeyFrame()
+            .text("We start from the origin point...")
+            .pointAt(Vec3.ZERO)
+            .placeNearTarget();
+        scene.idle(55);
+        scene.overlay().showText(50)
+            .text("then move in the direction of x Axis for 2 blocks...")
+            .pointAt(new Vec3(2, 0, 0))
+            .placeNearTarget();
+        scene.idle(55);
+        scene.overlay().showText(50)
+            .text("next move in the direction of y Axis for 3 blocks...")
+            .pointAt(new Vec3(2, 3, 0))
+            .placeNearTarget();
+        scene.overlay().showLine(PonderPalette.GREEN, new Vec3(2, 0, 0), new Vec3(2, 3, 0), 110);
+        scene.idle(55);
+        scene.overlay().showText(50)
+            .text("finally move in the direction of z Axis for 1 block...")
+            .pointAt(new Vec3(2, 3, 1))
+            .placeNearTarget();
+        scene.overlay().showLine(PonderPalette.BLUE, new Vec3(2, 3, 0), new Vec3(2, 3, 1), 55);
+        scene.idle(55);
+        scene.overlay().showText(60)
+            .attachKeyFrame()
+            .text("This is the point (2, 3, 1)")
+            .pointAt(new Vec3(2, 3, 1));
+        scene.idle(65);
+
+        scene.overlay().showText(140)
+            .attachKeyFrame()
+            .text("So for this point (2, 3, 1)...")
+            .pointAt(new Vec3(2, 3, 1));
+        scene.idle(45);
+        scene.overlay().showText(95)
+            .text("from the origin point...")
+            .pointAt(Vec3.ZERO)
+            .placeNearTarget();
+        scene.idle(20);
+        scene.world().hideSection(util.select().layer(0), Direction.DOWN);
+        scene.idle(25);
+        HexPonderUtils.ArrowDisplay vector1 = new HexPonderUtils.ArrowDisplay(scene);
+        vector1.size(0.25).start(new Vec3(0.05, 0.05, 0.05)).end(new Vec3(2, 3, 1))
+            .color(PonderPalette.SLOW, PonderPalette.SLOW);
+        vector1.show(A_LONG_TIME);
+        scene.overlay().showText(50)
+            .text("we make an arrow to it")
+            .pointAt(new Vec3(1, 1.5, 0.5))
+            .placeNearTarget();
+        scene.idle(55);
+        scene.overlay().showText(180)
+            .attachKeyFrame()
+            .text("This arrow is the vector (2, 3, 1)")
+            .pointAt(new Vec3(2, 3, 1));
+        scene.idle(30);
+        scene.world().showSection(util.select().layer(0), Direction.UP);
+        scene.idle(35);
+        scene.overlay().showText(60)
+            .attachKeyFrame()
+            .text("Obviously, the vector (2, 3, 1) can represents the position of point (2, 3, 1)");
+        scene.idle(65);
+        scene.overlay().showText(50).text("as well as the direction of this arrow");
+        scene.idle(55);
+        scene.overlay().showText(60)
+            .text("vector (2, 3, 1) can also show [move from point (0, 0, 0) to (2, 3, 1)]");
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .attachKeyFrame()
+            .text("the arrow's length is called the vector's length or mode")
+            .pointAt(new Vec3(2, 3, 1))
+            .placeNearTarget();
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .text("as for vector (2, 3, 1), its length is about 3.74 (sqrt(14))")
+            .pointAt(new Vec3(2, 3, 1))
+            .placeNearTarget();
+        scene.idle(65);
+
+        HexPonderUtils.ArrowDisplay vector2 = new HexPonderUtils.ArrowDisplay(scene);
+        vector2.size(0.25).start(new Vec3(0, -0.05, 0.05)).end(new Vec3(0, -0.5, 2))
+            .color(PonderPalette.FAST, PonderPalette.FAST);
+        vector2.show(A_LONG_TIME);
+        scene.overlay().showText(60)
+            .attachKeyFrame()
+            .text("Through the same way, we can get the vector (0, -0.5, 2)")
+            .pointAt(new Vec3(0, -1, 0))
+            .placeNearTarget();
+        scene.idle(65);
+        scene.overlay().showText(A_LONG_TIME)
+            .attachKeyFrame()
+            .text("Just like numbers, vectors can be calculated");
+        scene.idle(40);
+        scene.overlay().showText(60)
+            .attachKeyFrame()
+            .text("A vector can add up another vector with the result of a new vector")
+            .pointAt(Vec3.ZERO);
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .text("(a, b, c) + (x, y, z) = (a + x, b + y, c + z)")
+            .pointAt(Vec3.ZERO);
+        scene.idle(65);
+        scene.overlay().showText(45)
+            .attachKeyFrame()
+            .text("For example, to calculate (2, 3, 1) + (0, -0.5, 2)")
+            .pointAt(Vec3.ZERO);
+        scene.idle(50);
+        HexPonderUtils.ArrowDisplay vector2_1 = new HexPonderUtils.ArrowDisplay(scene);
+        vector2_1.size(0.25).start(new Vec3(2, 3, 1.05)).end(new Vec3(2, 2.5, 3))
+            .color(PonderPalette.FAST, PonderPalette.FAST);
+        HexPonderUtils.ArrowDisplay vector3 = new HexPonderUtils.ArrowDisplay(scene);
+        vector3.size(0.25).start(new Vec3(0, 0, 0)).end(new Vec3(2, 2.5, 3))
+            .color(PonderPalette.MEDIUM, PonderPalette.MEDIUM);
+        vector2_1.show(A_LONG_TIME);
+        scene.overlay().showText(60)
+            .text("We put the tail of (0, -0.5, 2) to the head of (2, 3, 1)")
+            .pointAt(new Vec3(2, 2.75, 2))
+            .placeNearTarget();
+        scene.idle(30);
+        scene.world().hideSection(util.select().layer(0), Direction.DOWN);
+        scene.idle(35);
+        vector3.show(A_LONG_TIME);
+        scene.overlay().showText(100)
+            .text("Then we get the result (2, 3, 1) + (0, -0.5, 2) = (2 + 0, 3 - 0.5, 1 + 2) = (2, 2.5, 3)")
+            .pointAt(new Vec3(2, 2.5, 3))
+            .placeNearTarget();
+        scene.idle(20);
+        scene.rotateCameraY(-50);
+        scene.idle(35);
+        scene.world().showSection(util.select().layer(0), Direction.UP);
+        scene.idle(30);
+        scene.rotateCameraY(50);
+        scene.idle(30);
+        scene.overlay().showText(60)
+            .attachKeyFrame()
+            .text("A vector can also multiply with a number")
+            .pointAt(Vec3.ZERO);
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .text("the result is a new vector with the same direction and multiplied length as the old one.")
+            .pointAt(Vec3.ZERO);
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .text("that is (x, y, z) * k = (x * k, y * k, z * k)")
+            .pointAt(Vec3.ZERO);
+        scene.idle(35);
+        scene.world().hideSection(util.select().layer(0), Direction.DOWN);
+        scene.idle(30);
+        HexPonderUtils.ArrowDisplay vector4 = new HexPonderUtils.ArrowDisplay(scene);
+        vector4.size(0.25).start(new Vec3(0.05, 0, 0)).end(new Vec3(1, 1.5, 0.5))
+            .color(PonderPalette.OUTPUT, PonderPalette.OUTPUT);
+        vector4.show(A_LONG_TIME);
+        scene.overlay().showText(100)
+            .text("For example, this vector (1, 1.5, 0.5), is the result of (2, 3, 1) * 0.5")
+            .pointAt(new Vec3(1, 1.5, 0.5))
+            .placeNearTarget();
+        scene.idle(105);
+    }
+
+    public static void stack(SceneBuilder scene, SceneBuildingUtil util) {
+        scene.title("stack", "The Information Storage Space - Stack");
+        scene.configureBasePlate(0, 0, 5);
+        scene.scaleSceneView(1);
+        scene.setSceneOffsetY(-4f);
+        scene.world().showSection(util.select().layer(0), Direction.UP);
+        HexPonderUtils.StackDisplay stack = new HexPonderUtils.StackDisplay(scene, util, util.grid().at(4, 0, 0));
+        Iota iota1 = new ListIota(List.of());
+        Iota iota2 = new PatternIota(HexPattern.fromAngles("qaq", HexDir.NORTH_EAST));
+        Iota iota3 = new GarbageIota();
+        Iota iota4 = new NullIota();
+        // Upstream used a translated-text iota which is not part of this repository; a pattern iota
+        // is the closest available replacement with a distinct visual.
+        Iota iota5 = new PatternIota(HexPattern.fromAngles("w", HexDir.EAST));
+        Iota iota6 = new Vec3Iota(new Vec3(2, 3, 1));
+        Iota iota7 = new DoubleIota(1437);
+        Iota iota8 = new BooleanIota(true);
+
+        scene.overlay().showText(60)
+            .attachKeyFrame()
+            .text("The Iotas you get are stored in a place called a stack.");
+        scene.idle(65);
+        scene.overlay().showText(60)
+            .text("You can think a stack as a pillar of blocks, each block represents a iota.");
+        scene.idle(5);
+        stack.push(iota1, A_LONG_TIME);
+        scene.idle(5);
+        stack.push(iota2, A_LONG_TIME);
+        scene.idle(5);
+        stack.push(iota3, A_LONG_TIME);
+        scene.idle(5);
+        stack.push(iota4, A_LONG_TIME);
+        scene.idle(5);
+        stack.push(iota5, A_LONG_TIME);
+        scene.idle(5);
+        stack.push(iota6, A_LONG_TIME);
+        scene.idle(5);
+        stack.push(iota7, 415);
+        scene.idle(30);
+
+        scene.overlay().showText(115)
+            .attachKeyFrame()
+            .pointAt(stack.tipPos(1))
+            .text("The top one iota is called [the top of the stack] or [the first of the stack top]");
+        scene.idle(65);
+        scene.overlay().showText(50)
+            .pointAt(stack.tipPos(2))
+            .text("Similarly, this iota is called [the second of the stack top]");
+        scene.idle(55);
+
+        scene.overlay().showText(A_LONG_TIME)
+            .attachKeyFrame()
+            .text("When adding iota into the stack, or taking iota out of the stack, you need to follow some rules...");
+        scene.idle(30);
+        stack.push(iota8, 140);
+        scene.idle(10);
+        scene.overlay().showText(60)
+            .attachKeyFrame()
+            .pointAt(stack.tipPos(1))
+            .text("When adding a iota, you should add it to the top.");
+        scene.idle(65);
+        scene.overlay().showText(40)
+            .pointAt(stack.tipPos(2))
+            .text("You can't add it to anywhere else")
+            .colored(PonderPalette.RED);
+        scene.idle(45);
+        scene.overlay().showText(60)
+            .attachKeyFrame()
+            .pointAt(stack.tipPos(1))
+            .text("When taking out a iota, you can only take the top one");
+        scene.idle(20);
+        stack.pop();
+        scene.idle(45);
+        scene.overlay().showText(50)
+            .pointAt(stack.tipPos(2))
+            .text("Now you can't take this out")
+            .colored(PonderPalette.RED);
+        scene.idle(55);
+        scene.overlay().showText(50)
+            .pointAt(stack.tipPos(1))
+            .text("But this can")
+            .colored(PonderPalette.GREEN);
+        scene.idle(20);
+        stack.pop();
+        scene.idle(35);
+    }
+}

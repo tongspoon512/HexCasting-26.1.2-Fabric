@@ -1,6 +1,5 @@
 {
   "category.hexcreating.default": "咒法动力与机械学",
-
   "mishaps.need_blaze_burner_with_blaze": "内含烈焰人的烈焰人燃烧室",
   "mishaps.need_blaze_burner": "烈焰人燃烧室",
   "hexcasting.action.hexcreating:kelvin_heat_gambit": "开尔文之策略-Δ",
@@ -55,17 +54,14 @@
   "hexcreating.page.operations.title": "咒法动力与机械学",
   "hexcreating.page.operations.0": "齿轮旋转，蒸汽鸣响，火车飞驰。我一向对这些非魔法的事物非常感兴趣，至少它们比咒法安全多了(想想那些研究咒法到发疯的人)。自然提供给了我们一些关于这些机械的图案，有用无用，我都记录在这里。",
   "hexcreating.page.operations.kelvin_heat_gambit": "严格来说这是个法术，但方便起见也写在这里。本法术可以让烈焰人燃烧室进入普通燃烧状态，接受一个表示烈焰人燃烧室的位置向量，一个表示燃烧时间的数字(单位：tick)，消耗该数字除以20个紫水晶粉的媒质量。",
-
   "block.hexcreating.train_gate": "浮辇之门",
   "block.hexcreating.train_gate_frame": "浮辇之门框架",
   "block.hexcreating.train_gate_core": "浮辇之门核心",
   "hexcasting.action.hexcreating:train_gate_set_up_gambit": "创建浮辇之门",
   "mishaps.need_train_gate_core": "浮辇之门核心",
   "item.hexcreating.unfinished_train_gate_frame": "浮辇之门框架（半成品）",
-
   "hexcreating.page.ponder.title": "直观的学习-思索",
   "hexcreating.page.ponder.introduction": "你或许觉得这本书是在太难读懂了，什么Iota啊栈啊什么的根本不知所云。那么这里的这些思维之匙或许能帮到你，把你的鼠标放在一个思维之匙上面，按住W键不放即可。",
-
   "item.hexcreating.thought_key.hexcasting_introduction": "思维之匙-初识咒法学",
   "hexcreating.ponder.hexcasting_introduction.header": "初识咒法学",
   "hexcreating.ponder.hexcasting_introduction.text_1": "咒法学是一个强大的魔法mod，在这里你可以消耗紫水晶（媒质）",
@@ -73,7 +69,6 @@
   "hexcreating.ponder.hexcasting_introduction.text_3": "在一个六边形点阵上绘制各种图案",
   "hexcreating.ponder.hexcasting_introduction.text_4": "以此来获取施法所需的诸多信息（Iota），并将它们存放在你的“信息存储空间”（栈）中，在对他们进行处理后施放出强大的法术。",
   "hexcreating.page.ponder.hexcasting_introduction": "不妨来回顾下咒法学是干嘛的吧",
-
   "item.hexcreating.thought_key.basic_iota": "思维之匙-施法所用的信息之基本Iota",
   "hexcreating.ponder.basic_iota_entity.header": "施法所用的信息-基本Iota之实体",
   "hexcreating.ponder.basic_iota_entity.text_1": "在咒法学中，施法所会用到的信息被称作Iota",
@@ -97,7 +92,6 @@
   "hexcreating.ponder.basic_iota_bool.text_3": "比如现在”这个灯是亮的“这个判断是错误的（False）",
   "hexcreating.ponder.basic_iota_bool.text_4": "而现在”这个灯是亮的“这个判断就是正确的（True）",
   "hexcreating.page.ponder.basic_iota": "关于最基本的几种施法会用到的信息：实体类Iota，数字类Iota，向量类Iota，真假（布尔）类Iota",
-
   "item.hexcreating.thought_key.vector": "思维之匙-向量",
   "hexcreating.ponder.vector.header": "最重要的Iota-向量",
   "hexcreating.ponder.vector.text_1": "你可能不知道什么是向量",
@@ -134,7 +128,6 @@
   "hexcreating.ponder.vector.text_32": "也就是说 (x, y, z) * k = (x * k, y * k, z * k)",
   "hexcreating.ponder.vector.text_33": "比如，这个向量(1, 1.5, 0.5)就是(2, 3, 1) * 0.5的结果",
   "hexcreating.page.ponder.vector": "或许你需要了解下上一页的思索中提到的”向量“",
-
   "item.hexcreating.thought_key.stack": "思维之匙-Iota的存储空间之栈",
   "hexcreating.ponder.stack.header": "秩序井然的存储空间-栈",
   "hexcreating.ponder.stack.text_1": "你所获得到的Iota都被存放在一个叫“栈”的存储空间中",
@@ -148,28 +141,19 @@
   "hexcreating.ponder.stack.text_9": "现在你不能直接取出这个Iota",
   "hexcreating.ponder.stack.text_10": "但这个可以",
   "hexcreating.page.ponder.stack": "你施法所用的信息（Iota）就存储在这个叫做栈的信息存储空间里面",
-
   "hexcreating.page.ponder.media": "在继续思索之前，你最好去阅读下这本书上关于媒质的部分。$(br)相信我，这一部分你肯定看得懂。",
-
   "hexcreating.page.ponder.pattern_spell_1": "现在你可以来真正的学习如何施法了。$(br)建议九宫格内的思维之匙按照从左到右，从上到下的顺序看，都看完后再看右边那个。$(br)学会这些你将会获得一种挺好看的木材qwq",
-
   "item.hexcreating.thought_key.pattern_introduction": "思维之匙-如何绘制图案",
-
   "item.hexcreating.thought_key.pattern_locate": "思维之匙-图案之定位与实体",
-
   "item.hexcreating.thought_key.pattern_constants": "思维之匙-图案之常数常量",
-
   "item.hexcreating.thought_key.pattern_calculate": "思维之匙-图案之计算",
-
   "item.hexcreating.thought_key.pattern_spell_1": "思维之匙-法术之启迪树苗",
-
   "block.hexcreating.board": "排字板",
   "item.hexcreating.square": "活字",
   "item.hexcreating.printed_paper": "印纸",
   "item.hexcreating.paper_reel": "纸卷",
   "hexcreating.board.paster.no_space": "在放置下标为%d的图案时发现没有所需空间！",
   "hexcreating.board.paster.no_item": "在放置下标为%d的图案时发现没有所需物品！",
-
   "hexcreating.page.board.title": "排字板",
   "hexcreating.page.board.0": "相信你肯定觉得撰写法术是一件折磨的事情，特别是在内省和反思之间写图案列表的时候，任何小错误都需要麻烦的修理。$(br)那么，不如来试一试排字板和活字吧。$(br)活字上可以写上图案（就像石板一样），而排字板上可以放置活字。",
   "hexcreating.page.board.1": "上面那个合成表里的空线轴可以用凝灰岩在切石机里面切制而成。$(br)可以一手拿纸一手拿纸卷右键来给纸卷回复耐久。",
@@ -178,9 +162,19 @@
   "hexcreating.page.board.4": "当接入红石信号为2时，空手右键有活字处可以将该处以及往前所有相连活字前移一位。$(br)当接入红石信号为3时，空手右键有活字处可以将该处以及往后所有相连活字后移一位。$(br)接入红石信号为4和5分别对应上移和下移，但有点难描述，建议自己试试。",
   "hexcreating.page.board.5": "不论接入红石信号为何，手持有充足纸和媒质的纸卷右键有活字处，可以创建一张上有前后相连所有活字上的图案组成的图案列表的印纸。",
   "hexcreating.page.board.6": "当接入红石信号为0或1或2或3或4或5时，手持印纸等右键空位会尝试在此处以及之后放置对应活字，排字板会从其背后的容器以及操作者的背包中尝试取得所需活字，并且可能将空活字转化为刻有图案的活字用来放置。",
-
   "block.hexcreating.amethyst_lamp": "紫水晶灯",
   "key.hexcreating.control_amethyst_lamp": "控制紫水晶灯",
   "hexcreating.page.amethyst_lamp.title": "紫水晶灯",
-  "hexcreating.page.amethyst_lamp.0": "紫水晶灯可以用扳手调整亮度，你也可以站在其附近按下$(k:hexcreating.control_amethyst_lamp)以进入控制界面。$(br)紫水晶灯会向周围发出与其发光强度相等强度的弱红石信号。"
+  "hexcreating.page.amethyst_lamp.0": "紫水晶灯可以用扳手调整亮度，你也可以站在其附近按下$(k:hexcreating.control_amethyst_lamp)以进入控制界面。$(br)紫水晶灯会向周围发出与其发光强度相等强度的弱红石信号。",
+  "hexcreating.ponder.pattern_introduction.header": "绘制图案入门",
+  "hexcreating.ponder.pattern_introduction_reset.header": "如何重置施法 HUD",
+  "hexcreating.ponder.pattern_locate_self.header": "获取自身与坐标",
+  "hexcreating.ponder.pattern_locate_block.header": "获取方块坐标",
+  "hexcreating.ponder.pattern_locate_entity.header": "获取实体及其坐标",
+  "hexcreating.ponder.pattern_constants_number.header": "数字常量",
+  "hexcreating.ponder.pattern_constants_vector.header": "向量常量",
+  "hexcreating.ponder.pattern_constants_boolean.header": "布尔常量",
+  "hexcreating.ponder.pattern_calculate.header": "计算 Iota",
+  "hexcreating.ponder.pattern_spell_edifytree.header": "造物树图案",
+  "hexcreating.ponder.pattern_spell_edifytree_practice.header": "造物树实践"
 }
