@@ -61,6 +61,9 @@
   "suggests": {
     "modmenu": ">=22.0.0"
   },
+  "recommends": {
+    "create": "*"
+  },
   "custom": {
     "cardinal-components": [
       "hexcasting:brainswept",

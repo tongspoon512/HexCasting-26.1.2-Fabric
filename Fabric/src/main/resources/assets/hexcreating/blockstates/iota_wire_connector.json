@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "hexcreating:block/iota_wire_connector"
+    },
+    "facing=south": {
+      "model": "hexcreating:block/iota_wire_connector",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "hexcreating:block/iota_wire_connector",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "hexcreating:block/iota_wire_connector",
+      "y": 90
+    },
+    "facing=up": {
+      "model": "hexcreating:block/iota_wire_connector",
+      "x": 90
+    },
+    "facing=down": {
+      "model": "hexcreating:block/iota_wire_connector",
+      "x": 270
+    }
+  }
+}

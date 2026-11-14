@@ -1,0 +1,25 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "name": "hexcreating.page.amethyst_lamp.title",
+  "icon": "hexcreating:amethyst_lamp",
+  "category": "hexcasting:items",
+  "advancement": "hexcasting:root",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "hexcreating:amethyst_lamp",
+      "text": "hexcreating.page.amethyst_lamp.0"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hexcreating:crafting_shapeless/amethyst_lamp"
+    }
+  ]
+}

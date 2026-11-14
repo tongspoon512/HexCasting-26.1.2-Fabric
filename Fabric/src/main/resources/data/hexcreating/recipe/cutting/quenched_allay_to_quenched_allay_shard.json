@@ -1,0 +1,19 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "create:cutting",
+  "ingredient": "hexcasting:quenched_allay",
+  "processing_time": 200,
+  "results": [
+    {
+      "id": "hexcasting:quenched_allay_shard",
+      "count": 4
+    }
+  ]
+}

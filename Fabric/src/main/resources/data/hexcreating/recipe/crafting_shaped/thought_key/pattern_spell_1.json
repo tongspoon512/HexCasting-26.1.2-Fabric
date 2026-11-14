@@ -1,0 +1,25 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABC",
+    "D  ",
+    "   "
+  ],
+  "key": {
+    "A": "hexcreating:thought_key/pattern_introduction",
+    "B": "hexcreating:thought_key/pattern_locate",
+    "C": "hexcreating:thought_key/pattern_constants",
+    "D": "hexcreating:thought_key/pattern_calculate"
+  },
+  "result": {
+    "id": "hexcreating:thought_key/pattern_spell_1"
+  }
+}

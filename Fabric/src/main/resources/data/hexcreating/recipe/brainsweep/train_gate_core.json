@@ -1,0 +1,24 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "hexcasting:brainsweep",
+  "blockIn": {
+    "type": "block",
+    "block": "hexcreating:train_gate_frame"
+  },
+  "cost": 1000000,
+  "entityIn": {
+    "type": "entity_type",
+    "entityType": "minecraft:enderman"
+  },
+  "result": {
+    "name": "hexcreating:train_gate_core",
+    "properties": {}
+  }
+}

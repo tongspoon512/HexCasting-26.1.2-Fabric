@@ -237,6 +237,38 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
 
 实现位置：[CassetteState.kt](Fabric/src/main/java/miyucomics/hexcassettes/data/CassetteState.kt)、[CassetteCastEnv.kt](Fabric/src/main/java/miyucomics/hexcassettes/CassetteCastEnv.kt)、[HexCassetteActions.kt](Fabric/src/main/java/miyucomics/hexcassettes/actions/HexCassetteActions.kt)、[CassetteScreen.kt](Fabric/src/main/java/miyucomics/hexcassettes/client/CassetteScreen.kt)、[HexCardinalComponents.java](Fabric/src/main/java/at/petrak/hexcasting/fabric/cc/HexCardinalComponents.java)。
 
+### 12. HexCreating（Create 软依赖内容）
+
+移植 [yggdyy/hexcreating](https://github.com/yggdyy/hexcreating) 的 Create 联动内容：排版板、紫水晶灯、液态媒质/灵魂、法术环输入/输出与增幅器、iota 网络方块、分析机、列车传送门方块，以及 10 个新图案和 4 个 Ponder 场景。
+
+- **软依赖**：`fabric.mod.json` 只声明 `recommends.create`；Create 缺席时零注册、零类加载。配方与指南书条目均带 `fabric:all_mods_loaded` 条件，缺少 Create 时自动隐藏。
+- **Create 集成**：方块接入应力系统（法术环增幅器 4.0 SU、iota 网络终端 1.0 SU、分析机动力接口 8.0 SU）；新增 4 个显示源（Impetus 媒质、排版板图案、排版板 iota、石板图案），可接 Create 翻转显示器。
+- **Ponder**：4 个「思维之匙」场景（咒法简介、Iota 基础、向量、栈），仅在安装 Create 时注册。
+- **法术环输入/输出配方**（本轮补齐）：
+
+  ```
+  B T B        B = create:brass_sheet        黄铜板
+  S A S        T = create:electron_tube      电子管
+  B D B        S = hexcasting:slate          板岩
+               A = hexcasting:charged_amethyst 充能紫水晶
+               D = hexcasting:amethyst_dust   紫水晶粉
+               → 法术环输入器
+  ```
+
+  ```
+  B Q B        B = create:brass_sheet          黄铜板
+  S A S        Q = create:polished_rose_quartz 抛光玫瑰石英
+  B T B        S = hexcasting:slate            板岩
+               A = hexcasting:charged_amethyst 充能紫水晶
+               T = create:electron_tube        电子管
+               → 法术环输出器
+  ```
+
+- **列车传送门**：当前只实现方块、结构与门位设置，暂不包含列车传送逻辑。
+- **贴图**：为法术环输入/输出、媒质/灵魂流体等缺失资源补齐了自制贴图与模型，未重绘已有贴图。
+
+实现位置：[HexCreatingCompat.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/HexCreatingCompat.java)、[HexCreatingRegistration.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/HexCreatingRegistration.java)、[HexCreatingPonder.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/client/HexCreatingPonder.java)、[HexCreatingActions.kt](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/cast/HexCreatingActions.kt)、[HexCreatingDisplaySources.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/create/HexCreatingDisplaySources.java)。
+
 ## 安装
 
 1. 安装 Fabric Loader ≥ 0.20.1（对应 26.1.2）。
@@ -255,7 +287,7 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
    | Cardinal Components API | ≥ 8.0.1 | 需要 base / entity / item / block 等子模块 |
    | Cloth Config | ≥ 26.1.154 | 配置界面 |
 
-   可选：ModMenu（提供配置入口）。
+   可选：ModMenu（提供配置入口）；Create-Fly（≥ 6.0.9-4，安装后启用 HexCreating 的排版板、法术环、Ponder 等全部联动内容，不安装则完全隐形）。
 
 > 仓库内以源码形式内嵌了 Patchouli、Inline、Trinkets、Paucal 等依赖的桩件，**不要**再安装真实的同名模组，否则会出现同名类冲突。指南书已由模组自带 GUI 实现，不需要安装 Patchouli。剪接台已并入本 jar，也不需要单独安装 HexDebug。
 

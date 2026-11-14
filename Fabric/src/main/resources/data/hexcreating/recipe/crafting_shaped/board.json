@@ -1,0 +1,25 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PDP",
+    "DCD",
+    "PDP"
+  ],
+  "key": {
+    "C": "hexcasting:charged_amethyst",
+    "D": "minecraft:polished_diorite",
+    "P": "minecraft:polished_deepslate"
+  },
+  "result": {
+    "id": "hexcreating:board",
+    "count": 4
+  }
+}

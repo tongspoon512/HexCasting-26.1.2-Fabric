@@ -107,6 +107,11 @@ dependencies {
 
     // optional (mod menu entrypoint); no compatible build for this snapshot
     compileOnly("com.terraformersmc:modmenu:$modmenuVersion")
+
+    // Create-Fly (mod id "create") — optional integration for HexCreating content.
+    // The jar is already in official Mojang names, matching disableObfuscation.
+    compileOnly files(rootProject.file("libs/create-fly-26.1.2-6.0.9-4.jar"))
+    runtimeOnly files(rootProject.file("libs/create-fly-26.1.2-6.0.9-4.jar"))
 }
 
 tasks.named("compileJava", JavaCompile) {

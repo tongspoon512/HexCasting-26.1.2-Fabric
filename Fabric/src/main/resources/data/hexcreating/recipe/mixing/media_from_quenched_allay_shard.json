@@ -1,0 +1,33 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "create:mixing",
+  "ingredients": [
+    "hexcasting:quenched_allay_shard"
+  ],
+  "fluid_ingredients": [
+    {
+      "type": "fluid_stack",
+      "amount": 81,
+      "fluid": "hexcreating:media"
+    },
+    {
+      "type": "fluid_stack",
+      "amount": 3159,
+      "fluid": "minecraft:water"
+    }
+  ],
+  "fluid_results": [
+    {
+      "amount": 3240,
+      "id": "hexcreating:media"
+    }
+  ],
+  "heat_requirement": "heated"
+}

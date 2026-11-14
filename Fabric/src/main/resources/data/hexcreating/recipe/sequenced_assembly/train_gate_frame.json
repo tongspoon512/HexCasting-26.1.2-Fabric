@@ -1,0 +1,47 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "create:sequenced_assembly",
+  "ingredient": "create:railway_casing",
+  "transitional_item": {
+    "id": "hexcreating:unfinished_train_gate_frame"
+  },
+  "result": {
+    "id": "hexcreating:train_gate_frame"
+  },
+  "loops": 1,
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "target": "$ingredient",
+      "ingredient": "hexcasting:quenched_allay_shard",
+      "results": [
+        "$result"
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "target": "$ingredient",
+      "ingredient": "hexcasting:slate",
+      "results": [
+        "$result"
+      ]
+    },
+    {
+      "type": "create:filling",
+      "ingredient": "$ingredient",
+      "fluid_ingredient": {
+        "type": "fluid_stack",
+        "amount": 1620,
+        "fluid": "hexcreating:media"
+      },
+      "result": "$result"
+    }
+  ]
+}

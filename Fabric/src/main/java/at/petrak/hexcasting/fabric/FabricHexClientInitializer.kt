@@ -104,6 +104,7 @@ object FabricHexClientInitializer : ClientModInitializer {
         })
 
         HexInterop.clientInit()
+        pub.pigeon.yggdyy.hexcreating.client.HexCreatingClientCompat.init()
         // TODO(26.1): item/block tint sources moved into model definitions; the old ColorProviderRegistry no
         // longer exists. Re-register the focus/spellbook/akashic bookshelf tints through the new system.
         // RegisterClientStuff.registerColorProviders(...)

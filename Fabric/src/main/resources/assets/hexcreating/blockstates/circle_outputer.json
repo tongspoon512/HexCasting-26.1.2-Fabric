@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "energized=false,output_type=silence": {
+      "model": "hexcreating:block/circle_outputer"
+    },
+    "energized=false,output_type=single": {
+      "model": "hexcreating:block/circle_outputer"
+    },
+    "energized=false,output_type=multiple": {
+      "model": "hexcreating:block/circle_outputer"
+    },
+    "energized=true,output_type=silence": {
+      "model": "hexcreating:block/circle_outputer"
+    },
+    "energized=true,output_type=single": {
+      "model": "hexcreating:block/circle_outputer"
+    },
+    "energized=true,output_type=multiple": {
+      "model": "hexcreating:block/circle_outputer"
+    }
+  }
+}

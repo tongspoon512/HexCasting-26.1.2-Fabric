@@ -1,0 +1,37 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "name": "hexcreating.page.liquid_soul.title",
+  "icon": "hexcreating:raw_soul",
+  "category": "hexcasting:items",
+  "advancement": "hexcasting:enlightenment",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "hexcreating.page.liquid_soul.0"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "hexcreating:raw_soul",
+      "text": "hexcreating.page.liquid_soul.1"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcreating.page.liquid_soul.2"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcreating.page.liquid_soul.3"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcreating.page.liquid_soul.4"
+    }
+  ]
+}

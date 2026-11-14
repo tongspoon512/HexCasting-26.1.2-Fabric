@@ -1,0 +1,49 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "name": "hexcreating.page.ponder.title",
+  "icon": "hexcreating:thought_key/hexcasting_introduction",
+  "category": "hexcasting:basics",
+  "advancement": "hexcasting:root",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "hexcreating.page.ponder.introduction"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "hexcreating:thought_key/hexcasting_introduction",
+      "text": "hexcreating.page.ponder.hexcasting_introduction"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "hexcreating:thought_key/basic_iota",
+      "text": "hexcreating.page.ponder.basic_iota"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "hexcreating:thought_key/vector",
+      "text": "hexcreating.page.ponder.vector"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "hexcreating:thought_key/stack",
+      "text": "hexcreating.page.ponder.stack"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcreating.page.ponder.media"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "hexcreating:crafting_shaped/thought_key/pattern_spell_1",
+      "text": "hexcreating.page.ponder.pattern_spell_1"
+    }
+  ]
+}

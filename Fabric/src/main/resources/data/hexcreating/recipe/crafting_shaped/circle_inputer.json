@@ -1,0 +1,26 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BTB",
+    "SAS",
+    "BDB"
+  ],
+  "key": {
+    "B": "create:brass_sheet",
+    "T": "create:electron_tube",
+    "S": "hexcasting:slate",
+    "A": "hexcasting:charged_amethyst",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": {
+    "id": "hexcreating:circle_inputer"
+  }
+}

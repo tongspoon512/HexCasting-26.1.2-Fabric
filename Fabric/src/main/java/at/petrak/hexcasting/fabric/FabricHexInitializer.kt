@@ -153,6 +153,9 @@ object FabricHexInitializer : ModInitializer {
             if (tab == HexCreativeTabs.HEX) {
                 output.accept(HexDebugRegistry.SPLICING_TABLE_ITEM)
                 output.accept(HexCassetteItems.CASSETTE)
+                if (pub.pigeon.yggdyy.hexcreating.HexCreatingCompat.isCreateLoaded()) {
+                    pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.addCreativeTab(output)
+                }
             }
         }
     }
@@ -171,6 +174,17 @@ object FabricHexInitializer : ModInitializer {
         HexBlockEntities.registerTiles(bind(BuiltInRegistries.BLOCK_ENTITY_TYPE))
         HexItems.registerItems(bind(BuiltInRegistries.ITEM))
         HexCassetteItems.registerItems(bind(BuiltInRegistries.ITEM))
+
+        // HexCreating is a soft integration: nothing below is touched unless Create is installed.
+        if (pub.pigeon.yggdyy.hexcreating.HexCreatingCompat.isCreateLoaded()) {
+            pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.registerFluids(bind(BuiltInRegistries.FLUID))
+            pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.registerBlocks(bind(BuiltInRegistries.BLOCK))
+            pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.registerBlockItems(bind(BuiltInRegistries.ITEM))
+            pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.registerItems(bind(BuiltInRegistries.ITEM))
+            pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.registerBlockEntities(bind(BuiltInRegistries.BLOCK_ENTITY_TYPE))
+            pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.registerActions(bind(IXplatAbstractions.INSTANCE.actionRegistry))
+            pub.pigeon.yggdyy.hexcreating.HexCreatingRegistration.init()
+        }
 
         HexDebugRegistry.registerBlocks(bind(BuiltInRegistries.BLOCK))
         HexDebugRegistry.registerBlockItems(bind(BuiltInRegistries.ITEM))

@@ -1,0 +1,33 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "name": "hexcreating.page.liquid_media.title",
+  "icon": "hexcreating:media_bucket",
+  "category": "hexcasting:items",
+  "advancement": "hexcasting:root",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "hexcreating:media_bucket",
+      "text": "hexcreating.page.liquid_media.0"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcreating.page.liquid_media.1"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcreating.page.liquid_media.2"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcreating.page.liquid_media.3"
+    }
+  ]
+}

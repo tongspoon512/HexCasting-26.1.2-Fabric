@@ -57,7 +57,7 @@ public class CircleExecutionState {
     public BlockPos greaterCorner;
     public BlockPos lesserCorner;
 
-    public final AABB bounds;
+    public AABB bounds;
 
 
     protected CircleExecutionState(BlockPos impetusPos, Direction impetusDir, HashSet<BlockPos> reachedPositions,
@@ -77,6 +77,13 @@ public class CircleExecutionState {
         this.lesserCorner = lesserPos;
         this.bounds = new AABB(net.minecraft.world.phys.Vec3.atLowerCornerOf(greaterCorner),
             net.minecraft.world.phys.Vec3.atLowerCornerOf(lesserPos));
+    }
+
+    /**
+     * Widens the area the circle is allowed to touch. Used by HexCreating's circle amplifier.
+     */
+    public void expandBounds(AABB newBounds) {
+        this.bounds = newBounds;
     }
 
     public @Nullable ServerPlayer getCaster(ServerLevel world) {

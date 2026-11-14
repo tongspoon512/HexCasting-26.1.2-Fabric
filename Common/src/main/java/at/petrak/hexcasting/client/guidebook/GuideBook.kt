@@ -2,6 +2,7 @@ package at.petrak.hexcasting.client.guidebook
 
 import at.petrak.hexcasting.api.HexAPI
 import at.petrak.hexcasting.mixin.accessor.client.AccessorClientAdvancements
+import at.petrak.hexcasting.xplat.IXplatAbstractions
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import net.minecraft.client.Minecraft
@@ -79,6 +80,7 @@ object GuideBook {
         }
         for ((id, resource) in entryResources) {
             val json = readObject(resource) ?: continue
+            if (!loadConditionsMet(json)) continue
             val localId = id.path.removePrefix(entryPrefix).removeSuffix(".json")
             val category = json.string("category", "").substringAfter(':')
             val pages = ArrayList<GuidePage>()
@@ -143,6 +145,32 @@ object GuideBook {
     }
 
     private fun canonical(key: String): String = key.replace("/.", "/").replace(":.", ":")
+
+    /**
+     * 支持条目声明 `fabric:load_conditions`，目前只处理模组加载条件，
+     * 用于让扩展模组的条目在其依赖缺失时不显示。
+     */
+    private fun loadConditionsMet(json: JsonObject): Boolean {
+        val conditions = json.getAsJsonArray("fabric:load_conditions") ?: return true
+        for (element in conditions) {
+            if (!element.isJsonObject) continue
+            val obj = element.asJsonObject
+            val mods = obj.getAsJsonArray("values")?.mapNotNull {
+                if (it.isJsonPrimitive) it.asString else null
+            }
+            when (obj.string("condition", "")) {
+                "fabric:all_mods_loaded" ->
+                    if (mods != null && !mods.all { IXplatAbstractions.INSTANCE.isModPresent(it) }) return false
+                "fabric:any_mods_loaded" ->
+                    if (mods != null && mods.none { IXplatAbstractions.INSTANCE.isModPresent(it) }) return false
+                "fabric:mod_loaded" -> {
+                    val mod = obj.string("modid", "")
+                    if (mod.isNotBlank() && !IXplatAbstractions.INSTANCE.isModPresent(mod)) return false
+                }
+            }
+        }
+        return true
+    }
 
     private fun readObject(resource: net.minecraft.server.packs.resources.Resource?): JsonObject? {
         if (resource == null) return null

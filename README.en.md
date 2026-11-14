@@ -237,6 +237,38 @@ A port of [miyucomics/hexcassettes](https://github.com/miyucomics/hexcassettes) 
 
 Implementation: [CassetteState.kt](Fabric/src/main/java/miyucomics/hexcassettes/data/CassetteState.kt), [CassetteCastEnv.kt](Fabric/src/main/java/miyucomics/hexcassettes/CassetteCastEnv.kt), [HexCassetteActions.kt](Fabric/src/main/java/miyucomics/hexcassettes/actions/HexCassetteActions.kt), [CassetteScreen.kt](Fabric/src/main/java/miyucomics/hexcassettes/client/CassetteScreen.kt), [HexCardinalComponents.java](Fabric/src/main/java/at/petrak/hexcasting/fabric/cc/HexCardinalComponents.java).
 
+### 12. HexCreating (Create soft-dependency content)
+
+A port of [yggdyy/hexcreating](https://github.com/yggdyy/hexcreating): the board, amethyst lamp, liquid media/soul, circle inputer/outputer and amplifier, iota network blocks, analytical engine, train gate blocks, plus 10 new patterns and 4 Ponder scenes.
+
+- **Soft dependency**: `fabric.mod.json` only declares `recommends.create`. When Create is absent nothing is registered and no Create class is loaded; recipes and guide book entries carry `fabric:all_mods_loaded` conditions and disappear automatically.
+- **Create integration**: blocks register stress values (circle amplifier 4.0 SU, iota network terminals 1.0 SU, analytical engine kinetic interface 8.0 SU), and four display sources (Impetus media, board pattern, board iota, slate pattern) work with Create's display boards.
+- **Ponder**: four "thought key" scenes (Hexcasting intro, iota basics, vectors, stack) registered only when Create is installed.
+- **Circle inputer/outputer recipes** (added in this pass):
+
+  ```
+  B T B        B = create:brass_sheet
+  S A S        T = create:electron_tube
+  B D B        S = hexcasting:slate
+               A = hexcasting:charged_amethyst
+               D = hexcasting:amethyst_dust
+               -> Circle Inputer
+  ```
+
+  ```
+  B Q B        B = create:brass_sheet
+  S A S        Q = create:polished_rose_quartz
+  B T B        S = hexcasting:slate
+               A = hexcasting:charged_amethyst
+               T = create:electron_tube
+               -> Circle Outputer
+  ```
+
+- **Train gate**: currently only the blocks, structure and gate-position setup; train teleport logic is intentionally not implemented yet.
+- **Textures**: missing models, blockstates and textures for the circle inputer/outputer, media/soul fluids and related assets were created from scratch; existing textures were not repainted.
+
+Implementation: [HexCreatingCompat.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/HexCreatingCompat.java), [HexCreatingRegistration.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/HexCreatingRegistration.java), [HexCreatingPonder.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/client/HexCreatingPonder.java), [HexCreatingActions.kt](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/cast/HexCreatingActions.kt), [HexCreatingDisplaySources.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/create/HexCreatingDisplaySources.java).
+
 ## Installation
 
 1. Install Fabric Loader ≥ 0.20.1 (for 26.1.2).
@@ -255,7 +287,7 @@ Implementation: [CassetteState.kt](Fabric/src/main/java/miyucomics/hexcassettes/
    | Cardinal Components API | ≥ 8.0.1 | Needs base / entity / item / block submodules |
    | Cloth Config | ≥ 26.1.154 | Config UI |
 
-   Optional: ModMenu (for the config entry point).
+   Optional: ModMenu (for the config entry point); Create-Fly (≥ 6.0.9-4 — installing it enables all HexCreating content such as the board, circle blocks and Ponder scenes; without it everything stays hidden).
 
 > Patchouli, Inline, Trinkets, Paucal and other dependencies are vendored as stubs in source form — **do not** install real mods with the same names, or you will get duplicate-class conflicts. The guide book is implemented by this mod's own GUI and does not need Patchouli. The splicing table is merged into this jar and does not need HexDebug.
 
