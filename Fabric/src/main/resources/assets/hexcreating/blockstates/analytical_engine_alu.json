@@ -1,10 +1,16 @@
 {
-    "variants": {
-        "render_stage=0": {
-            "model": "hexcreating:block/analytical_engine_alu_1"
-        }, 
-        "render_stage=1": {
-            "model": "hexcreating:block/analytical_engine_alu_2"
-        }
+  "variants": {
+    "facing=north": {
+      "model": "hexcreating:block/analytical_engine_alu_1"
+    },
+    "facing=south": {
+      "model": "hexcreating:block/analytical_engine_alu_1"
+    },
+    "facing=east": {
+      "model": "hexcreating:block/analytical_engine_alu_1"
+    },
+    "facing=west": {
+      "model": "hexcreating:block/analytical_engine_alu_1"
     }
+  }
 }

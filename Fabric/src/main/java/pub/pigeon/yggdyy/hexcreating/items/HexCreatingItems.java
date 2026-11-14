@@ -19,7 +19,6 @@ public final class HexCreatingItems {
     public static final Item IOTA_WIRE_REEL = register("iota_wire_reel", Item::new);
     public static final Item EMPTY_REEL = register("empty_reel", Item::new);
     public static final Item IOTA_WIRE_CONNECTOR_TECH = register("iota_wire_connector_tech", Item::new);
-    public static final Item IOTA_WIRE_CONNECTOR = register("iota_wire_connector", Item::new);
     public static final Item IOTA_WIRE = register("iota_wire", Item::new);
     public static final Item RAW_SOUL = register("raw_soul",
         p -> new Item(p.fireResistant().rarity(Rarity.UNCOMMON)));

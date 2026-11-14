@@ -31,6 +31,7 @@ public final class HexCreatingRegistration {
     public static void registerBlocks(BiConsumer<Block, Identifier> r) {
         HexCreatingBlocks.registerBlocks(r);
         HexCreatingBlocks.all().forEach((id, block) -> {
+            // 流体块由桶物品处理，不再生成 BlockItem。
             if (block != HexCreatingBlocks.MEDIA) {
                 BLOCK_ITEMS.put(id, new BlockItem(block,
                     new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id))));

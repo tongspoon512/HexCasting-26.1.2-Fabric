@@ -16,16 +16,19 @@ import org.jetbrains.annotations.Nullable;
 public class IotaPackObserverBlock extends Block implements EntityBlock {
     public static final net.minecraft.world.level.block.state.properties.EnumProperty<Direction> FACING =
         BlockStateProperties.HORIZONTAL_FACING;
+    public static final net.minecraft.world.level.block.state.properties.BooleanProperty CHARGED =
+        net.minecraft.world.level.block.state.properties.BooleanProperty.create("charged");
+
     public IotaPackObserverBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
             .setValue(FACING, Direction.NORTH)
-            .setValue(BlockStateProperties.POWER, 0));
+            .setValue(CHARGED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, BlockStateProperties.POWER);
+        builder.add(FACING, CHARGED);
     }
 
     @Nullable
@@ -41,7 +44,7 @@ public class IotaPackObserverBlock extends Block implements EntityBlock {
 
     @Override
     public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return state.getValue(BlockStateProperties.POWER);
+        return state.getValue(CHARGED) ? 15 : 0;
     }
 
     @Nullable
@@ -56,13 +59,10 @@ public class IotaPackObserverBlock extends Block implements EntityBlock {
         if (level.isClientSide()) {
             return;
         }
-        int power = 0;
-        if (level.getBlockEntity(pos.relative(state.getValue(FACING).getOpposite())) instanceof SimpleIotaBlock.BufferBlockEntity buffer
-            && buffer.getIota() != null) {
-            power = 15;
-        }
-        if (state.getValue(BlockStateProperties.POWER) != power) {
-            level.setBlock(pos, state.setValue(BlockStateProperties.POWER, power), 3);
+        boolean charged = level.getBlockEntity(pos.relative(state.getValue(FACING).getOpposite()))
+            instanceof SimpleIotaBlock.BufferBlockEntity buffer && buffer.getIota() != null;
+        if (state.getValue(CHARGED) != charged) {
+            level.setBlock(pos, state.setValue(CHARGED, charged), 3);
         }
     }
 }
