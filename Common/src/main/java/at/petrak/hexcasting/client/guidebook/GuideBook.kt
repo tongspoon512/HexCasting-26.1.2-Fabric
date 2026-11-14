@@ -1,6 +1,7 @@
 package at.petrak.hexcasting.client.guidebook
 
 import at.petrak.hexcasting.api.HexAPI
+import at.petrak.hexcasting.mixin.accessor.client.AccessorClientAdvancements
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import net.minecraft.client.Minecraft
@@ -32,6 +33,21 @@ object GuideBook {
 
     fun invalidate() {
         cached = null
+    }
+
+    /**
+     * Patchouli 语义：带 `advancement` 的条目在进度完成前保持锁定，
+     * `read_by_default` 为 true 的条目永远可见。
+     */
+    fun isEntryUnlocked(entry: GuideEntry): Boolean {
+        if (entry.readByDefault) return true
+        val raw = entry.advancement ?: return true
+        val id = Identifier.tryParse(raw) ?: return true
+        val connection = Minecraft.getInstance().connection ?: return false
+        val advancements = connection.advancements
+        advancements.get(id) ?: return false
+        val progress = (advancements as AccessorClientAdvancements).progress
+        return progress.entries.any { (holder, value) -> holder.id() == id && value.isDone }
     }
 
     private fun load(): GuideBookData {

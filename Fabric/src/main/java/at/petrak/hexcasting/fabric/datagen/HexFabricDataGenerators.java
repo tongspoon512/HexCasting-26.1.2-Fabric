@@ -60,6 +60,8 @@ public class HexFabricDataGenerators implements DataGeneratorEntrypoint {
         pack.addProvider(HexActionTagProvider::new);
         pack.addProvider((FabricDataGenerator.Pack.Factory<HexItemModelDefinitionProvider>)
             HexItemModelDefinitionProvider::new);
+        pack.addProvider((FabricDataGenerator.Pack.Factory<CreateCompatRecipeProvider>)
+            CreateCompatRecipeProvider::new);
 
         pack.addProvider((output, lookup) ->
             new AdvancementProvider(output, lookup, List.of(new HexAdvancements())));

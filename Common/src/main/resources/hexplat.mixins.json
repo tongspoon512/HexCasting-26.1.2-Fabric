@@ -20,6 +20,7 @@
   ],
   "client": [
     "accessor.client.AccessorBlockEntityRenderDispatcher",
+    "accessor.client.AccessorClientAdvancements",
     "accessor.client.AccessorGuiGraphicsExtractor",
     "accessor.client.AccessorLivingEntityRenderer",
     "accessor.client.AccessorMouseHandler",

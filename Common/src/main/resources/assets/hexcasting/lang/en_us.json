@@ -9,6 +9,7 @@
   "gui.hexcasting.guidebook.searchHint": "Type to search every entry and page text.\nEnter opens the selected result; arrow keys move through results.\n\nPress F or click Search at the bottom to open this.",
   "gui.hexcasting.guidebook.searchEmpty": "Type to start searching",
   "gui.hexcasting.guidebook.searchNoMatch": "No matching entries",
+  "gui.hexcasting.guidebook.locked": "???",
   "gui.hexcasting.guidebook.bookmarks": "Bookmarks",
   "gui.hexcasting.guidebook.bookmarksEmpty": "No bookmarks yet",
   "gui.hexcasting.guidebook.bookmarksHint": "Click the star at the bottom of a page to bookmark the spread.\nClick a bookmark to jump there, or × to remove it.\n\nPress B or click Bookmarks at the bottom to open this.",

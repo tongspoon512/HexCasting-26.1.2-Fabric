@@ -17,7 +17,6 @@ import at.petrak.hexcasting.datagen.IXplatConditionsBuilder;
 import at.petrak.hexcasting.datagen.IXplatIngredients;
 import at.petrak.hexcasting.datagen.recipe.builders.BrainsweepRecipeBuilder;
 import at.petrak.hexcasting.datagen.recipe.builders.CompatIngredientValue;
-import at.petrak.hexcasting.datagen.recipe.builders.CreateCrushingRecipeBuilder;
 import at.petrak.hexcasting.datagen.recipe.builders.FarmersDelightCuttingRecipeBuilder;
 import at.petrak.paucal.api.datagen.PaucalRecipeProvider;
 import net.minecraft.core.HolderLookup;

@@ -75,7 +75,7 @@ class GuideBookScreen(
 
     init {
         val start = initialEntry
-        if (start != null) {
+        if (start != null && GuideBook.isEntryUnlocked(start)) {
             openEntry(start, null, resetView = false)
         } else if (!restoreLastPosition()) {
             category = orderedCategories.firstOrNull()?.first
@@ -88,6 +88,7 @@ class GuideBookScreen(
         when (pos.view) {
             "entry" -> {
                 val e = pos.entryId?.let { data.entry(it) } ?: return false
+                if (!GuideBook.isEntryUnlocked(e)) return false
                 entry = e
                 category = data.category(e.categoryId)
                 view = View.ENTRY
@@ -210,12 +211,14 @@ class GuideBookScreen(
         var y = top - listScroll
         for (e in entries) {
             if (y + rowH > top - rowH && y < bottom) {
-                val hover = mx in x until x + PAGE_W && my in y until y + rowH - 1
+                val unlocked = GuideBook.isEntryUnlocked(e)
+                val hover = unlocked && mx in x until x + PAGE_W && my in y until y + rowH - 1
                 drawListRow(
                     graphics, x, y, PAGE_W, rowH,
                     e.icon, e.iconTexture,
                     GuideBook.translate(e.nameKey).string,
-                    0, hover, "entry:" + e.id
+                    0, hover, "entry:" + e.id,
+                    locked = !unlocked
                 )
             }
             y += rowH
@@ -234,9 +237,10 @@ class GuideBookScreen(
         label: String,
         indent: Int,
         hovered: Boolean,
-        target: String
+        target: String,
+        locked: Boolean = false
     ) {
-        if (hovered) {
+        if (hovered && !locked) {
             graphics.fill(x, y, x + width, y + height - 1, 0x3054398A)
         }
         val iconX = x + 2 + indent
@@ -247,11 +251,23 @@ class GuideBookScreen(
         } else {
             graphics.fill(iconX, y + 1, iconX + 16, y + 17, 0x4054398A)
         }
+        if (locked) {
+            // 未解锁条目：压暗图标并隐藏名称，点击不跳转（同 Patchouli）
+            graphics.fill(iconX, y + 1, iconX + 16, y + 17, 0x99000000.toInt())
+        }
+        val rawLabel = if (locked) text("gui.hexcasting.guidebook.locked") else label
         val available = width - 22 - indent
-        val shown = font.plainSubstrByWidth(label, available)
-        val finalText = if (shown != label) shown.dropLast(1) + "\u2026" else shown
-        graphics.text(font, finalText, x + 20 + indent, y + 5, if (hovered) LINK_COLOR else BODY_COLOR, false)
-        hits += GuideHit(x, y, x + width, y + height, target)
+        val shown = font.plainSubstrByWidth(rawLabel, available)
+        val finalText = if (shown != rawLabel) shown.dropLast(1) + "\u2026" else shown
+        val color = when {
+            locked -> MUTED_COLOR
+            hovered -> LINK_COLOR
+            else -> BODY_COLOR
+        }
+        graphics.text(font, finalText, x + 20 + indent, y + 5, color, false)
+        if (!locked) {
+            hits += GuideHit(x, y, x + width, y + height, target)
+        }
     }
 
     private fun drawDescription(graphics: GuiGraphicsExtractor, raw: String): Int {
@@ -273,6 +289,10 @@ class GuideBookScreen(
     private fun renderEntry(graphics: GuiGraphicsExtractor, mx: Int, my: Int) {
         val e = entry ?: run {
             view = View.HOME
+            return
+        }
+        if (!GuideBook.isEntryUnlocked(e)) {
+            goHome()
             return
         }
         val pages = e.pages
@@ -781,7 +801,9 @@ class GuideBookScreen(
         drawHeader(graphics, PAGE_L_X, text("gui.hexcasting.guidebook.bookmarks"))
 
         val valid = GuideBookState.bookmarks().mapNotNull { bookmark ->
-            data.entry(bookmark.entryId)?.let { it to bookmark.page }
+            data.entry(bookmark.entryId)
+                ?.takeIf { GuideBook.isEntryUnlocked(it) }
+                ?.let { it to bookmark.page }
         }
         val x = PAGE_L_X
         val top = PAGE_Y + 17
@@ -1116,7 +1138,7 @@ class GuideBookScreen(
         if (view == View.SEARCH || view == View.BOOKMARKS) overlayReturn else view
 
     private fun refreshSearch() {
-        searchResults = data.search(searchQuery)
+        searchResults = data.search(searchQuery).filter { GuideBook.isEntryUnlocked(it.entry) }
         searchSelected = 0
         searchScroll = 0
     }
@@ -1244,6 +1266,7 @@ class GuideBookScreen(
     }
 
     private fun openEntry(e: GuideEntry, anchor: String?, resetView: Boolean) {
+        if (!GuideBook.isEntryUnlocked(e)) return
         entry = e
         category = data.category(e.categoryId)
         if (resetView) view = View.ENTRY
