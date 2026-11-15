@@ -85,22 +85,13 @@ public class BoardBlock extends Block implements EntityBlock, IWrenchable {
         }
 
         int slot = slotFromHit(state, pos, player.getEyePosition(), player.getViewVector(1f));
-        ItemStack held = player.getItemInHand(InteractionHand.MAIN_HAND);
-        if (!held.isEmpty() && held.is(HexCreatingItems.SQUARE)) {
-            ItemStack existing = board.getSquare(slot);
-            if (!existing.isEmpty()) {
-                return InteractionResult.PASS;
-            }
-            board.setSquare(slot, held.copyWithCount(1));
-            if (!player.getAbilities().instabuild) {
-                held.shrink(1);
-            }
-            return InteractionResult.CONSUME;
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return InteractionResult.PASS;
         }
-
-        ItemStack removed = board.removeSquare(slot);
-        if (!removed.isEmpty()) {
-            player.getInventory().placeItemBackInInventory(removed);
+        BoardConnected connected = new BoardConnected(level, pos, state);
+        ItemStack held = player.getItemInHand(InteractionHand.MAIN_HAND);
+        if (AllBoardOperations.operate(serverLevel, pos, board, slot, board.getSquare(slot),
+            connected, connected.condition, player, held)) {
             return InteractionResult.CONSUME;
         }
         return InteractionResult.PASS;

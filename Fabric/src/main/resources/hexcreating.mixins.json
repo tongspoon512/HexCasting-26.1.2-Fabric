@@ -1,0 +1,12 @@
+{
+  "minVersion": "0.8",
+  "required": false,
+  "compatibilityLevel": "JAVA_25",
+  "package": "pub.pigeon.yggdyy.hexcreating.mixin",
+  "mixins": [
+    "FillingBySpoutMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

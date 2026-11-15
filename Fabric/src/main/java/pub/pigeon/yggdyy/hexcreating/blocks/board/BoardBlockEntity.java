@@ -28,7 +28,7 @@ public class BoardBlockEntity extends HexBlockEntity implements Container {
     }
 
     public void setSquare(int slot, ItemStack stack) {
-        this.squares.set(slot, stack);
+        this.squares.set(slot, stack.getCount() > 1 ? stack.copyWithCount(1) : stack);
         this.sync();
     }
 

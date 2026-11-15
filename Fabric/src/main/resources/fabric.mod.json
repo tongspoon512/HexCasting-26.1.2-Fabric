@@ -35,7 +35,8 @@
       "ram.talia.moreiotas.fabric.cc.MoreIotasCardinalComponents"
     ],
     "jei_mod_plugin": [
-      "at.petrak.hexcasting.interop.jei.HexJEIPlugin"
+      "at.petrak.hexcasting.interop.jei.HexJEIPlugin",
+      "pub.pigeon.yggdyy.hexcreating.client.HexCreatingJeiPlugin"
     ],
     "modmenu": [
       "at.petrak.hexcasting.fabric.interop.ModMenuInterop"
@@ -43,7 +44,8 @@
   },
   "mixins": [
     "hexplat.mixins.json",
-    "fabricasting.mixins.json"
+    "fabricasting.mixins.json",
+    "hexcreating.mixins.json"
   ],
   "accessWidener": "fabricasting.accesswidener",
   "depends": {

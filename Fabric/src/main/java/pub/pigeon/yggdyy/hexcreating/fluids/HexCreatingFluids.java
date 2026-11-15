@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -188,7 +189,7 @@ public final class HexCreatingFluids {
 
             @Override
             protected BlockState createLegacyBlock(FluidState state) {
-                return HexCreatingBlocks.MEDIA.defaultBlockState().setValue(LiquidBlock.LEVEL, 8);
+                return HexCreatingBlocks.MEDIA.defaultBlockState().setValue(LiquidBlock.LEVEL, getLegacyLevel(state));
             }
         }
     }
@@ -227,7 +228,7 @@ public final class HexCreatingFluids {
 
             @Override
             public Item getBucket() {
-                return null;
+                return Items.AIR;
             }
 
             @Override
@@ -298,7 +299,7 @@ public final class HexCreatingFluids {
 
             @Override
             public Item getBucket() {
-                return null;
+                return Items.AIR;
             }
 
             @Override

@@ -21,7 +21,7 @@ public final class HexCreatingItems {
     public static final Item IOTA_WIRE_CONNECTOR_TECH = register("iota_wire_connector_tech", Item::new);
     public static final Item IOTA_WIRE = register("iota_wire", Item::new);
     public static final Item RAW_SOUL = register("raw_soul",
-        p -> new Item(p.fireResistant().rarity(Rarity.UNCOMMON)));
+        p -> new RawSoulItem(p.fireResistant().rarity(Rarity.UNCOMMON)));
     public static final Item UNFINISHED_TRAIN_GATE_FRAME = register("unfinished_train_gate_frame",
         p -> new SequencedAssemblyItem(p.stacksTo(1)));
     public static final Item SQUARE = register("square", SquareItem::new);

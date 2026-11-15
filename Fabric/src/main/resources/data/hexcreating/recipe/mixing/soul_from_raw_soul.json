@@ -1,0 +1,28 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "create:mixing",
+  "heat_requirement": "heated",
+  "ingredients": [
+    "hexcreating:raw_soul"
+  ],
+  "fluid_ingredients": [
+    {
+      "type": "fluid_stack",
+      "amount": 2025,
+      "fluid": "hexcreating:media"
+    }
+  ],
+  "fluid_results": [
+    {
+      "amount": 2025,
+      "id": "hexcreating:soul"
+    }
+  ]
+}

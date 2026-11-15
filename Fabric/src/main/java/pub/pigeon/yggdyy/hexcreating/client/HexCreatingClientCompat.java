@@ -20,5 +20,6 @@ public final class HexCreatingClientCompat {
             return;
         }
         HexCreatingPonder.register();
+        HexCreatingClientRegistration.register();
     }
 }

@@ -1,0 +1,24 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " C ",
+    "CAC",
+    " C "
+  ],
+  "key": {
+    "C": "create:copper_sheet",
+    "A": "hexcasting:amethyst_dust"
+  },
+  "result": {
+    "id": "hexcreating:iota_wire",
+    "count": 4
+  }
+}
