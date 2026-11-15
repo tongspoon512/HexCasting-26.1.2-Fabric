@@ -304,13 +304,14 @@ class GuideBookScreen(
         val rightIndex = leftIndex + 1
 
         val leftHeader = if (leftIndex < pages.size) headerOf(e, pages[leftIndex], leftIndex) else null
-        bodyHeightLeft = PAGE_H - if (leftHeader != null) 18 else 5
+        // 与 renderPage 里的正文区域保持一致：top = PAGE_Y + (18 或 3)，bottom = PAGE_Y + PAGE_H - 10
+        bodyHeightLeft = PAGE_H - if (leftHeader != null) 28 else 13
         contentLeft = if (leftIndex < pages.size) {
             renderPage(graphics, e, leftIndex, PAGE_L_X, leftHeader, mx, my, scrollLeft)
         } else 0
 
         val rightHeader = if (rightIndex < pages.size) headerOf(e, pages[rightIndex], rightIndex) else null
-        bodyHeightRight = PAGE_H - if (rightHeader != null) 18 else 5
+        bodyHeightRight = PAGE_H - if (rightHeader != null) 28 else 13
         contentRight = if (rightIndex < pages.size) {
             renderPage(graphics, e, rightIndex, PAGE_R_X, rightHeader, mx, my, scrollRight)
         } else 0

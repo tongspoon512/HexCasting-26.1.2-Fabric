@@ -69,9 +69,15 @@ public record MsgShiftScrollC2S(double mainHandDelta, double offHandDelta, boole
     }
 
     private void spellbook(ServerPlayer sender, InteractionHand hand, ItemStack stack, double delta) {
-        var newIdx = ItemSpellbook.rotatePageIdx(stack, delta < 0.0);
-
         var len = ItemSpellbook.highestPage(stack);
+        if (len <= 0) {
+            // 还没有任何页时不要翻出幽灵页
+            return;
+        }
+
+        // 滚几格就翻几页；delta < 0 表示向后翻
+        int steps = Math.max(1, (int) Math.round(Math.abs(delta)));
+        var newIdx = ItemSpellbook.rotatePageIdx(stack, delta < 0.0 ? steps : -steps);
 
         var sealed = ItemSpellbook.isSealed(stack);
 

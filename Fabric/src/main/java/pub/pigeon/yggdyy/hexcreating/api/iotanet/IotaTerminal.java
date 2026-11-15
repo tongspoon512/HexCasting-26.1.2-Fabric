@@ -57,7 +57,7 @@ public class IotaTerminal {
         if (this.lastAcceptTime != now) {
             this.lastAcceptTime = now;
             this.receivedId = new ArrayList<>(List.of(pack.id));
-        } else {
+        } else if (!this.receivedId.contains(pack.id)) {
             this.receivedId.add(pack.id);
         }
         this.blockEntity.setChanged();

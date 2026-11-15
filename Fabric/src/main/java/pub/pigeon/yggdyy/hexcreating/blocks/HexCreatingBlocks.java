@@ -15,6 +15,8 @@ import pub.pigeon.yggdyy.hexcreating.blocks.board.BoardBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_amplifier.CircleAmplifierBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_inputer.CircleInputerBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_outputer.CircleOutputerBlock;
+import pub.pigeon.yggdyy.hexcreating.blocks.iotareader.IotaReaderBlock;
+import pub.pigeon.yggdyy.hexcreating.blocks.iotawriter.IotaWriteBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.train_gate.TrainGateBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.train_gate.TrainGateCoreBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.train_gate.TrainGateFrameBlock;
@@ -62,11 +64,11 @@ public final class HexCreatingBlocks {
         metalProps("train_gate_core"));
 
     public static final Block IOTA_READER = block("iota_reader",
-        p -> new SimpleIotaBlock(p, true), metalProps("iota_reader"));
+        IotaReaderBlock::new, metalProps("iota_reader"));
     public static final Block IOTA_WRITER = block("iota_writer",
-        p -> new SimpleIotaBlock(p, false), metalProps("iota_writer"));
+        IotaWriteBlock::new, metalProps("iota_writer"));
     public static final Block IOTA_WIRE_CONNECTOR = block("iota_wire_connector", IotaWireConnectorBlock::new,
-        metalProps("iota_wire_connector"));
+        metalProps("iota_wire_connector").noOcclusion().dynamicShape());
     public static final Block IOTA_PACK_OBSERVER = block("iota_pack_observer", IotaPackObserverBlock::new,
         metalProps("iota_pack_observer"));
 

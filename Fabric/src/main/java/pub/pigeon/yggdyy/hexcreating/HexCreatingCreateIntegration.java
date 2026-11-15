@@ -16,8 +16,8 @@ public final class HexCreatingCreateIntegration {
 
     public static void init() {
         BlockStressValues.IMPACTS.register(HexCreatingBlocks.CIRCLE_AMPLIFIER, () -> 4.0);
-        BlockStressValues.IMPACTS.register(HexCreatingBlocks.IOTA_READER, () -> 1.0);
-        BlockStressValues.IMPACTS.register(HexCreatingBlocks.IOTA_WRITER, () -> 1.0);
+        BlockStressValues.IMPACTS.register(HexCreatingBlocks.IOTA_READER, () -> 2.0);
+        BlockStressValues.IMPACTS.register(HexCreatingBlocks.IOTA_WRITER, () -> 2.0);
         BlockStressValues.IMPACTS.register(HexCreatingBlocks.IOTA_WIRE_CONNECTOR, () -> 0.0);
         BlockStressValues.IMPACTS.register(HexCreatingBlocks.ANALYTICAL_ENGINE_KINETIC_INTERFACE, () -> 8.0);
         HexCreatingDisplaySources.register();

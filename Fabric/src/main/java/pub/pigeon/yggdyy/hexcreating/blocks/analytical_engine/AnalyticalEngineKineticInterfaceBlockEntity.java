@@ -25,6 +25,7 @@ public class AnalyticalEngineKineticInterfaceBlockEntity extends KineticBlockEnt
 
     @Override
     public float calculateStressApplied() {
-        return BASE_STRESS + STRESS_PER_ALU * this.cluster().clampedAluCount();
+        this.lastStressApplied = BASE_STRESS + STRESS_PER_ALU * this.cluster().clampedAluCount();
+        return this.lastStressApplied;
     }
 }

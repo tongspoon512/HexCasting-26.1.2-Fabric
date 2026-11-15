@@ -16,8 +16,9 @@ import java.util.function.Function;
 public final class HexCreatingItems {
     private static final Map<Identifier, Item> ITEMS = new LinkedHashMap<>();
 
-    public static final Item IOTA_WIRE_REEL = register("iota_wire_reel", Item::new);
+    public static final Item IOTA_WIRE_REEL = register("iota_wire_reel", IotaWireReelItem::new);
     public static final Item EMPTY_REEL = register("empty_reel", Item::new);
+    public static final Item IOTA_WIRE_CONNECTOR = register("iota_wire_connector", IotaWireConnectorItem::new);
     public static final Item IOTA_WIRE_CONNECTOR_TECH = register("iota_wire_connector_tech", Item::new);
     public static final Item IOTA_WIRE = register("iota_wire", Item::new);
     public static final Item RAW_SOUL = register("raw_soul",

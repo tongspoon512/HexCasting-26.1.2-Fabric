@@ -12,7 +12,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -231,18 +230,21 @@ public class ItemSpellbook extends Item implements IotaHolderItem, VariantItem {
         }).max(Integer::compare).orElse(0);
     }
 
-    public static int rotatePageIdx(ItemStack stack, boolean increase) {
-        int idx = getPage(stack, 0);
-        if (idx != 0) {
-            idx += increase ? 1 : -1;
-            idx = Math.max(1, idx);
+    /**
+     * 前后翻页。步数可以大于 1，且只在已有页（1..最高页）之间循环，
+     * 不会翻到没有内容的空白页。
+     */
+    public static int rotatePageIdx(ItemStack stack, int steps) {
+        int highest = highestPage(stack);
+        if (highest <= 0) {
+            return 0;
         }
-        idx = Mth.clamp(idx, 0, MAX_PAGES);
+
+        int idx = Math.floorMod(getPage(stack, 1) - 1 + steps, highest) + 1;
         NBTHelper.putInt(stack, TAG_SELECTED_PAGE, idx);
 
         CompoundTag names = NBTHelper.getCompound(stack, TAG_PAGE_NAMES);
-        int shiftedIdx = Math.max(1, idx);
-        String nameKey = String.valueOf(shiftedIdx);
+        String nameKey = String.valueOf(idx);
         var nameTag = names == null ? null : names.get(nameKey);
         if (nameTag != null) {
             ComponentSerialization.CODEC.parse(NbtOps.INSTANCE, nameTag).result()

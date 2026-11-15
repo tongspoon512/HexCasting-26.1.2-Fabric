@@ -5,7 +5,6 @@ import at.petrak.hexcasting.common.msgs.IMessage;
 import at.petrak.hexcasting.fabric.cc.HexCardinalComponents;
 import at.petrak.hexcasting.fabric.interop.trinkets.TrinketsApiInterop;
 import at.petrak.hexcasting.fabric.network.FabricPacketHandler;
-import at.petrak.hexcasting.interop.HexInterop;
 import at.petrak.hexcasting.xplat.IClientXplatAbstractions;
 import at.petrak.hexcasting.xplat.ItemPropertyFunction;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
@@ -34,7 +33,8 @@ public class FabricClientXplatImpl implements IClientXplatAbstractions {
 
     @Override
     public void initPlatformSpecific() {
-        if (IXplatAbstractions.INSTANCE.isModPresent(HexInterop.Fabric.TRINKETS_API_ID)) {
+        if (IXplatAbstractions.INSTANCE.isModPresent("trinkets")
+            || IXplatAbstractions.INSTANCE.isModPresent("trinkets_updated")) {
             TrinketsApiInterop.clientInit();
         }
     }

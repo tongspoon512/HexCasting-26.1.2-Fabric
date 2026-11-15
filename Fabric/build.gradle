@@ -113,6 +113,10 @@ dependencies {
     // The jar is already in official Mojang names, matching disableObfuscation.
     compileOnly files(rootProject.file("libs/create-fly-26.1.2-6.0.9-4.jar"))
     runtimeOnly files(rootProject.file("libs/create-fly-26.1.2-6.0.9-4.jar"))
+
+    // Trinkets 4 (trinkets_updated) — accessory slots, already in official Mojang names.
+    compileOnly files(rootProject.file("libs/trinkets-4.0.1+26.1.jar"))
+    runtimeOnly files(rootProject.file("libs/trinkets-4.0.1+26.1.jar"))
 }
 
 tasks.named("compileJava", JavaCompile) {

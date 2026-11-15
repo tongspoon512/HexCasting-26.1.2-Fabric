@@ -123,7 +123,7 @@ public class FabricXplatImpl implements IXplatAbstractions {
 
     @Override
     public void initPlatformSpecific() {
-        if (this.isModPresent(HexInterop.Fabric.TRINKETS_API_ID)) {
+        if (this.isModPresent("trinkets") || this.isModPresent("trinkets_updated")) {
             TrinketsApiInterop.init();
         }
     }

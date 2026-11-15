@@ -147,8 +147,14 @@ public class HexAdditionalRenderers {
             return;
         }
 
-        if (player.getAttributeValue(HexAttributes.holder(HexAttributes.SCRY_SIGHT)) <= 0.0
-            || player.getAttributeValue(HexAttributes.holder(HexAttributes.FEEBLE_MIND)) > 0)
+        if (player.getAttributeValue(HexAttributes.holder(HexAttributes.FEEBLE_MIND)) > 0)
+            return;
+
+        // Wearing the lens grants SCRY_SIGHT; holding it in either hand is the documented alternative.
+        boolean wearingLens = player.getAttributeValue(HexAttributes.holder(HexAttributes.SCRY_SIGHT)) > 0.0;
+        boolean holdingLens = player.getMainHandItem().is(at.petrak.hexcasting.common.lib.HexItems.SCRYING_LENS)
+            || player.getOffhandItem().is(at.petrak.hexcasting.common.lib.HexItems.SCRYING_LENS);
+        if (!wearingLens && !holdingLens)
             return;
 
         var hitRes = mc.hitResult;

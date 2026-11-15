@@ -1,21 +1,5 @@
 {
   "type": "minecraft:block",
-  "pools": [
-    {
-      "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
-        }
-      ],
-      "entries": [
-        {
-          "type": "minecraft:item",
-          "name": "hexcreating:iota_wire_connector"
-        }
-      ],
-      "rolls": 1.0
-    }
-  ],
+  "pools": [],
   "random_sequence": "hexcreating:blocks/iota_wire_connector"
 }

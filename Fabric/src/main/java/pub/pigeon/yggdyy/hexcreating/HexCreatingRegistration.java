@@ -32,10 +32,15 @@ public final class HexCreatingRegistration {
         HexCreatingBlocks.registerBlocks(r);
         HexCreatingBlocks.all().forEach((id, block) -> {
             // 流体块由桶物品处理，不再生成 BlockItem。
-            if (block != HexCreatingBlocks.MEDIA) {
-                BLOCK_ITEMS.put(id, new BlockItem(block,
-                    new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id))));
+            if (block == HexCreatingBlocks.MEDIA) {
+                return;
             }
+            // 连接器不是普通方块，而是由物品按面逐个放置端子。
+            if (block == HexCreatingBlocks.IOTA_WIRE_CONNECTOR) {
+                return;
+            }
+            BLOCK_ITEMS.put(id, new BlockItem(block,
+                new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id))));
         });
     }
 

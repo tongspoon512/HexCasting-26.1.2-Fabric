@@ -63,7 +63,8 @@ object GuideMarkup {
         var i = 0
         while (i < text.length) {
             when {
-                text.startsWith("$/", i) -> {
+                // 这本上游书的关闭标记是 `/$`（738 处），也兼容 `$/`
+                text.startsWith("/$", i) || text.startsWith("$/", i) -> {
                     flush()
                     state = if (stack.isEmpty()) BASE else stack.removeLast()
                     i += 2
@@ -140,7 +141,9 @@ object GuideMarkup {
                                 val key = "key." + code.substring(2)
                                 sb.append(if (I18n.exists(key)) I18n.get(key) else code.substring(2))
                             }
-                            else -> sb.append("\$(").append(code).append(')')
+                            else -> {
+                                // 未知标记直接丢弃，避免把 "$(...)" 原样画到书页上
+                            }
                         }
                         i = close + 1
                     }
@@ -296,9 +299,15 @@ object GuideText {
                             }
                         }
                         remaining = remaining.substring(cut)
-                        cursorY += lineHeight
-                        cursorX = 0
-                        firstWordOnLine = true
+                        if (remaining.isEmpty()) {
+                            // 拆完最后一段就停在本行，避免多出一行空白把后文顶出页面
+                            cursorX += pieceWidth
+                            firstWordOnLine = false
+                        } else {
+                            cursorY += lineHeight
+                            cursorX = 0
+                            firstWordOnLine = true
+                        }
                     }
                 }
             }
@@ -308,15 +317,30 @@ object GuideText {
 
     private fun tokenize(spans: List<GuideMarkup.Span>): List<Token> {
         val tokens = ArrayList<Token>()
+        // 跨 span 记录空格，避免标记两侧的空格被吞掉导致单词粘连
+        var pendingSpace = false
+        var hasWordOnLine = false
         for (span in spans) {
             val parts = span.text.split('\n')
             for ((index, part) in parts.withIndex()) {
-                if (index > 0) tokens += Token.Break
-                if (part.isEmpty()) continue
+                if (index > 0) {
+                    tokens += Token.Break
+                    pendingSpace = false
+                    hasWordOnLine = false
+                }
+                if (part.isEmpty()) {
+                    pendingSpace = true
+                    continue
+                }
                 val words = part.split(' ')
-                for ((wordIndex, word) in words.withIndex()) {
-                    if (word.isEmpty()) continue
-                    tokens += Token.W(Word(word, span, wordIndex > 0))
+                for (word in words) {
+                    if (word.isEmpty()) {
+                        pendingSpace = true
+                        continue
+                    }
+                    tokens += Token.W(Word(word, span, pendingSpace && hasWordOnLine))
+                    pendingSpace = false
+                    hasWordOnLine = true
                 }
             }
         }

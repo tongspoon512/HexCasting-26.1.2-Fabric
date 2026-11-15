@@ -8,7 +8,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -17,6 +16,11 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 import pub.pigeon.yggdyy.hexcreating.blocks.HexCreatingBlockEntities;
+import pub.pigeon.yggdyy.hexcreating.api.iotanet.IIotaTerminalHost;
+import pub.pigeon.yggdyy.hexcreating.api.iotanet.IotaPack;
+import pub.pigeon.yggdyy.hexcreating.api.iotanet.IotaTerminal;
+
+import java.util.List;
 
 /**
  * A compact iota buffer used by the reader/writer pair. The Create belt/arm integration is
@@ -50,15 +54,17 @@ public class SimpleIotaBlock extends Block implements EntityBlock {
         return new BufferBlockEntity(pos, state, this.readOnly);
     }
 
-    public static class BufferBlockEntity extends HexBlockEntity {
+    public static class BufferBlockEntity extends HexBlockEntity implements IIotaTerminalHost {
         private static final String TAG_IOTA = "iota";
         private final boolean readOnly;
+        private final IotaTerminal terminal;
         @Nullable
         private Iota iota;
 
         public BufferBlockEntity(BlockPos pos, BlockState state, boolean readOnly) {
             super(HexCreatingBlockEntities.SIMPLE_IOTA_BUFFER, pos, state);
             this.readOnly = readOnly;
+            this.terminal = new IotaTerminal(this, 0);
         }
 
         public @Nullable Iota getIota() {
@@ -76,6 +82,7 @@ public class SimpleIotaBlock extends Block implements EntityBlock {
 
         @Override
         protected void saveModData(CompoundTag tag) {
+            this.terminal.writeNbt(tag);
             if (this.iota != null) {
                 tag.put(TAG_IOTA, IotaType.serialize(this.iota));
             }
@@ -83,9 +90,27 @@ public class SimpleIotaBlock extends Block implements EntityBlock {
 
         @Override
         protected void loadModData(CompoundTag tag) {
+            this.terminal.readNbt(tag);
             if (this.level instanceof ServerLevel serverLevel) {
                 tag.getCompound(TAG_IOTA).ifPresent(saved -> this.iota = IotaType.deserialize(saved, serverLevel));
             }
+        }
+
+        @Override
+        public List<IotaTerminal> getTerminals() {
+            return List.of(this.terminal);
+        }
+
+        @Override
+        public boolean tryReceiveIotaPack(IotaPack pack, IotaTerminal from, IotaTerminal to) {
+            this.iota = pack.iota;
+            this.sync();
+            return true;
+        }
+
+        @Override
+        public @Nullable IotaTerminal getDefaultTerminal(IotaTerminal from) {
+            return this.terminal;
         }
     }
 }
