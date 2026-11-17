@@ -101,6 +101,14 @@
       "input": "",
       "output": "num",
       "text": "hexcasting.page.basics_pattern.get_media"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:boolean_plane",
+      "anchor": "hexcasting:boolean_plane",
+      "input": "",
+      "output": "bool",
+      "text": "hexcasting.page.basics_pattern.boolean_plane"
     }
   ]
 }

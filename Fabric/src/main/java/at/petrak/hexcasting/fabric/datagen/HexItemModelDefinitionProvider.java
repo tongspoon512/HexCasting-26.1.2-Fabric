@@ -2,6 +2,7 @@ package at.petrak.hexcasting.fabric.datagen;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import at.petrak.hexcasting.client.item.SpellbookStateModelProperty;
 import at.petrak.hexcasting.common.items.storage.ItemScroll;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
@@ -37,13 +38,20 @@ public class HexItemModelDefinitionProvider implements DataProvider {
     private static final Set<String> PACKAGED_ITEMS = Set.of("artifact", "trinket", "cypher", "ancient_cypher");
     private static final int VARIANTS = 8;
 
+    private static final String[] PHIAL_SIZES = {"small", "medium", "large", "larger", "largest"};
+    /**
+     * {@code hexcasting:max_media} maps the capacity through the same log curve the old item
+     * predicate used; the five phial tiers land on 0..4, matching the original override values.
+     */
+    private static final float[] PHIAL_SIZE_THRESHOLDS = {0.0f, 1.0f, 2.0f, 3.0f, 4.0f};
+    private static final float[] PHIAL_FILL_THRESHOLDS = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
+
     static {
         STATIC_MODELS.put("quenched_allay", "block/quenched_allay_0");
         STATIC_MODELS.put("quenched_allay_tiles", "block/deco/quenched_allay_tiles_0");
         STATIC_MODELS.put("quenched_allay_bricks", "block/deco/quenched_allay_bricks_0");
         STATIC_MODELS.put("quenched_allay_bricks_small", "block/deco/quenched_allay_bricks_small_0");
         STATIC_MODELS.put("quenched_allay_shard", "item/quenched_shard_0");
-        STATIC_MODELS.put("battery", "item/phial_small_0");
         STATIC_MODELS.put("staff/quenched", "item/staff/quenched_0");
     }
 
@@ -68,6 +76,10 @@ public class HexItemModelDefinitionProvider implements DataProvider {
             var path = id.getPath();
             if ("focus".equals(path)) {
                 model = sealableVariantModel(path);
+            } else if ("spellbook".equals(path)) {
+                model = spellbookModel(path);
+            } else if ("battery".equals(path)) {
+                model = batteryModel();
             } else if ("thought_knot".equals(path)) {
                 model = thoughtKnotModel();
             } else if ("slate".equals(path)) {
@@ -180,6 +192,60 @@ public class HexItemModelDefinitionProvider implements DataProvider {
 
             return componentCondition(sealedTag, sealed, componentCondition(dataTag, filled, plain));
         });
+    }
+
+    private static JsonObject spellbookModel(String path) {
+        return variantChain(variant -> {
+            var sealed = tintedModel("item/" + path + "_" + variant + "_sealed");
+            var filled = tintedModel("item/" + path + "_" + variant + "_filled");
+            var plain = simpleModel(variant == 0 ? "item/" + path : "item/" + path + "_" + variant);
+
+            return spellbookState(SpellbookStateModelProperty.SEALED, sealed,
+                spellbookState(SpellbookStateModelProperty.HAS_IOTA, filled, plain));
+        });
+    }
+
+    private static JsonObject spellbookState(String state, JsonObject onTrue, JsonObject onFalse) {
+        var condition = new JsonObject();
+        condition.addProperty("type", "minecraft:condition");
+        condition.addProperty("property", NAMESPACE + ":spellbook_state");
+        condition.addProperty("state", state);
+        condition.add("on_true", onTrue);
+        condition.add("on_false", onFalse);
+        return condition;
+    }
+
+    /**
+     * The media battery shows one of five bottle sizes and five fill levels. 26.1 removed the old
+     * item predicate overrides, so model the same two dimensions as nested range dispatches.
+     */
+    private static JsonObject batteryModel() {
+        var sizeEntries = new JsonArray();
+        for (var size = 0; size < PHIAL_SIZES.length; size++) {
+            var fillEntries = new JsonArray();
+            for (var fill = 0; fill < PHIAL_FILL_THRESHOLDS.length; fill++) {
+                fillEntries.add(rangeEntry(PHIAL_FILL_THRESHOLDS[fill],
+                    simpleModel("item/phial_" + PHIAL_SIZES[size] + "_" + fill)));
+            }
+            sizeEntries.add(rangeEntry(PHIAL_SIZE_THRESHOLDS[size],
+                rangeDispatch("hexcasting:media", fillEntries)));
+        }
+        return rangeDispatch("hexcasting:max_media", sizeEntries);
+    }
+
+    private static JsonObject rangeDispatch(String property, JsonArray entries) {
+        var dispatch = new JsonObject();
+        dispatch.addProperty("type", "minecraft:range_dispatch");
+        dispatch.addProperty("property", property);
+        dispatch.add("entries", entries);
+        return dispatch;
+    }
+
+    private static JsonObject rangeEntry(float threshold, JsonObject model) {
+        var entry = new JsonObject();
+        entry.addProperty("threshold", threshold);
+        entry.add("model", model);
+        return entry;
     }
 
     private static JsonObject thoughtKnotModel() {

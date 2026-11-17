@@ -17,6 +17,7 @@
   "client": [
     "client.FabricConditionalItemModelPropertiesMixin",
     "client.FabricItemTintSourcesMixin",
+    "client.FabricRangeSelectItemModelPropertiesMixin",
     "client.FabricMouseHandlerMixin",
     "client.FabricParticleEngineMixin",
     "client.FabricParticleResourcesMixin",

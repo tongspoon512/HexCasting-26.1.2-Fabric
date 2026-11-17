@@ -16,6 +16,7 @@ import at.petrak.hexcasting.common.casting.actions.akashic.OpAkashicWrite;
 import at.petrak.hexcasting.common.casting.actions.circles.OpCircleBounds;
 import at.petrak.hexcasting.common.casting.actions.circles.OpImpetusDir;
 import at.petrak.hexcasting.common.casting.actions.circles.OpImpetusPos;
+import at.petrak.hexcasting.common.casting.actions.environment.OpBooleanPlane;
 import at.petrak.hexcasting.common.casting.actions.environment.OpGetMedia;
 import at.petrak.hexcasting.common.casting.actions.escaping.*;
 import at.petrak.hexcasting.common.casting.actions.eval.*;
@@ -103,6 +104,8 @@ public class HexActions {
         new ActionRegistryEntry(HexPattern.fromAngles("weaqa", HexDir.EAST), OpEntityRaycast.INSTANCE));
     public static final ActionRegistryEntry GET_MEDIA = make("get_media",
         new ActionRegistryEntry(HexPattern.fromAngles("dde", HexDir.WEST), OpGetMedia.INSTANCE));
+    public static final ActionRegistryEntry BOOLEAN_PLANE = make("boolean_plane",
+        new ActionRegistryEntry(HexPattern.fromAngles("qwqawq", HexDir.EAST), OpBooleanPlane.INSTANCE));
 
     // == spell circle getters ==
 

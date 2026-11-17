@@ -1,6 +1,357 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "hexcasting:item/spellbook"
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:condition",
+      "on_false": {
+        "type": "minecraft:condition",
+        "on_false": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:condition",
+            "on_false": {
+              "type": "minecraft:condition",
+              "on_false": {
+                "type": "minecraft:condition",
+                "on_false": {
+                  "type": "minecraft:condition",
+                  "on_false": {
+                    "type": "minecraft:condition",
+                    "on_false": {
+                      "type": "minecraft:model",
+                      "model": "hexcasting:item/spellbook"
+                    },
+                    "on_true": {
+                      "type": "minecraft:model",
+                      "model": "hexcasting:item/spellbook_0_filled",
+                      "tints": [
+                        {
+                          "type": "minecraft:constant",
+                          "value": -1
+                        },
+                        {
+                          "type": "hexcasting:iota_storage_color"
+                        }
+                      ]
+                    },
+                    "property": "hexcasting:spellbook_state",
+                    "state": "has_iota"
+                  },
+                  "on_true": {
+                    "type": "minecraft:model",
+                    "model": "hexcasting:item/spellbook_0_sealed",
+                    "tints": [
+                      {
+                        "type": "minecraft:constant",
+                        "value": -1
+                      },
+                      {
+                        "type": "hexcasting:iota_storage_color"
+                      }
+                    ]
+                  },
+                  "property": "hexcasting:spellbook_state",
+                  "state": "sealed"
+                },
+                "on_true": {
+                  "type": "minecraft:condition",
+                  "on_false": {
+                    "type": "minecraft:condition",
+                    "on_false": {
+                      "type": "minecraft:model",
+                      "model": "hexcasting:item/spellbook_1"
+                    },
+                    "on_true": {
+                      "type": "minecraft:model",
+                      "model": "hexcasting:item/spellbook_1_filled",
+                      "tints": [
+                        {
+                          "type": "minecraft:constant",
+                          "value": -1
+                        },
+                        {
+                          "type": "hexcasting:iota_storage_color"
+                        }
+                      ]
+                    },
+                    "property": "hexcasting:spellbook_state",
+                    "state": "has_iota"
+                  },
+                  "on_true": {
+                    "type": "minecraft:model",
+                    "model": "hexcasting:item/spellbook_1_sealed",
+                    "tints": [
+                      {
+                        "type": "minecraft:constant",
+                        "value": -1
+                      },
+                      {
+                        "type": "hexcasting:iota_storage_color"
+                      }
+                    ]
+                  },
+                  "property": "hexcasting:spellbook_state",
+                  "state": "sealed"
+                },
+                "property": "hexcasting:variant",
+                "variant": 1
+              },
+              "on_true": {
+                "type": "minecraft:condition",
+                "on_false": {
+                  "type": "minecraft:condition",
+                  "on_false": {
+                    "type": "minecraft:model",
+                    "model": "hexcasting:item/spellbook_2"
+                  },
+                  "on_true": {
+                    "type": "minecraft:model",
+                    "model": "hexcasting:item/spellbook_2_filled",
+                    "tints": [
+                      {
+                        "type": "minecraft:constant",
+                        "value": -1
+                      },
+                      {
+                        "type": "hexcasting:iota_storage_color"
+                      }
+                    ]
+                  },
+                  "property": "hexcasting:spellbook_state",
+                  "state": "has_iota"
+                },
+                "on_true": {
+                  "type": "minecraft:model",
+                  "model": "hexcasting:item/spellbook_2_sealed",
+                  "tints": [
+                    {
+                      "type": "minecraft:constant",
+                      "value": -1
+                    },
+                    {
+                      "type": "hexcasting:iota_storage_color"
+                    }
+                  ]
+                },
+                "property": "hexcasting:spellbook_state",
+                "state": "sealed"
+              },
+              "property": "hexcasting:variant",
+              "variant": 2
+            },
+            "on_true": {
+              "type": "minecraft:condition",
+              "on_false": {
+                "type": "minecraft:condition",
+                "on_false": {
+                  "type": "minecraft:model",
+                  "model": "hexcasting:item/spellbook_3"
+                },
+                "on_true": {
+                  "type": "minecraft:model",
+                  "model": "hexcasting:item/spellbook_3_filled",
+                  "tints": [
+                    {
+                      "type": "minecraft:constant",
+                      "value": -1
+                    },
+                    {
+                      "type": "hexcasting:iota_storage_color"
+                    }
+                  ]
+                },
+                "property": "hexcasting:spellbook_state",
+                "state": "has_iota"
+              },
+              "on_true": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/spellbook_3_sealed",
+                "tints": [
+                  {
+                    "type": "minecraft:constant",
+                    "value": -1
+                  },
+                  {
+                    "type": "hexcasting:iota_storage_color"
+                  }
+                ]
+              },
+              "property": "hexcasting:spellbook_state",
+              "state": "sealed"
+            },
+            "property": "hexcasting:variant",
+            "variant": 3
+          },
+          "on_true": {
+            "type": "minecraft:condition",
+            "on_false": {
+              "type": "minecraft:condition",
+              "on_false": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/spellbook_4"
+              },
+              "on_true": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/spellbook_4_filled",
+                "tints": [
+                  {
+                    "type": "minecraft:constant",
+                    "value": -1
+                  },
+                  {
+                    "type": "hexcasting:iota_storage_color"
+                  }
+                ]
+              },
+              "property": "hexcasting:spellbook_state",
+              "state": "has_iota"
+            },
+            "on_true": {
+              "type": "minecraft:model",
+              "model": "hexcasting:item/spellbook_4_sealed",
+              "tints": [
+                {
+                  "type": "minecraft:constant",
+                  "value": -1
+                },
+                {
+                  "type": "hexcasting:iota_storage_color"
+                }
+              ]
+            },
+            "property": "hexcasting:spellbook_state",
+            "state": "sealed"
+          },
+          "property": "hexcasting:variant",
+          "variant": 4
+        },
+        "on_true": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:condition",
+            "on_false": {
+              "type": "minecraft:model",
+              "model": "hexcasting:item/spellbook_5"
+            },
+            "on_true": {
+              "type": "minecraft:model",
+              "model": "hexcasting:item/spellbook_5_filled",
+              "tints": [
+                {
+                  "type": "minecraft:constant",
+                  "value": -1
+                },
+                {
+                  "type": "hexcasting:iota_storage_color"
+                }
+              ]
+            },
+            "property": "hexcasting:spellbook_state",
+            "state": "has_iota"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "hexcasting:item/spellbook_5_sealed",
+            "tints": [
+              {
+                "type": "minecraft:constant",
+                "value": -1
+              },
+              {
+                "type": "hexcasting:iota_storage_color"
+              }
+            ]
+          },
+          "property": "hexcasting:spellbook_state",
+          "state": "sealed"
+        },
+        "property": "hexcasting:variant",
+        "variant": 5
+      },
+      "on_true": {
+        "type": "minecraft:condition",
+        "on_false": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "hexcasting:item/spellbook_6"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "hexcasting:item/spellbook_6_filled",
+            "tints": [
+              {
+                "type": "minecraft:constant",
+                "value": -1
+              },
+              {
+                "type": "hexcasting:iota_storage_color"
+              }
+            ]
+          },
+          "property": "hexcasting:spellbook_state",
+          "state": "has_iota"
+        },
+        "on_true": {
+          "type": "minecraft:model",
+          "model": "hexcasting:item/spellbook_6_sealed",
+          "tints": [
+            {
+              "type": "minecraft:constant",
+              "value": -1
+            },
+            {
+              "type": "hexcasting:iota_storage_color"
+            }
+          ]
+        },
+        "property": "hexcasting:spellbook_state",
+        "state": "sealed"
+      },
+      "property": "hexcasting:variant",
+      "variant": 6
+    },
+    "on_true": {
+      "type": "minecraft:condition",
+      "on_false": {
+        "type": "minecraft:condition",
+        "on_false": {
+          "type": "minecraft:model",
+          "model": "hexcasting:item/spellbook_7"
+        },
+        "on_true": {
+          "type": "minecraft:model",
+          "model": "hexcasting:item/spellbook_7_filled",
+          "tints": [
+            {
+              "type": "minecraft:constant",
+              "value": -1
+            },
+            {
+              "type": "hexcasting:iota_storage_color"
+            }
+          ]
+        },
+        "property": "hexcasting:spellbook_state",
+        "state": "has_iota"
+      },
+      "on_true": {
+        "type": "minecraft:model",
+        "model": "hexcasting:item/spellbook_7_sealed",
+        "tints": [
+          {
+            "type": "minecraft:constant",
+            "value": -1
+          },
+          {
+            "type": "hexcasting:iota_storage_color"
+          }
+        ]
+      },
+      "property": "hexcasting:spellbook_state",
+      "state": "sealed"
+    },
+    "property": "hexcasting:variant",
+    "variant": 7
   }
 }

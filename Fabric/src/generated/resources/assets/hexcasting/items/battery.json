@@ -1,6 +1,228 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "hexcasting:item/phial_small_0"
+    "type": "minecraft:range_dispatch",
+    "entries": [
+      {
+        "model": {
+          "type": "minecraft:range_dispatch",
+          "entries": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_small_0"
+              },
+              "threshold": 0.0
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_small_1"
+              },
+              "threshold": 0.25
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_small_2"
+              },
+              "threshold": 0.5
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_small_3"
+              },
+              "threshold": 0.75
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_small_4"
+              },
+              "threshold": 1.0
+            }
+          ],
+          "property": "hexcasting:media"
+        },
+        "threshold": 0.0
+      },
+      {
+        "model": {
+          "type": "minecraft:range_dispatch",
+          "entries": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_medium_0"
+              },
+              "threshold": 0.0
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_medium_1"
+              },
+              "threshold": 0.25
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_medium_2"
+              },
+              "threshold": 0.5
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_medium_3"
+              },
+              "threshold": 0.75
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_medium_4"
+              },
+              "threshold": 1.0
+            }
+          ],
+          "property": "hexcasting:media"
+        },
+        "threshold": 1.0
+      },
+      {
+        "model": {
+          "type": "minecraft:range_dispatch",
+          "entries": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_large_0"
+              },
+              "threshold": 0.0
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_large_1"
+              },
+              "threshold": 0.25
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_large_2"
+              },
+              "threshold": 0.5
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_large_3"
+              },
+              "threshold": 0.75
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_large_4"
+              },
+              "threshold": 1.0
+            }
+          ],
+          "property": "hexcasting:media"
+        },
+        "threshold": 2.0
+      },
+      {
+        "model": {
+          "type": "minecraft:range_dispatch",
+          "entries": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_larger_0"
+              },
+              "threshold": 0.0
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_larger_1"
+              },
+              "threshold": 0.25
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_larger_2"
+              },
+              "threshold": 0.5
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_larger_3"
+              },
+              "threshold": 0.75
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_larger_4"
+              },
+              "threshold": 1.0
+            }
+          ],
+          "property": "hexcasting:media"
+        },
+        "threshold": 3.0
+      },
+      {
+        "model": {
+          "type": "minecraft:range_dispatch",
+          "entries": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_largest_0"
+              },
+              "threshold": 0.0
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_largest_1"
+              },
+              "threshold": 0.25
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_largest_2"
+              },
+              "threshold": 0.5
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_largest_3"
+              },
+              "threshold": 0.75
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "hexcasting:item/phial_largest_4"
+              },
+              "threshold": 1.0
+            }
+          ],
+          "property": "hexcasting:media"
+        },
+        "threshold": 4.0
+      }
+    ],
+    "property": "hexcasting:max_media"
   }
 }

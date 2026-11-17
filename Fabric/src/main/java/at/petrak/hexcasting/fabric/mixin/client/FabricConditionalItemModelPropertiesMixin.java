@@ -2,6 +2,7 @@ package at.petrak.hexcasting.fabric.mixin.client;
 
 import at.petrak.hexcasting.api.HexAPI;
 import at.petrak.hexcasting.client.item.CustomDataTagModelProperty;
+import at.petrak.hexcasting.client.item.SpellbookStateModelProperty;
 import at.petrak.hexcasting.client.item.VariantModelProperty;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.client.renderer.item.properties.conditional.ConditionalItemModelProperties;
@@ -30,5 +31,6 @@ public class FabricConditionalItemModelPropertiesMixin {
     private static void hexcasting$registerProperties(CallbackInfo ci) {
         ID_MAPPER.put(HexAPI.modLoc("variant"), VariantModelProperty.MAP_CODEC);
         ID_MAPPER.put(HexAPI.modLoc("custom_data_tag"), CustomDataTagModelProperty.MAP_CODEC);
+        ID_MAPPER.put(HexAPI.modLoc("spellbook_state"), SpellbookStateModelProperty.MAP_CODEC);
     }
 }
