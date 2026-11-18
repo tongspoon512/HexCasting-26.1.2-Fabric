@@ -32,37 +32,45 @@
       "type": "hexcasting:manual_pattern_nosig",
       "header": "hexcasting.page.numbers.example.10.header",
       "text": "hexcasting.page.numbers.example.10",
-      "patterns": {
-        "startdir": "SOUTH_EAST",
-        "signature": "aqaae"
-      }
+      "patterns": [
+        {
+          "startdir": "SOUTH_EAST",
+          "signature": "aqaae"
+        }
+      ]
     },
     {
       "type": "hexcasting:manual_pattern_nosig",
       "header": "hexcasting.page.numbers.example.7.header",
       "text": "hexcasting.page.numbers.example.7",
-      "patterns": {
-        "startdir": "SOUTH_WEST",
-        "signature": "aqaaqww"
-      }
+      "patterns": [
+        {
+          "startdir": "SOUTH_WEST",
+          "signature": "aqaaqww"
+        }
+      ]
     },
     {
       "type": "hexcasting:manual_pattern_nosig",
       "header": "hexcasting.page.numbers.example.-32.header",
       "text": "hexcasting.page.numbers.example.-32",
-      "patterns": {
-        "startdir": "NORTH_EAST",
-        "signature": "deddwqea"
-      }
+      "patterns": [
+        {
+          "startdir": "NORTH_EAST",
+          "signature": "deddwqea"
+        }
+      ]
     },
     {
       "type": "hexcasting:manual_pattern_nosig",
       "header": "hexcasting.page.numbers.example.4.5.header",
       "text": "hexcasting.page.numbers.example.4.5",
-      "patterns": {
-        "startdir": "SOUTH_EAST",
-        "signature": "aqaaqdww"
-      }
+      "patterns": [
+        {
+          "startdir": "SOUTH_EAST",
+          "signature": "aqaaqdww"
+        }
+      ]
     },
     {
       "type": "patchouli:text",
