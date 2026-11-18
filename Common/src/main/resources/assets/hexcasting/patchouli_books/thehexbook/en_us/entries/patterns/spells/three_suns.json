@@ -1,0 +1,22 @@
+{
+  "name": "hexcasting.entry.three_suns",
+  "category": "hexcasting:patterns/spells",
+  "icon": "minecraft:fire_charge",
+  "sortnum": 10,
+  "advancement": "hexcasting:root",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:three_suns_adrift",
+      "anchor": "hexcasting:three_suns_adrift",
+      "input": "vector, vector, vector",
+      "output": "",
+      "text": "hexcasting.page.three_suns.0"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.three_suns.1"
+    }
+  ]
+}

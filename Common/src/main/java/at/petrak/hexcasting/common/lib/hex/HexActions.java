@@ -377,6 +377,10 @@ public class HexActions {
     public static final ActionRegistryEntry ALTIORA = make("flight",
         new ActionRegistryEntry(HexPattern.fromAngles("eawwaeawawaa", HexDir.NORTH_WEST), OpAltiora.INSTANCE));
 
+    public static final ActionRegistryEntry THREE_SUNS_ADRIFT = make("three_suns_adrift",
+        new ActionRegistryEntry(HexPattern.fromAngles("edaawaqdw", HexDir.WEST),
+            new OpThreeSunsAdrift()));
+
 
     public static final ActionRegistryEntry CREATE_LAVA = make("create_lava",
         new ActionRegistryEntry(HexPattern.fromAngles("eaqawqadaqd", HexDir.EAST), new OpCreateFluid(

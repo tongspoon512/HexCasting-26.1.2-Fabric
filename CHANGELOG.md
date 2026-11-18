@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_27` - 2026-11-18
+
+### Added
+
+- 新增法术「三日凌空」：三个向量 Iota 围成三角形，三角形内的生物受到 8 点魔法伤害并燃烧 8 秒；九段一笔画三连形图案，不破坏方块、不施加状态效果，法术环与分析机均可施放。教程书分图案页与文本页两页。
+- hexcreating 的 10 个图案补齐中英文名称、描述与教程书页面。
+- 教程书搜索接入 Just Enough Characters：先做字面匹配，未命中时经反射调用 JECH，未安装时自动回退；支持拼音与首字母搜索。
+
+### Fixed
+
+- 修复 `numbers.json` 中 `manual_pattern_nosig` 页面的 `patterns` 为对象而非数组，导致教程书搜索建立索引时抛出 `ClassCastException` 并使搜索框报错。
+- 修复 `kinetic_network_stress_used_purification` 的本地化键与注册名不一致，游戏内显示原始键名的问题。
+
 ## `0.11.4-fabric-build_24` - 2026-11-14
 
 ### Added

@@ -633,6 +633,7 @@
   "hexcasting.action.hexcasting:summon_rain": "Summon Rain",
   "hexcasting.action.hexcasting:dispel_rain": "Dispel Rain",
   "hexcasting.action.hexcasting:create_lava": "Create Lava",
+  "hexcasting.action.hexcasting:three_suns_adrift": "Three Suns Adrift",
   "hexcasting.action.hexcasting:teleport/great": "Greater Teleport",
   "hexcasting.action.hexcasting:brainsweep": "Flay Mind",
   "hexcasting.action.hexcasting:escape": "Consideration",
@@ -1676,5 +1677,8 @@
 
   "hexcassettes.page.daemons.title": "Reflections on Daemons",
   "hexcassettes.page.daemons.0": "Consider a list of patterns, a _Hex. One may place a duplicate of that _Hex within itself, providing it with a blueprint of its own composition. Setting aside the _Hex's evaluation for later, it harbors within itself all requisite information to reenact the process. Inducting ad infinitum, an infinite idle casting phenomenon emerges—referred to by those learned in _Hexcasting as a \"daemon.\"",
-  "hexcassettes.page.daemons.1": "Should my inclinations reach higher subtley, I might alter the _Hex prior to its enqueuing, thereby encoding within its structure a \"state,\" which may be carried forth through successive iterations to persist information.$(br2)I would do well to note, daemons still extract _media solely from my inventory and blood.$(br2)$(o)It's a hex which casts a hex which casts a hex. Nobody's done that before.$()"
+  "hexcassettes.page.daemons.1": "Should my inclinations reach higher subtley, I might alter the _Hex prior to its enqueuing, thereby encoding within its structure a \"state,\" which may be carried forth through successive iterations to persist information.$(br2)I would do well to note, daemons still extract _media solely from my inventory and blood.$(br2)$(o)It's a hex which casts a hex which casts a hex. Nobody's done that before.$()",
+  "hexcasting.entry.three_suns": "Three Suns Adrift",
+  "hexcasting.page.three_suns.0": "Three coordinates, three suns. Draw a triangle with them and every creature inside is scorched by a single strike: eight points of damage and eight seconds of fire.",
+  "hexcasting.page.three_suns.1": "It needs no caster and no line of sight — a circle or an Analytical Engine can cast it from three vectors alone.$(br2)$(o)The world has just been destroyed!! The world has just been destroyed!! Dehydrate!! Dehydrate!!/$"
 }

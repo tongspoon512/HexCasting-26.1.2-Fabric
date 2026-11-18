@@ -626,6 +626,7 @@
   "hexcasting.action.hexcasting:summon_rain": "召雨",
   "hexcasting.action.hexcasting:dispel_rain": "驱雨",
   "hexcasting.action.hexcasting:create_lava": "制造熔岩",
+  "hexcasting.action.hexcasting:three_suns_adrift": "三日凌空",
   "hexcasting.action.hexcasting:teleport/great": "卓越传送",
   "hexcasting.action.hexcasting:brainsweep": "剥离意识",
   "hexcasting.action.hexcasting:escape": "考察",
@@ -1677,5 +1678,8 @@
 
   "hexcassettes.page.daemons.title": "守护进程之思",
   "hexcassettes.page.daemons.0": "考虑一个图案列表，即一个$(hex)咒术$()。可以将它的副本置入它自身，从而为它提供一份自身构成的蓝图；将它的求值推迟到之后，它便蕴含了重演整个过程所需的全部信息。如此归纳下去，便会出现一种无限空转的施法现象——精通$(hex)咒法学$()的人称之为“守护进程”。",
-  "hexcassettes.page.daemons.1": "若我的志趣更为精妙，我可以在入队列前改动该$(hex)咒术$()，从而在其结构中编码一份“状态”，并让它在一次次迭代中传递下去，以持久保存信息。$(br2)我最好记住：守护进程仍然只从我的物品栏与血液中抽取$(media)媒质$()。$(br2)$(o)这是一个施放了一个会施放咒术的咒术的咒术。从来没人这么干过。$()"
+  "hexcassettes.page.daemons.1": "若我的志趣更为精妙，我可以在入队列前改动该$(hex)咒术$()，从而在其结构中编码一份“状态”，并让它在一次次迭代中传递下去，以持久保存信息。$(br2)我最好记住：守护进程仍然只从我的物品栏与血液中抽取$(media)媒质$()。$(br2)$(o)这是一个施放了一个会施放咒术的咒术的咒术。从来没人这么干过。$()",
+  "hexcasting.entry.three_suns": "三日凌空",
+  "hexcasting.page.three_suns.0": "三个坐标，三颗太阳。用它们围出一个三角形，其中的每一个生物都会承受一次灼烧打击：8 点伤害与 8 秒燃烧。",
+  "hexcasting.page.three_suns.1": "它不需要施法者，也不需要视线——只要栈上有三个向量，法术环与分析机都能施放。$(br2)$(o)世界刚刚毁灭！！世界刚刚毁灭！！脱水！！脱水！！/$"
 }
