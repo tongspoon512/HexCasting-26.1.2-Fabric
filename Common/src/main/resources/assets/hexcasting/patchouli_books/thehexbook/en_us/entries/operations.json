@@ -23,6 +23,78 @@
       "input": "vector,num",
       "output": "",
       "text": "hexcreating.page.operations.kelvin_heat_gambit"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcreating:kelvin_super_heat_gambit",
+      "anchor": "hexcreating:kelvin_super_heat_gambit",
+      "input": "vector,num",
+      "output": "",
+      "text": "hexcreating.page.operations.kelvin_super_heat_gambit"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcreating:kelvin_time_purification",
+      "anchor": "hexcreating:kelvin_time_purification",
+      "input": "vector",
+      "output": "num",
+      "text": "hexcreating.page.operations.kelvin_time_purification"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcreating:kelvin_type_purification",
+      "anchor": "hexcreating:kelvin_type_purification",
+      "input": "vector",
+      "output": "num",
+      "text": "hexcreating.page.operations.kelvin_type_purification"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcreating:pascal_time_purification",
+      "anchor": "hexcreating:pascal_time_purification",
+      "input": "vector",
+      "output": "num",
+      "text": "hexcreating.page.operations.pascal_time_purification"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcreating:kinetic_rotation_purification",
+      "anchor": "hexcreating:kinetic_rotation_purification",
+      "input": "vector",
+      "output": "num",
+      "text": "hexcreating.page.operations.kinetic_rotation_purification"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcreating:kinetic_network_stress_all_purification",
+      "anchor": "hexcreating:kinetic_network_stress_all_purification",
+      "input": "vector",
+      "output": "num",
+      "text": "hexcreating.page.operations.kinetic_network_stress_all_purification"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcreating:kinetic_network_stress_used_purification",
+      "anchor": "hexcreating:kinetic_network_stress_used_purification",
+      "input": "vector",
+      "output": "num",
+      "text": "hexcreating.page.operations.kinetic_network_stress_used_purification"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcreating:kinetic_stress_purification",
+      "anchor": "hexcreating:kinetic_stress_purification",
+      "input": "vector",
+      "output": "num",
+      "text": "hexcreating.page.operations.kinetic_stress_purification"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcreating:train_gate_set_up_gambit",
+      "anchor": "hexcreating:train_gate_set_up_gambit",
+      "input": "vector,vector",
+      "output": "",
+      "text": "hexcreating.page.operations.train_gate_set_up_gambit"
     }
   ]
 }
