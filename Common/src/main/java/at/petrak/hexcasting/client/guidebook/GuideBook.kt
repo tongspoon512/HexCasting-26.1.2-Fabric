@@ -303,11 +303,10 @@ class GuideBookData(
         val docs = searchDocs ?: buildSearchDocs().also { searchDocs = it }
         val results = ArrayList<SearchResult>()
         for (doc in docs) {
-            val name = doc.name.lowercase()
-            val nameMatch = terms.all { name.contains(it) }
+            val nameMatch = terms.all { textContains(doc.name, it) }
             var page = -1
             for ((index, text) in doc.pages.withIndex()) {
-                if (terms.all { text.lowercase().contains(it) }) {
+                if (terms.all { textContains(text, it) }) {
                     page = index
                     break
                 }
@@ -317,12 +316,32 @@ class GuideBookData(
         return results.sortedByDescending { if (it.nameMatch) 1 else 0 }
     }
 
+    /**
+     * JustEnoughCharacters 兼容：装了 JECH 时交给它的拼音/首字母匹配，
+     * 这样 `fangfa` 也能命中「方法」。JECH 只在客户端存在，
+     * 因此用反射惰性查找；缺失时退回普通子串匹配。
+     */
+    private val jecContainsMethod: java.lang.reflect.Method? by lazy {
+        runCatching {
+            Class.forName("me.towdium.jecharacters.utils.Match")
+                .getMethod("contains", CharSequence::class.java, CharSequence::class.java)
+        }.getOrNull()
+    }
+
+    /** 入参均已小写（[SearchDoc] 构建时统一处理），与原先的匹配语义一致。 */
+    private fun textContains(haystack: String, needle: String): Boolean {
+        // 快速路径：字面子串命中，省掉拼音转换
+        if (haystack.contains(needle)) return true
+        val method = jecContainsMethod ?: return false
+        return runCatching { method.invoke(null, haystack, needle) as Boolean }.getOrDefault(false)
+    }
+
     private fun buildSearchDocs(): List<SearchDoc> {
         return entries.map { entry ->
             SearchDoc(
                 entry,
-                GuideBook.translate(entry.nameKey).string + " " + entry.id,
-                entry.pages.map { searchableText(it) }
+                (GuideBook.translate(entry.nameKey).string + " " + entry.id).lowercase(),
+                entry.pages.map { searchableText(it).lowercase() }
             )
         }
     }
