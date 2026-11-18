@@ -13,6 +13,8 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import kotlin.math.abs
+import kotlin.math.ceil
+import kotlin.math.max
 
 /**
  * 三日凌空：三个坐标围成的三角形内，所有生物受到一次灼烧打击。
@@ -38,9 +40,12 @@ class OpThreeSunsAdrift : SpellAction {
             (corners[0].y + corners[1].y + corners[2].y) / 3.0,
             (corners[0].z + corners[1].z + corners[2].z) / 3.0
         )
+        // 按三角形覆盖面积计费：每 3 格² 消耗 1 粉，最低 1 粉
+        val area = abs(crossXZ(corners[0], corners[1], corners[2])) / 2.0
+        val dust = max(1L, ceil(area / 3.0).toLong())
         return SpellAction.Result(
             Spell(corners[0], corners[1], corners[2]),
-            MediaConstants.DUST_UNIT * 10L,
+            MediaConstants.DUST_UNIT * dust,
             listOf(ParticleSpray.burst(center, 4.0, 60))
         )
     }
