@@ -20,12 +20,12 @@
 | 中文名 | 三日凌空 |
 | 英文名 | Three Suns Adrift |
 | 类型 | `SpellAction`（普通法术，非伟大之作） |
-| 图案 | `edaawaqdw`，起始方向 `WEST`（三连形/三角力量） |
+| 图案 | `wdwwwdwwwdwewdwdw`，起始方向 `WEST` |
 | 教程书条目 | `entries/patterns/spells/three_suns.json`，分类 `hexcasting:patterns/spells` |
 | 名称键 | `hexcasting.action.hexcasting:three_suns_adrift` |
 | 页面文本键 | `hexcasting.page.three_suns.0` |
 
-图案为九段一笔画的三连形：外三角 + 内倒三角，与仓库内 243 个已注册签名均不重复，且满足 `fromAngles` 的无重叠校验。
+图案已按 `fromAngles` 的逐段无重叠规则校验通过，且与仓库内已注册签名均不重复。
 
 ## 3. 施法参数
 
@@ -34,7 +34,7 @@
 | 参数个数 `argc` | 3 |
 | 输入 | `vector, vector, vector`（三角形三个顶点） |
 | 输出 | 无 |
-| 媒质消耗 | `MediaConstants.DUST_UNIT * 24`（24 紫水晶粉） |
+| 媒质消耗 | `MediaConstants.DUST_UNIT * 10`（10 紫水晶粉） |
 | 范围检查 | 三个顶点逐一 `env.assertVecInRange` |
 | 方块编辑 | 不需要 |
 

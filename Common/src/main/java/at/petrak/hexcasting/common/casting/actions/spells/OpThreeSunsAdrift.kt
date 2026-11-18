@@ -40,7 +40,7 @@ class OpThreeSunsAdrift : SpellAction {
         )
         return SpellAction.Result(
             Spell(corners[0], corners[1], corners[2]),
-            MediaConstants.DUST_UNIT * 24L,
+            MediaConstants.DUST_UNIT * 10L,
             listOf(ParticleSpray.burst(center, 4.0, 60))
         )
     }
