@@ -5,8 +5,7 @@ import net.minecraft.util.StringRepresentable;
 import java.util.Locale;
 
 /**
- * Runtime state machine of an analytical engine controller, as specified in
- * {@code doc/analytical-engine-gameplay-design.md} §5.
+ * Runtime state machine of an analytical engine controller.
  */
 public final class EngineState {
     private EngineState() {
