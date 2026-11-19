@@ -118,7 +118,7 @@ object FabricHexInitializer : ModInitializer {
         ServerTickEvents.END_LEVEL_TICK.register(OpFlight::tickAllPlayers)
         ServerTickEvents.END_LEVEL_TICK.register(OpAltiora::checkAllPlayers)
         ServerTickEvents.END_LEVEL_TICK.register(ThreeSunsAdriftField::tick)
-        ServerLifecycleEvents.SERVER_STOPPED.register { ThreeSunsAdriftField.clear() }
+        ServerLifecycleEvents.SERVER_STOPPING.register { ThreeSunsAdriftField.clear() }
         ServerTickEvents.END_LEVEL_TICK.register { level -> PersonalMediaRegen.tick(level) }
         ServerPlayConnectionEvents.DISCONNECT.register { handler, _ ->
             PersonalManaHolder.forget(handler.player)

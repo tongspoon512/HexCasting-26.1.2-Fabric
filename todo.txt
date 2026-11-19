@@ -2,3 +2,4 @@
 [ ] Sleep:
 - make players sleep till the next sun/moonrise
 - clears AI tasks of mobs (temporarily)
+给出加入新法术“生成粒子”和“生成贝塞尔粒子“以及”方块下落“和todo中计划的规划文档

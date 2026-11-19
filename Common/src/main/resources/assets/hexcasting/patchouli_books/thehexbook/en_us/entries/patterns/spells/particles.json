@@ -1,0 +1,26 @@
+{
+  "name": "hexcasting.entry.particles",
+  "category": "hexcasting:patterns/spells",
+  "icon": "minecraft:glowstone_dust",
+  "sortnum": 2,
+  "advancement": "hexcasting:root",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:spawn_particles",
+      "anchor": "hexcasting:spawn_particles",
+      "input": "vector, vector, number, string",
+      "output": "",
+      "text": "hexcasting.page.particles.spawn"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:spawn_bezier_particles",
+      "anchor": "hexcasting:spawn_bezier_particles",
+      "input": "vector, vector, vector, vector, number, string",
+      "output": "",
+      "text": "hexcasting.page.particles.bezier"
+    }
+  ]
+}

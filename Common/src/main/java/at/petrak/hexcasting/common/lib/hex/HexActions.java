@@ -272,6 +272,14 @@ public class HexActions {
         new ActionRegistryEntry(HexPattern.fromAngles("aaqawawa", HexDir.SOUTH_EAST), OpIgnite.INSTANCE));
     public static final ActionRegistryEntry EXTINGUISH = make("extinguish",
         new ActionRegistryEntry(HexPattern.fromAngles("ddedwdwd", HexDir.SOUTH_WEST), OpExtinguish.INSTANCE));
+    public static final ActionRegistryEntry FALL_BLOCK = make("fall_block",
+        new ActionRegistryEntry(HexPattern.fromAngles("dewqaedwawadadawa", HexDir.EAST), OpFallBlock.INSTANCE));
+    public static final ActionRegistryEntry SPAWN_PARTICLES = make("spawn_particles",
+        new ActionRegistryEntry(HexPattern.fromAngles("wdwaeqawqeeedaqae", HexDir.EAST),
+            OpSpawnParticles.INSTANCE));
+    public static final ActionRegistryEntry SPAWN_BEZIER_PARTICLES = make("spawn_bezier_particles",
+        new ActionRegistryEntry(HexPattern.fromAngles("aewqqddewdaqadqadqq", HexDir.EAST),
+            OpSpawnBezierParticles.INSTANCE));
     public static final ActionRegistryEntry CONJURE_BLOCK = make("conjure_block",
         new ActionRegistryEntry(HexPattern.fromAngles("qqa", HexDir.NORTH_EAST), new OpConjureBlock(false)));
     public static final ActionRegistryEntry CONJURE_LIGHT = make("conjure_light",

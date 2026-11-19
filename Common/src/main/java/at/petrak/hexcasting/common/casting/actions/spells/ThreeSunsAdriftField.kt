@@ -8,7 +8,6 @@ import net.minecraft.world.entity.monster.Enemy
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.BonemealableBlock
-import net.minecraft.world.level.block.LightBlock
 import net.minecraft.world.level.block.SnowLayerBlock
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.AABB
@@ -25,7 +24,7 @@ import kotlin.math.floor
  * 不注册状态效果，也不修改世界时间。
  */
 object ThreeSunsAdriftField {
-    const val DURATION_TICKS = 90 * 20
+    const val DURATION_TICKS = 20 * 60 * 20
     const val MAX_AREA = 400.0
     private const val SUN_HEIGHT = 10.0
     private const val EFFECT_INTERVAL = 20
@@ -34,7 +33,7 @@ object ThreeSunsAdriftField {
     private const val RAIN_EXTINGUISH_CHANCE = 0.25f
     private const val CROP_GROW_CHANCE = 0.2f
 
-    private class Sun(val pos: Vec3, var alive: Boolean = true, var lightPos: BlockPos? = null)
+    private class Sun(val pos: Vec3, var alive: Boolean = true)
 
     private class Field(
         val level: ServerLevel,
@@ -62,10 +61,7 @@ object ThreeSunsAdriftField {
         }
 
         val corners = listOf(a, b, c)
-        val suns = corners.map { corner ->
-            val pos = corner.add(0.0, SUN_HEIGHT, 0.0)
-            Sun(pos).also { placeLight(level, it) }
-        }
+        val suns = corners.map { corner -> Sun(corner.add(0.0, SUN_HEIGHT, 0.0)) }
         fields += Field(
             level, a, b, c, corners,
             floor(minOf(a.y, b.y, c.y) - 8.0).toInt(),
@@ -143,7 +139,6 @@ object ThreeSunsAdriftField {
     private fun extinguish(field: Field, sun: Sun) {
         if (!sun.alive) return
         sun.alive = false
-        removeLight(field.level, sun)
         field.level.sendParticles(
             ParticleTypes.LARGE_SMOKE,
             sun.pos.x, sun.pos.y, sun.pos.z,
@@ -173,6 +168,7 @@ object ThreeSunsAdriftField {
             if (isBlocked(level, living.getEyePosition(), sun.pos)) continue
             if (living is Enemy) {
                 living.igniteForSeconds(3.0f)
+                living.hurtServer(level, level.damageSources().magic(), 3.0f)
             }
         }
 
@@ -237,7 +233,6 @@ object ThreeSunsAdriftField {
 
     private fun end(field: Field, particles: Boolean) {
         for (sun in field.suns) {
-            removeLight(field.level, sun)
             if (particles && sun.alive) {
                 field.level.sendParticles(
                     ParticleTypes.END_ROD,
@@ -246,21 +241,6 @@ object ThreeSunsAdriftField {
                 )
             }
         }
-    }
-
-    private fun placeLight(level: ServerLevel, sun: Sun) {
-        val pos = BlockPos.containing(sun.pos)
-        if (!level.isEmptyBlock(pos)) return
-        level.setBlockAndUpdate(pos, Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, 15))
-        sun.lightPos = pos
-    }
-
-    private fun removeLight(level: ServerLevel, sun: Sun) {
-        val pos = sun.lightPos ?: return
-        if (level.getBlockState(pos).block === Blocks.LIGHT) {
-            level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState())
-        }
-        sun.lightPos = null
     }
 
     private fun nearestSun(pos: Vec3, field: Field): Sun? {

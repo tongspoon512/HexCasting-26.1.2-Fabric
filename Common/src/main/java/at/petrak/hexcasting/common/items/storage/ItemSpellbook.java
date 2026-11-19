@@ -174,10 +174,12 @@ public class ItemSpellbook extends Item implements IotaHolderItem, VariantItem {
      * The scroll listener checks this when attempting to scroll, so by using these tags you can make
      * any item support shift-scrolling without needing to mixin or implement a new scroll listener.
      * However, you will still need to implement ways to actually *set* the relevant NBT tags yourself.
+     * <p>
+     * Only {@link #TAG_SELECTED_PAGE} is required: {@link #TAG_PAGE_NAMES} is just a cache of page names
+     * and is absent whenever no page has been renamed, so it must not gate scrolling.
      */
     public static boolean supportsPageScrolling(ItemStack stack) {
-        return NBTHelper.hasNumber(stack, TAG_SELECTED_PAGE)
-            && NBTHelper.hasCompound(stack, TAG_PAGE_NAMES);
+        return NBTHelper.hasNumber(stack, TAG_SELECTED_PAGE);
     }
 
     public static int getPage(ItemStack stack, int ifEmpty) {
@@ -231,8 +233,8 @@ public class ItemSpellbook extends Item implements IotaHolderItem, VariantItem {
     }
 
     /**
-     * 前后翻页。步数可以大于 1，且只在已有页（1..最高页）之间循环，
-     * 不会翻到没有内容的空白页。
+     * 前后翻页。步数可以大于 1，在 1..(最高页 + 1) 之间循环：
+     * 末尾额外保留一页空白页，方便在最后一页之后写入新页面，但不会一路翻到第 64 页空白页。
      */
     public static int rotatePageIdx(ItemStack stack, int steps) {
         int highest = highestPage(stack);
@@ -240,7 +242,8 @@ public class ItemSpellbook extends Item implements IotaHolderItem, VariantItem {
             return 0;
         }
 
-        int idx = Math.floorMod(getPage(stack, 1) - 1 + steps, highest) + 1;
+        int pages = Math.min(highest + 1, MAX_PAGES);
+        int idx = Math.floorMod(getPage(stack, 1) - 1 + steps, pages) + 1;
         NBTHelper.putInt(stack, TAG_SELECTED_PAGE, idx);
 
         CompoundTag names = NBTHelper.getCompound(stack, TAG_PAGE_NAMES);

@@ -124,7 +124,7 @@
 | `print` | `hexcasting:print` | 任意 iota（保留在栈上） | 在聊天栏打印 iota |
 | `explode` | `hexcasting:explode` | vec 位置, num 强度 | 爆炸 |
 | `explode/fire` | `hexcasting:explode/fire` | vec 位置, num 强度 | 带火爆炸 |
-| `three_suns_adrift` | `hexcasting:three_suns_adrift` | vec 顶点 A, vec 顶点 B, vec 顶点 C | 三日凌空（天顶法术，需施法者）：三颗太阳照亮三角形 90 秒，融雪融冰、烘干、催生并灼烧敌对怪物；水/细雪可熄灭单颗，雨天削弱；媒质为 1 充能紫水晶 + 每 4 格² 1 粉 |
+| `three_suns_adrift` | `hexcasting:three_suns_adrift` | vec 顶点 A, vec 顶点 B, vec 顶点 C | 三日凌空（天顶法术，需施法者）：三颗太阳照亮三角形 20 分钟，融雪融冰、烘干、催生并灼烧敌对怪物；水/细雪可熄灭单颗，雨天削弱；媒质为 1 充能紫水晶 + 每 4 格² 1 粉 |
 | `add_motion` | `hexcasting:add_motion` | entity, vec | 给实体施加冲量 |
 | `blink` | `hexcasting:blink` | entity, num 距离 | 瞬移（短距离） |
 | `break_block` | `hexcasting:break_block` | vec 位置 | 破坏方块（正常掉落） |

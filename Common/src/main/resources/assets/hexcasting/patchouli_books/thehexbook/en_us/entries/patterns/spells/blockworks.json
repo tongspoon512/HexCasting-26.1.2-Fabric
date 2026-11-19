@@ -85,6 +85,14 @@
       "input": "vector",
       "output": "",
       "text": "hexcasting.page.blockworks.extinguish"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:fall_block",
+      "anchor": "hexcasting:fall_block",
+      "input": "vector",
+      "output": "",
+      "text": "hexcasting.page.blockworks.fall_block"
     }
   ]
 }

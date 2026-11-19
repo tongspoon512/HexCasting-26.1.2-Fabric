@@ -885,14 +885,14 @@ class GuideBookScreen(
     ) {
         val y = BOOK_H - 11
         if (showPrev) {
-            val hover = mx in 8 until 22 && my in y until y + 11
+            val hover = mx in 6 until 24 && my in y - 3 until y + 11
             graphics.text(font, "<", 10, y, if (hover) LINK_COLOR else MUTED_COLOR, false)
-            hits += GuideHit(8, y, 22, y + 11, "nav:prev")
+            hits += GuideHit(6, y - 3, 24, y + 11, "nav:prev")
         }
         if (showNext) {
-            val hover = mx in 24 until 38 && my in y until y + 11
+            val hover = mx in 24 until 40 && my in y - 3 until y + 11
             graphics.text(font, ">", 26, y, if (hover) LINK_COLOR else MUTED_COLOR, false)
-            hits += GuideHit(24, y, 38, y + 11, "nav:next")
+            hits += GuideHit(24, y - 3, 40, y + 11, "nav:next")
         }
         if (bookmark != null) {
             val starred = GuideBookState.isBookmarked(bookmark.first, bookmark.second)
@@ -973,11 +973,17 @@ class GuideBookScreen(
             View.ENTRY -> {
                 val content = if (leftPage) contentLeft else contentRight
                 val body = if (leftPage) bodyHeightLeft else bodyHeightRight
-                if (content > body) {
-                    if (leftPage) {
-                        scrollLeft = (scrollLeft - pDelta * 12).toInt().coerceIn(0, content - body)
+                val current = if (leftPage) scrollLeft else scrollRight
+                val max = (content - body).coerceAtLeast(0)
+                if (max > 0) {
+                    // 正文比页面长时先滚动正文；滚到边界后继续滚动才翻页
+                    if (pDelta < 0 && current >= max) {
+                        nextSpread()
+                    } else if (pDelta > 0 && current <= 0) {
+                        prevSpread()
                     } else {
-                        scrollRight = (scrollRight - pDelta * 12).toInt().coerceIn(0, content - body)
+                        val next = (current - pDelta * 12).toInt().coerceIn(0, max)
+                        if (leftPage) scrollLeft = next else scrollRight = next
                     }
                 } else if (pDelta < 0) {
                     nextSpread()
