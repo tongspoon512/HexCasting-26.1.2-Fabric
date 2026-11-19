@@ -1,6 +1,6 @@
 {
   "name": "hexcasting.entry.three_suns",
-  "category": "hexcasting:patterns/spells",
+  "category": "hexcasting:patterns/great_spells",
   "icon": "minecraft:fire_charge",
   "sortnum": 10,
   "advancement": "hexcasting:root",

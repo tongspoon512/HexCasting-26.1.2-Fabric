@@ -1,6 +1,6 @@
 # HexCasting 图案 id 速查表
 
-本表覆盖当前移植版内置的全部图案注册：`hexcasting`、`moreiotas`、`hexcassettes`、`hexdebug`。
+本表覆盖当前移植版内置的全部图案注册：`hexcasting`、`moreiotas`、`hexcassettes`、`hexdebug`、`hexcreating`。模块与注册表位置见 [项目架构表](项目架构表.md)。
 
 ## 书写约定
 
@@ -42,6 +42,12 @@
 | `circle/impetus_dir` | `hexcasting:circle/impetus_dir` | 无 | 施法圈促动方向 |
 | `circle/bounds/min` | `hexcasting:circle/bounds/min` | 无 | 施法圈包围盒最小角点 |
 | `circle/bounds/max` | `hexcasting:circle/bounds/max` | 无 | 施法圈包围盒最大角点 |
+
+## hexcasting：环境
+
+| 代码名 | 完整 id | 输入（按压栈顺序，右为栈顶） | 说明 |
+| --- | --- | --- | --- |
+| `boolean_plane` | `hexcasting:boolean_plane` | 无 | 施法者所在维度是否为“非下界”：主世界/末地为 true，下界为 false |
 
 ## hexcasting：栈操作
 
@@ -118,6 +124,7 @@
 | `print` | `hexcasting:print` | 任意 iota（保留在栈上） | 在聊天栏打印 iota |
 | `explode` | `hexcasting:explode` | vec 位置, num 强度 | 爆炸 |
 | `explode/fire` | `hexcasting:explode/fire` | vec 位置, num 强度 | 带火爆炸 |
+| `three_suns_adrift` | `hexcasting:three_suns_adrift` | vec 顶点 A, vec 顶点 B, vec 顶点 C | 三日凌空（天顶法术，需施法者）：三颗太阳照亮三角形 90 秒，融雪融冰、烘干、催生并灼烧敌对怪物；水/细雪可熄灭单颗，雨天削弱；媒质为 1 充能紫水晶 + 每 4 格² 1 粉 |
 | `add_motion` | `hexcasting:add_motion` | entity, vec | 给实体施加冲量 |
 | `blink` | `hexcasting:blink` | entity, num 距离 | 瞬移（短距离） |
 | `break_block` | `hexcasting:break_block` | vec 位置 | 破坏方块（正常掉落） |
@@ -384,9 +391,28 @@
 | `mind_env/schedule` | `hexdebug:mind_env/schedule` | list 咒术, num 延迟 | 延迟调度一段咒术 |
 | `mind_env/running_code` | `hexdebug:mind_env/running_code` | 无 | 查询正在运行的调度代码 |
 
+## hexcreating：Create 联动
+
+> 这些图案由 HexCreating 注册，id 前缀为 `hexcreating:`。读取类图案在目标不是对应 Create 方块实体时返回 `null`。
+
+| 代码名 | 完整 id | 输入（按压栈顺序，右为栈顶） | 说明 |
+| --- | --- | --- | --- |
+| `kelvin_heat_gambit` | `hexcreating:kelvin_heat_gambit` | blockpos 燃烧室, num tick | 开尔文之策略-Δ：把已点燃的烈焰人燃烧室设为普通燃烧并延长 tick；创造模式或已高温时无效。耗媒 tick÷20 粉 |
+| `kelvin_super_heat_gambit` | `hexcreating:kelvin_super_heat_gambit` | blockpos 燃烧室, num tick | 开尔文之策略-高温：把已点燃的燃烧室切到高温并延长 tick；创造模式无效。耗媒 tick÷20 粉 |
+| `kelvin_time_purification` | `hexcreating:kelvin_time_purification` | blockpos 燃烧室 | 开尔文之纯化-时间：返回剩余燃烧 tick |
+| `kelvin_type_purification` | `hexcreating:kelvin_type_purification` | blockpos 燃烧室 | 开尔文之纯化-热量：高温 2、普通 1、熄灭 0 |
+| `pascal_time_purification` | `hexcreating:pascal_time_purification` | blockpos 背罐 | 帕斯卡之纯化-时间：返回铜/下界合金背罐的空气量 |
+| `kinetic_rotation_purification` | `hexcreating:kinetic_rotation_purification` | blockpos 动力元件 | 动力之纯化-旋转：返回转速绝对值（RPM） |
+| `kinetic_network_stress_all_purification` | `hexcreating:kinetic_network_stress_all_purification` | blockpos 动力元件 | 动力之纯化-网络总应力：返回网络容量；孤立网络为 0 |
+| `kinetic_network_stress_used_purification` | `hexcreating:kinetic_network_stress_used_purification` | blockpos 动力元件 | 动力之纯化-网络消耗应力：返回网络已用应力；孤立网络为 0 |
+| `kinetic_stress_purification` | `hexcreating:kinetic_stress_purification` | blockpos 动力元件 | 动力之纯化-剩余应力：（元件容量 − 已施加应力）× 转速绝对值 |
+| `train_gate_set_up_gambit` | `hexcreating:train_gate_set_up_gambit` | blockpos 门核心 A, blockpos 门核心 B | 创建浮辇之门：摧毁两核心原有门并互连；耗媒 曼哈顿距离÷10 粉 |
+
 ## 备注
 
 - 表中的“说明”只写主要行为；同一图案在不同 iota 类型下有不同重载（如 `add` 对数字、向量、列表）。
 - 输入列里的 `a, b, c` 只是占位，表示对应顺序上的任意 iota；具体类型看该图案支持的重载。
 - `explode`、`get_entity`、`zone_entity` 等带查询框的图案同样按输入列从左到右压栈，例如 `zone_entity` 先压中心向量、再压半径。
+- `three_suns_adrift` 的媒质消耗按三角形面积计算：`ceil(面积 / 3)` 粉，最低 1 粉；退化三角形不造成伤害。
+- `hexcreating` 图案依赖 Create：目标不是对应方块实体时，读取类图案返回 `null`，写入类图案触发 `MishapBadBlock`。
 - 经验球、掉落物等实体的类型判定可用 `type/entity_<id>` 字面量，例如 `type/entity_experience_orb` 对应 `minecraft:experience_orb`。

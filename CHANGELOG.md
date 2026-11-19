@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_28` - 2026-11-19
+
+### Changed
+
+- 重做「三日凌空」为天顶法术：三个向量围出三角形，三颗太阳持续 90 秒，每颗只照亮离自己最近的区域；可融雪融冰、烘干海绵、加速作物，并灼烧直射光下的敌对怪物；屋顶与隧道形成阴影，水/细雪可熄灭单颗太阳，雨天逐渐削弱；需施法者本人，媒质改为 1 充能紫水晶 + 每 4 格² 1 粉。
+- 教程书页移入天顶法术分类，图案与三向量输入保持不变。
+- 更新图案速查表（补充 hexcreating、boolean_plane 与三日凌空）与项目架构表（补充 HexCreating、分析机与附属注册表）。
+
 ## `0.11.4-fabric-build_27` - 2026-11-18
 
 ### Added

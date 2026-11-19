@@ -7,6 +7,7 @@ import at.petrak.hexcasting.common.blocks.behavior.HexComposting
 import at.petrak.hexcasting.common.blocks.behavior.HexStrippables
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import at.petrak.hexcasting.common.casting.actions.spells.OpFlight
+import at.petrak.hexcasting.common.casting.actions.spells.ThreeSunsAdriftField
 import at.petrak.hexcasting.common.casting.actions.spells.great.OpAltiora
 import at.petrak.hexcasting.common.command.PatternResLocArgument
 import at.petrak.hexcasting.common.entities.HexEntities
@@ -116,6 +117,8 @@ object FabricHexInitializer : ModInitializer {
         ServerTickEvents.END_LEVEL_TICK.register(PlayerPositionRecorder::updateAllPlayers)
         ServerTickEvents.END_LEVEL_TICK.register(OpFlight::tickAllPlayers)
         ServerTickEvents.END_LEVEL_TICK.register(OpAltiora::checkAllPlayers)
+        ServerTickEvents.END_LEVEL_TICK.register(ThreeSunsAdriftField::tick)
+        ServerLifecycleEvents.SERVER_STOPPED.register { ThreeSunsAdriftField.clear() }
         ServerTickEvents.END_LEVEL_TICK.register { level -> PersonalMediaRegen.tick(level) }
         ServerPlayConnectionEvents.DISCONNECT.register { handler, _ ->
             PersonalManaHolder.forget(handler.player)

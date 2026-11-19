@@ -775,6 +775,10 @@
   "hexcasting.mishap.invalid_value.evaluatable": "可运行的事物",
   "hexcasting.mishap.invalid_value.bool_commute": "一个布尔值、0或1",
   "hexcasting.mishap.location_.too_far": "%s超出影响范围",
+  "hexcasting.mishap.location_too_large": "三角形过大，太阳无法维系",
+  "hexcasting.mishap.location_.too_large": "三角形过大，太阳无法维系",
+  "hexcasting.mishap.location_degenerate": "三个点没有围出面积",
+  "hexcasting.mishap.location_.degenerate": "三个点没有围出面积",
   "hexcasting.mishap.location_.out_of_world": "%s不在此世界内",
   "hexcasting.mishap.location_.too_close_to_out": "%s离世界边界太近了",
   "hexcasting.mishap.location_.forbidden": "%s并未对你开放",
@@ -1680,6 +1684,6 @@
   "hexcassettes.page.daemons.0": "考虑一个图案列表，即一个$(hex)咒术$()。可以将它的副本置入它自身，从而为它提供一份自身构成的蓝图；将它的求值推迟到之后，它便蕴含了重演整个过程所需的全部信息。如此归纳下去，便会出现一种无限空转的施法现象——精通$(hex)咒法学$()的人称之为“守护进程”。",
   "hexcassettes.page.daemons.1": "若我的志趣更为精妙，我可以在入队列前改动该$(hex)咒术$()，从而在其结构中编码一份“状态”，并让它在一次次迭代中传递下去，以持久保存信息。$(br2)我最好记住：守护进程仍然只从我的物品栏与血液中抽取$(media)媒质$()。$(br2)$(o)这是一个施放了一个会施放咒术的咒术的咒术。从来没人这么干过。$()",
   "hexcasting.entry.three_suns": "三日凌空",
-  "hexcasting.page.three_suns.0": "三个坐标，三颗太阳。用它们围出一个三角形，其中的每一个生物都会承受一次灼烧打击：8 点伤害与 8 秒燃烧。",
-  "hexcasting.page.three_suns.1": "它不需要施法者，也不需要视线——只要栈上有三个向量，法术环与分析机都能施放。$(br2)$(o)世界刚刚毁灭！！世界刚刚毁灭！！脱水！！脱水！！/$"
+  "hexcasting.page.three_suns.0": "三个坐标，三颗太阳。它们悬在三角形的三个顶点上方，把这一小片世界变成白昼：冰雪消融、湿海绵变干、作物抽长，暴露在光里的怪物会燃烧。",
+  "hexcasting.page.three_suns.1": "每颗太阳只照亮离自己最近的三分之一区域，因此屋顶与隧道会投下真实的影子；用水或细雪浇灭光柱就能熄灭对应的太阳，雨水也会逐渐磨掉其余两颗。它需要施法者本人，持续九十秒，不点燃方块，也不留下弹坑。$(br2)$(o)世界刚刚毁灭！！世界刚刚毁灭！！脱水！！脱水！！/$"
 }

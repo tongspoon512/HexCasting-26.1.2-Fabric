@@ -775,6 +775,10 @@
   "hexcasting.mishap.invalid_value.evaluatable": "something evaluatable",
   "hexcasting.mishap.invalid_value.bool_commute": "a boolean, 0, or 1",
   "hexcasting.mishap.location_.too_far": "%s is out of range",
+  "hexcasting.mishap.location_too_large": "The triangle is too large for the suns to hold",
+  "hexcasting.mishap.location_.too_large": "The triangle is too large for the suns to hold",
+  "hexcasting.mishap.location_degenerate": "The three points do not enclose an area",
+  "hexcasting.mishap.location_.degenerate": "The three points do not enclose an area",
   "hexcasting.mishap.location_.out_of_world": "%s is not within the world",
   "hexcasting.mishap.location_.too_close_to_out": "%s is too close to the boundary of the world",
   "hexcasting.mishap.location_.forbidden": "%s is forbidden to you",
@@ -1679,6 +1683,6 @@
   "hexcassettes.page.daemons.0": "Consider a list of patterns, a _Hex. One may place a duplicate of that _Hex within itself, providing it with a blueprint of its own composition. Setting aside the _Hex's evaluation for later, it harbors within itself all requisite information to reenact the process. Inducting ad infinitum, an infinite idle casting phenomenon emerges—referred to by those learned in _Hexcasting as a \"daemon.\"",
   "hexcassettes.page.daemons.1": "Should my inclinations reach higher subtley, I might alter the _Hex prior to its enqueuing, thereby encoding within its structure a \"state,\" which may be carried forth through successive iterations to persist information.$(br2)I would do well to note, daemons still extract _media solely from my inventory and blood.$(br2)$(o)It's a hex which casts a hex which casts a hex. Nobody's done that before.$()",
   "hexcasting.entry.three_suns": "Three Suns Adrift",
-  "hexcasting.page.three_suns.0": "Three coordinates, three suns. Draw a triangle with them and every creature inside is scorched by a single strike: eight points of damage and eight seconds of fire.",
-  "hexcasting.page.three_suns.1": "It needs no caster and no line of sight — a circle or an Analytical Engine can cast it from three vectors alone.$(br2)$(o)The world has just been destroyed!! The world has just been destroyed!! Dehydrate!! Dehydrate!!/$"
+  "hexcasting.page.three_suns.0": "Three coordinates, three suns. They hang above the vertices of a triangle and turn that patch of the world into day: snow and ice melt, wet sponges dry, crops quicken, and hostile creatures caught in the light burn.",
+  "hexcasting.page.three_suns.1": "Each sun lights only the third of the triangle nearest its vertex, so roofs and tunnels cast real shadows. Dousing a beam with water or powder snow puts that sun out, and rain wears the others down. It needs a caster and lasts ninety seconds; it lights no fires and leaves no crater.$(br2)$(o)The world has just been destroyed!! The world has just been destroyed!! Dehydrate!! Dehydrate!!/$"
 }
