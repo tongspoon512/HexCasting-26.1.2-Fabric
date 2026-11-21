@@ -6,8 +6,11 @@ import at.petrak.hexcasting.api.mod.HexStatistics
 import at.petrak.hexcasting.common.blocks.behavior.HexComposting
 import at.petrak.hexcasting.common.blocks.behavior.HexStrippables
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
+import at.petrak.hexcasting.common.casting.actions.spells.LifeEffectField
 import at.petrak.hexcasting.common.casting.actions.spells.OpFlight
 import at.petrak.hexcasting.common.casting.actions.spells.ThreeSunsAdriftField
+import at.petrak.hexcasting.common.casting.actions.spells.domain.AreaField
+import at.petrak.hexcasting.common.casting.actions.spells.domain.InfinityVoidField
 import at.petrak.hexcasting.common.casting.actions.spells.great.OpAltiora
 import at.petrak.hexcasting.common.command.PatternResLocArgument
 import at.petrak.hexcasting.common.entities.HexEntities
@@ -41,6 +44,7 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.entity.event.v1.EntityElytraEvents
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
@@ -118,7 +122,19 @@ object FabricHexInitializer : ModInitializer {
         ServerTickEvents.END_LEVEL_TICK.register(OpFlight::tickAllPlayers)
         ServerTickEvents.END_LEVEL_TICK.register(OpAltiora::checkAllPlayers)
         ServerTickEvents.END_LEVEL_TICK.register(ThreeSunsAdriftField::tick)
+        ServerTickEvents.END_LEVEL_TICK.register(LifeEffectField::tick)
+        ServerTickEvents.END_LEVEL_TICK.register(AreaField::tick)
+        ServerTickEvents.END_LEVEL_TICK.register(InfinityVoidField::tick)
         ServerLifecycleEvents.SERVER_STOPPING.register { ThreeSunsAdriftField.clear() }
+        ServerLifecycleEvents.SERVER_STOPPING.register { LifeEffectField.clear() }
+        ServerLifecycleEvents.SERVER_STOPPING.register { AreaField.clear() }
+        ServerLifecycleEvents.SERVER_STOPPING.register { InfinityVoidField.clear() }
+        ServerLivingEntityEvents.AFTER_DEATH.register { entity, _ ->
+            if (entity is net.minecraft.server.level.ServerPlayer) {
+                AreaField.onOwnerDeath(entity)
+                InfinityVoidField.onPlayerDeath(entity)
+            }
+        }
         ServerTickEvents.END_LEVEL_TICK.register { level -> PersonalMediaRegen.tick(level) }
         ServerPlayConnectionEvents.DISCONNECT.register { handler, _ ->
             PersonalManaHolder.forget(handler.player)

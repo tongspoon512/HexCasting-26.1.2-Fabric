@@ -11,6 +11,8 @@
   "hexcasting.action.hexcreating:kinetic_network_stress_all_purification": "Kinetic Purification - Total Network Stress",
   "hexcasting.action.hexcreating:kinetic_network_stress_used_purification": "Kinetic Purification - Network Stress Consumption",
   "hexcasting.action.hexcreating:kinetic_stress_purification": "Kinetic Purification - Remaining Stress",
+  "block.hexcreating.domain_core": "Domain Core",
+  "item.hexcreating.domain_core": "Domain Core",
   "block.hexcreating.analytical_engine_controller": "Analytical Engine Controller",
   "block.hexcreating.analytical_engine_alu": "Analytical Engine ALU",
   "block.hexcreating.analytical_engine_kinetic_interface": "Analytical Engine Kinetic Interface",

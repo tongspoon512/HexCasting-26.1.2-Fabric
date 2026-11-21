@@ -15,6 +15,7 @@ import pub.pigeon.yggdyy.hexcreating.blocks.board.BoardBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_amplifier.CircleAmplifierBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_inputer.CircleInputerBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_outputer.CircleOutputerBlock;
+import pub.pigeon.yggdyy.hexcreating.blocks.domain_core.DomainCoreBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.iotareader.IotaReaderBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.iotawriter.IotaWriteBlock;
 import pub.pigeon.yggdyy.hexcreating.blocks.train_gate.TrainGateBlock;
@@ -79,6 +80,9 @@ public final class HexCreatingBlocks {
     public static final Block ANALYTICAL_ENGINE_KINETIC_INTERFACE =
         block("analytical_engine_kinetic_interface", AnalyticalEngineKineticInterfaceBlock::new,
             metalProps("analytical_engine_kinetic_interface"));
+
+    public static final Block DOMAIN_CORE = block("domain_core", DomainCoreBlock::new,
+        metalProps("domain_core"));
 
     public static final Block MEDIA = block("media",
         p -> new pub.pigeon.yggdyy.hexcreating.fluids.HexCreatingFluids.MediaLiquidBlock(p),

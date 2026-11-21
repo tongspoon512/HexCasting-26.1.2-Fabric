@@ -12,6 +12,7 @@ import pub.pigeon.yggdyy.hexcreating.blocks.board.BoardBlockEntity;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_amplifier.CircleAmplifierBlockEntity;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_inputer.CircleInputerBlockEntity;
 import pub.pigeon.yggdyy.hexcreating.blocks.circle_outputer.CircleOutputerBlockEntity;
+import pub.pigeon.yggdyy.hexcreating.blocks.domain_core.DomainCoreBlockEntity;
 import pub.pigeon.yggdyy.hexcreating.blocks.iotareader.IotaReaderBlockEntity;
 import pub.pigeon.yggdyy.hexcreating.blocks.iotawriter.IotaWriteBlockEntity;
 import pub.pigeon.yggdyy.hexcreating.blocks.train_gate.TrainGateCoreBlockEntity;
@@ -76,6 +77,9 @@ public final class HexCreatingBlockEntities {
         ANALYTICAL_ENGINE_KINETIC_INTERFACE = register("analytical_engine_kinetic_interface",
         AnalyticalEngineKineticInterfaceBlockEntity::new,
         HexCreatingBlocks.ANALYTICAL_ENGINE_KINETIC_INTERFACE);
+
+    public static final BlockEntityType<DomainCoreBlockEntity> DOMAIN_CORE = register("domain_core",
+        DomainCoreBlockEntity::new, HexCreatingBlocks.DOMAIN_CORE);
 
     private HexCreatingBlockEntities() {
     }

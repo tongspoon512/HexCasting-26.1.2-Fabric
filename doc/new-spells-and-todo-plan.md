@@ -1,6 +1,6 @@
 # 新增法术与 TODO 规划
 
-> 状态：规划中，尚未实现。
+> 状态：阶段 A、B、C 已实现，阶段 D 文档与速查表已同步；游戏内验收待进行。
 > 范围：`todo.txt` 中的“繁殖动物 / 加速幼崽 / 让悦灵兴奋”和“睡到下一次日出或月出 / 临时清除怪物 AI”，以及新增的“生成粒子”“生成贝塞尔粒子”“方块下落”。
 > 目标：先确定玩法、输入、媒质、失误、实现位置和验收标准，再分阶段写代码，避免边写边改。
 
@@ -34,13 +34,13 @@
 
 | 法术 | 角度签名 | 起始方向 |
 | --- | --- | --- |
-| 生成粒子 | `wdwaeqawqeeedaqae` | `EAST` |
-| 生成贝塞尔粒子 | `aewqqddewdaqadqadqq` | `EAST` |
-| 方块下落 | `dewqaedwawadadawa` | `EAST` |
-| 生命的节拍·繁殖 | `qaqewawawdadweeqq` | `EAST` |
-| 生命的节拍·成长 | `dedawewaawwqaaqad` | `EAST` |
-| 生命的节拍·兴奋 | `wqedwwdwewddeadeaaqwqaw` | `EAST` |
-| 长眠 | `eaqwawqdawwdwdqwe` | `EAST` |
+| 生成粒子 | `aedea` | `EAST` |
+| 生成贝塞尔粒子 | `waeeeeaw` | `EAST` |
+| 方块下落 | `qaqqqwaw` | `EAST` |
+| 生命的节拍·繁殖 | `waqwawwq` | `EAST` |
+| 生命的节拍·成长 | `awwqwaw` | `EAST` |
+| 生命的节拍·兴奋 | `awwqwaww` | `EAST` |
+| 长眠 | `wdwewdwawwaeaw` | `EAST` |
 
 ## 4. 通用基础设施
 
@@ -83,7 +83,7 @@ iota 体系中没有“粒子类型”，因此用 MoreIotas 的 `StringIota` �
 | 项目 | 内容 |
 | --- | --- |
 | 注册 id | `hexcasting:spawn_particles` |
-| 图案 | `wdwaeqawqeeedaqae`，起始 `EAST` |
+| 图案 | `aedea`，起始 `EAST` |
 | 输入 | `vec 位置`、`vec 散布`、`num 数量`、`str 粒子` |
 | 输出 | 无 |
 | 类别 | 普通法术，`patterns/spells` |
@@ -125,7 +125,7 @@ iota 体系中没有“粒子类型”，因此用 MoreIotas 的 `StringIota` �
 | 项目 | 内容 |
 | --- | --- |
 | 注册 id | `hexcasting:spawn_bezier_particles` |
-| 图案 | `aewqqddewdaqadqadqq`，起始 `EAST` |
+| 图案 | `waeeeeaw`，起始 `EAST` |
 | 输入 | `vec P0`、`vec P1`、`vec P2`、`vec P3`、`num 采样数`、`str 粒子` |
 | 输出 | 无 |
 | 类别 | 普通法术，`patterns/spells` |
@@ -171,7 +171,7 @@ iota 体系中没有“粒子类型”，因此用 MoreIotas 的 `StringIota` �
 | 项目 | 内容 |
 | --- | --- |
 | 注册 id | `hexcasting:fall_block` |
-| 图案 | `dewqaedwawadadawa`，起始 `EAST` |
+| 图案 | `qaqqqwaw`，起始 `EAST` |
 | 输入 | `vec 位置` |
 | 输出 | 无 |
 | 类别 | 普通法术，`patterns/spells` |
@@ -279,7 +279,7 @@ iota 体系中没有“粒子类型”，因此用 MoreIotas 的 `StringIota` �
 | 项目 | 内容 |
 | --- | --- |
 | 注册 id | `hexcasting:sleep` |
-| 图案 | `eaqwawqdawwdwdqwe`，起始 `EAST` |
+| 图案 | `wdwewdwawwaeaw`，起始 `EAST` |
 | 输入 | `player 目标`、`vec 床位置`、`num 模式` |
 | 媒质 | `2 充能紫水晶` |
 | 类别 | 伟大法术，`patterns/great_spells` |
@@ -299,7 +299,7 @@ iota 体系中没有“粒子类型”，因此用 MoreIotas 的 `StringIota` �
    - 原版睡眠逻辑会在条件满足时把时间推进到 `WAKE_UP_FROM_SLEEP` 标记。
 3. 模式 1：
    - 通过 `ServerLevel.clockManager().moveToTimeMarker(世界时钟 Holder, ClockTimeMarkers.NIGHT)` 把主世界时间直接推到月出；
-   - 再调用 `startSleeping` / `stopSleepInBed` 给目标玩家一个睡觉的视觉与统计状态。
+   - 再调用 `startSleeping(bedPos)` 给目标玩家睡眠姿态与统计；不调用 `stopSleepInBed`，玩家可自行潜行起身，因此不会把整夜跳过。
 4. 只允许主世界；下界/末地触发 `MishapBadLocation(..., "sleep_dimension")`。
 
 临时清除怪物 AI：

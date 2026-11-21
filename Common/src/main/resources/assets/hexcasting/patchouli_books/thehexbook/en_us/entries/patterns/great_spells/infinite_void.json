@@ -1,0 +1,22 @@
+{
+  "name": "hexcasting.entry.infinite_void",
+  "category": "hexcasting:patterns/great_spells",
+  "icon": "minecraft:sculk_shrieker",
+  "sortnum": 11,
+  "advancement": "hexcasting:root",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:infinite_void",
+      "anchor": "hexcasting:infinite_void",
+      "input": "entity",
+      "output": "",
+      "text": "hexcasting.page.infinite_void.0"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.infinite_void.1"
+    }
+  ]
+}

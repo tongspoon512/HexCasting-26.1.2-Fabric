@@ -17,6 +17,7 @@
   - `entity_<UUID>`：实体引用（不能引用其他玩家）
   - `_wedsaq...`：直接以笔画角度写图案
   - `(` / `)`：开/闭括号（数据列表）
+- **卓越法术的笔顺不固定**：`lightning`、`flight`、`three_suns_adrift`、`infinite_void` 等 `per_world_pattern` 图案，每个世界会随机生成一套笔顺；不要用 `_...` 写死它们，也不要指望图案在不同世界间通用。
 - 表格的“输入”列按**压栈顺序**排列：从左到右依次压栈，最右边的是栈顶；图案从栈顶取参，因此源码中的 `args[0]` 对应最左边的参数。“无”表示不需要输入。
 
 ## hexcasting：实体与位置
@@ -124,7 +125,22 @@
 | `print` | `hexcasting:print` | 任意 iota（保留在栈上） | 在聊天栏打印 iota |
 | `explode` | `hexcasting:explode` | vec 位置, num 强度 | 爆炸 |
 | `explode/fire` | `hexcasting:explode/fire` | vec 位置, num 强度 | 带火爆炸 |
-| `three_suns_adrift` | `hexcasting:three_suns_adrift` | vec 顶点 A, vec 顶点 B, vec 顶点 C | 三日凌空（天顶法术，需施法者）：三颗太阳照亮三角形 20 分钟，融雪融冰、烘干、催生并灼烧敌对怪物；水/细雪可熄灭单颗，雨天削弱；媒质为 1 充能紫水晶 + 每 4 格² 1 粉 |
+| `three_suns_adrift` | `hexcasting:three_suns_adrift` | area 火之领域 | 三日凌空（天顶法术，需施法者）：三颗太阳直接落在火之领域的三个角上，作用范围是整个领域，持续 20 分钟，融雪融冰、烘干、催生并灼烧敌对怪物（每秒 6 点）；只接受火之领域，其他领域引发事故；水/细雪可熄灭单颗，雨天削弱；媒质为 1 充能紫水晶 + 每 4 格² 1 粉 |
+| `spawn_particles` | `hexcasting:spawn_particles` | vec 位置, vec 散布, num 数量, str 粒子 id | 在位置附近生成粒子（仅绘制） |
+| `spawn_bezier_particles` | `hexcasting:spawn_bezier_particles` | vec 控制点1, vec 控制点2, vec 控制点3, vec 控制点4, num 采样数, str 粒子 id | 沿三次贝塞尔曲线生成粒子（仅绘制） |
+| `fall_block` | `hexcasting:fall_block` | vec 位置 | 让该处方块以掉落方块的形式下落 |
+| `life/breed` | `hexcasting:life/breed` | entity | 让成年动物进入 30 秒恋爱状态，消耗 2 粉 |
+| `life/grow` | `hexcasting:life/grow` | entity, num 秒数 | 幼崽成长计时推进 1–60 秒，消耗 1 粉 + 每 10 秒 1 粉 |
+| `life/excite` | `hexcasting:life/excite` | entity, num 秒数 | 让悦灵跳舞 1–60 秒，消耗 1 粉 + 每 10 秒 1 粉 |
+| `domain/wind` | `hexcasting:domain/wind` | vec ×5 | 生得—风之提整：围出五芒星领域（顶面向下延伸 10 格） |
+| `domain/fire` | `hexcasting:domain/fire` | vec ×3 | 生得—火之提整：围出三角形领域（顶面向下延伸 10 格） |
+| `domain/water` | `hexcasting:domain/water` | vec 球心, num 半径 | 生得—水之馏化：围出球形领域（半径不超过 32） |
+| `domain/earth` | `hexcasting:domain/earth` | vec 对角 A, vec 对角 B | 生得—地之提整：围出立方体领域 |
+| `domain/euclid_purification` | `hexcasting:domain/euclid_purification` | area | 欧几里得之纯化：返回领域的重心 |
+| `domain/sariel_strategy` | `hexcasting:domain/sariel_strategy` | area, list | 沙利叶之策略：让领域每 3 tick 释放一次列表中的咒术 |
+| `domain/hei_wuchang_strategy` | `hexcasting:domain/hei_wuchang_strategy` | area | 黑无常之策略：销毁领域 |
+| `domain/bai_wuchang_strategy` | `hexcasting:domain/bai_wuchang_strategy` | area | 白无常之策略：暂停或恢复领域的释放 |
+| `domain/mahoraga_purification` | `hexcasting:domain/mahoraga_purification` | vec | 魔虚罗之纯化：返回该向量所在领域的领域 iota |
 | `add_motion` | `hexcasting:add_motion` | entity, vec | 给实体施加冲量 |
 | `blink` | `hexcasting:blink` | entity, num 距离 | 瞬移（短距离） |
 | `break_block` | `hexcasting:break_block` | vec 位置 | 破坏方块（正常掉落） |
@@ -189,6 +205,7 @@
 | `dispel_rain` | `hexcasting:dispel_rain` | 无 | 停雨 |
 | `summon_rain` | `hexcasting:summon_rain` | 无 | 下雨 |
 | `brainsweep` | `hexcasting:brainsweep` | 生物实体, vec | 洗脑/转化生物 |
+| `infinite_void` | `hexcasting:infinite_void` | entity | 无量空处（卓越法术，只能由领域释放）：生物停止 AI 60 秒；玩家额外获得黑暗、失明、缓慢 V 并在 30 秒内无法施法；消耗 20 粉 |
 
 ## hexcasting：Akashic
 
@@ -410,9 +427,11 @@
 
 ## 备注
 
+- 卓越法术（`lightning`、`flight`、`create_lava`、`teleport/great`、`sentinel/create/great`、`dispel_rain`、`summon_rain`、`brainsweep`、`craft/battery`、`three_suns_adrift`、`infinite_void`、各类 `potion/*`）的图案随世界随机，**笔顺不固定**。当前世界的实际笔顺用 `/hexcasting perWorldPatterns list` 查看，用 `/hexcasting perWorldPatterns give <id>`（或 `giveAll`）获取对应的远古卷轴。
 - 表中的“说明”只写主要行为；同一图案在不同 iota 类型下有不同重载（如 `add` 对数字、向量、列表）。
 - 输入列里的 `a, b, c` 只是占位，表示对应顺序上的任意 iota；具体类型看该图案支持的重载。
 - `explode`、`get_entity`、`zone_entity` 等带查询框的图案同样按输入列从左到右压栈，例如 `zone_entity` 先压中心向量、再压半径。
-- `three_suns_adrift` 的媒质消耗按三角形面积计算：`ceil(面积 / 3)` 粉，最低 1 粉；退化三角形不造成伤害。
+- `three_suns_adrift` 的媒质消耗按三角形面积计算：`1 充能紫水晶 + ceil(面积 / 4)` 粉；退化三角形不造成伤害。
+- 领域（`area`）iota 在栈中显示为 `delta(x,y,z)(...)`，浅红色；生成消耗 `13 + ceil(面积 / 8)` 粉。玩家死亡时其领域消失；领域咒核可用媒质代替玩家维持领域。
 - `hexcreating` 图案依赖 Create：目标不是对应方块实体时，读取类图案返回 `null`，写入类图案触发 `MishapBadBlock`。
 - 经验球、掉落物等实体的类型判定可用 `type/entity_<id>` 字面量，例如 `type/entity_experience_orb` 对应 `minecraft:experience_orb`。

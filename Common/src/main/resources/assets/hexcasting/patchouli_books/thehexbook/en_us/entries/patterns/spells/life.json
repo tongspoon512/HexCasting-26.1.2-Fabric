@@ -1,0 +1,34 @@
+{
+  "name": "hexcasting.entry.life",
+  "category": "hexcasting:patterns/spells",
+  "icon": "minecraft:wheat",
+  "sortnum": 3,
+  "advancement": "hexcasting:root",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:life/breed",
+      "anchor": "hexcasting:life/breed",
+      "input": "entity",
+      "output": "",
+      "text": "hexcasting.page.life.breed"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:life/grow",
+      "anchor": "hexcasting:life/grow",
+      "input": "entity, number",
+      "output": "",
+      "text": "hexcasting.page.life.grow"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:life/excite",
+      "anchor": "hexcasting:life/excite",
+      "input": "entity, number",
+      "output": "",
+      "text": "hexcasting.page.life.excite"
+    }
+  ]
+}

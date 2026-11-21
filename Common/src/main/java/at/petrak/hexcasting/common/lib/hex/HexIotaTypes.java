@@ -1,6 +1,7 @@
 package at.petrak.hexcasting.common.lib.hex;
 
 import at.petrak.hexcasting.api.HexAPI;
+import at.petrak.hexcasting.api.casting.area.AreaIota;
 import at.petrak.hexcasting.api.casting.iota.*;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import net.minecraft.core.Registry;
@@ -42,6 +43,7 @@ public class HexIotaTypes {
     public static final IotaType<GarbageIota> GARBAGE = type("garbage", GarbageIota.TYPE);
     public static final IotaType<Vec3Iota> VEC3 = type("vec3", Vec3Iota.TYPE);
     public static final IotaType<ContinuationIota> CONTINUATION = type("continuation", ContinuationIota.TYPE);
+    public static final IotaType<AreaIota> AREA = type("area", AreaIota.TYPE);
 
 
     private static <U extends Iota, T extends IotaType<U>> T type(String name, T type) {

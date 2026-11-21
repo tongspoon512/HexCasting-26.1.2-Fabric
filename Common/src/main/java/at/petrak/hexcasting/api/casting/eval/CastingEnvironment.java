@@ -12,6 +12,7 @@ import at.petrak.hexcasting.api.mod.HexConfig;
 import at.petrak.hexcasting.api.mod.HexTags;
 import at.petrak.hexcasting.api.pigment.FrozenPigment;
 import at.petrak.hexcasting.api.utils.HexUtils;
+import at.petrak.hexcasting.common.casting.actions.spells.domain.InfinityVoidField;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -109,6 +110,13 @@ public abstract class CastingEnvironment {
     }
 
     /**
+     * The maximum number of iotas that may be on the stack at once. Domains override this to 128.
+     */
+    public int maxStackSize() {
+        return Integer.MAX_VALUE;
+    }
+
+    /**
      * Get the caster. Might be null!
      * <p>
      * Implementations should NOT rely on this in general, use the methods on this class instead.
@@ -192,6 +200,10 @@ public abstract class CastingEnvironment {
         // TODO: this doesn't let you select special handlers.
         // Might be worth making a "no casting" tag on each thing
         Identifier loc = actionKey(match);
+
+        if (this.getCastingEntity() instanceof ServerPlayer player && InfinityVoidField.isLocked(player)) {
+            throw new MishapDisallowedSpell("void_locked", loc);
+        }
 
         if (!HexConfig.server().isActionAllowed(loc)) {
             throw new MishapDisallowedSpell("disallowed", loc);

@@ -4,9 +4,12 @@ import at.petrak.hexcasting.api.HexAPI
 import at.petrak.hexcasting.api.casting.math.HexAngle
 import at.petrak.hexcasting.api.casting.math.HexDir
 import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.api.mod.HexTags
+import at.petrak.hexcasting.api.utils.isOfTag
 import at.petrak.hexcasting.common.casting.PatternRegistryManifest
 import at.petrak.hexcasting.common.lib.hex.HexActions
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.Identifier
 
 internal data class PatternSearchResult(
     val suggestions: List<PatternEntry>,
@@ -162,6 +165,11 @@ internal object PatternKeyboard {
         }.getOrNull()
     }
 
+    private fun isPerWorld(id: String): Boolean {
+        val loc = Identifier.tryParse(id) ?: return false
+        return isOfTag(HexActions.REGISTRY, loc, HexTags.Actions.PER_WORLD_PATTERN)
+    }
+
     /**
      * Fuzzy search over localized names, aliases and ids. Locked patterns are dropped from
      * [PatternSearchResult.suggestions] but counted in [PatternSearchResult.lockedCount].
@@ -184,8 +192,10 @@ internal object PatternKeyboard {
                 .map { it.first }
         }
 
-        val unlocked = matches.filterNot { PatternDocs.isLocked(it.id) }
-        return PatternSearchResult(unlocked, matches.size - unlocked.size)
+        // 卓越法术的图案随世界随机，固定笔顺没有意义，因此不出现在图案列表/自动补全中
+        val visible = matches.filterNot { isPerWorld(it.id) }
+        val unlocked = visible.filterNot { PatternDocs.isLocked(it.id) }
+        return PatternSearchResult(unlocked, visible.size - unlocked.size)
     }
 
     private fun fluffySearch(query: String, candidate: String): Int {

@@ -26,6 +26,7 @@ public class HexActionTagProvider extends KeyTagProvider<ActionRegistryEntry> {
         for (var normalGreat : new String[]{
             "lightning", "flight", "create_lava", "teleport/great", "sentinel/create/great",
             "dispel_rain", "summon_rain", "brainsweep", "craft/battery", "three_suns_adrift",
+            "infinite_void",
             "potion/regeneration", "potion/night_vision", "potion/absorption", "potion/haste", "potion/strength"
         }) {
             var loc = modLoc(normalGreat);

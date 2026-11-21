@@ -2,6 +2,8 @@ package at.petrak.hexcasting.client.guidebook
 
 import at.petrak.hexcasting.api.casting.math.HexDir
 import at.petrak.hexcasting.api.casting.math.HexPattern
+import at.petrak.hexcasting.api.mod.HexTags
+import at.petrak.hexcasting.api.utils.isOfTag
 import at.petrak.hexcasting.client.render.PatternColors
 import at.petrak.hexcasting.client.render.PatternSettings
 import at.petrak.hexcasting.interop.utils.PatternDrawingUtil
@@ -592,7 +594,8 @@ class GuideBookScreen(
     ): Int {
         val pattern = lookupPattern(page)
         if (pattern != null) {
-            renderPatterns(graphics, listOf(pattern), pageX, top - scroll)
+            // 卓越法术的图案随世界随机，书里只画出形状，不显示笔顺（与原版 Hex Casting 一致）
+            renderPatterns(graphics, listOf(pattern), pageX, top - scroll, strokeOrder = !isPerWorldPattern(page))
         }
         val signature = signatureText(page)
         var height = 64
@@ -671,6 +674,11 @@ class GuideBookScreen(
         return holder.prototype()
     }
 
+    private fun isPerWorldPattern(page: GuidePage): Boolean {
+        val opId = Identifier.tryParse(page.string("op_id", page.string("anchor"))) ?: return false
+        return isOfTag(IXplatAbstractions.INSTANCE.actionRegistry, opId, HexTags.Actions.PER_WORLD_PATTERN)
+    }
+
     private fun manualPatterns(page: GuidePage): List<HexPattern> {
         val array = page.json.getAsJsonArray("patterns")
         if (array != null) {
@@ -699,7 +707,8 @@ class GuideBookScreen(
         graphics: GuiGraphicsExtractor,
         patterns: List<HexPattern>,
         pageX: Int,
-        top: Int
+        top: Int,
+        strokeOrder: Boolean = true
     ) {
         if (patterns.isEmpty()) return
         val cols = ceil(sqrt(patterns.size.toDouble())).toInt().coerceAtLeast(1)
@@ -717,7 +726,12 @@ class GuideBookScreen(
             PatternSettings.StrokeSettings.fromStroke(4.0),
             PatternSettings.ZappySettings.READABLE
         )
-        val colors = PatternColors.DEFAULT_GRADIENT_COLOR.withDots(true, true)
+        val colors = if (strokeOrder) {
+            PatternColors.DEFAULT_GRADIENT_COLOR.withDots(true, true)
+        } else {
+            // 无渐变、无起点标记，即不透露笔顺
+            PatternColors.DEFAULT_PATTERN_COLOR.withDots(false, true)
+        }
         for ((index, pattern) in patterns.withIndex()) {
             val cx = pageX + cellW * (index % cols)
             val cy = top + cellH * (index / cols)

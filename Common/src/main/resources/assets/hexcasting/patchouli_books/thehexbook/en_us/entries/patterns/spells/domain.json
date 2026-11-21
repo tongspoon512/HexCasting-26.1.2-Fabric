@@ -1,0 +1,82 @@
+{
+  "name": "hexcasting.entry.domain",
+  "category": "hexcasting:patterns/spells",
+  "icon": "minecraft:amethyst_cluster",
+  "sortnum": 4,
+  "advancement": "hexcasting:root",
+  "read_by_default": true,
+  "pages": [
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:domain/wind",
+      "anchor": "hexcasting:domain/wind",
+      "input": "vector, vector, vector, vector, vector",
+      "output": "area",
+      "text": "hexcasting.page.domain.0"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:domain/fire",
+      "anchor": "hexcasting:domain/fire",
+      "input": "vector, vector, vector",
+      "output": "area",
+      "text": "hexcasting.page.domain.fire"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:domain/water",
+      "anchor": "hexcasting:domain/water",
+      "input": "vector, number",
+      "output": "area",
+      "text": "hexcasting.page.domain.water"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:domain/earth",
+      "anchor": "hexcasting:domain/earth",
+      "input": "vector, vector",
+      "output": "area",
+      "text": "hexcasting.page.domain.earth"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.domain.1"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:domain/sariel_strategy",
+      "anchor": "hexcasting:domain/sariel_strategy",
+      "input": "area, list",
+      "output": "",
+      "text": "hexcasting.page.domain.2"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:domain/euclid_purification",
+      "anchor": "hexcasting:domain/euclid_purification",
+      "input": "area",
+      "output": "vector",
+      "text": "hexcasting.page.domain.euclid"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:domain/hei_wuchang_strategy",
+      "anchor": "hexcasting:domain/hei_wuchang_strategy",
+      "input": "area",
+      "output": "",
+      "text": "hexcasting.page.domain.hei"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:domain/bai_wuchang_strategy",
+      "anchor": "hexcasting:domain/bai_wuchang_strategy",
+      "input": "area",
+      "output": "",
+      "text": "hexcasting.page.domain.bai"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.domain.3"
+    }
+  ]
+}

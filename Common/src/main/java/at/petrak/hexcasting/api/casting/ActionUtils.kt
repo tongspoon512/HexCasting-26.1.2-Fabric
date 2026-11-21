@@ -2,6 +2,7 @@
 
 package at.petrak.hexcasting.api.casting
 
+import at.petrak.hexcasting.api.casting.area.AreaIota
 import at.petrak.hexcasting.api.casting.iota.*
 import at.petrak.hexcasting.api.casting.math.HexPattern
 import at.petrak.hexcasting.api.casting.mishaps.MishapInvalidIota
@@ -66,6 +67,15 @@ fun List<Iota>.getVec3(idx: Int, argc: Int = 0): Vec3 {
         return x.vec3
     } else {
         throw MishapInvalidIota.ofType(x, if (argc == 0) idx else argc - (idx + 1), "vector")
+    }
+}
+
+fun List<Iota>.getArea(idx: Int, argc: Int = 0): AreaIota {
+    val x = this.getOrElse(idx) { throw MishapNotEnoughArgs(idx + 1, this.size) }
+    if (x is AreaIota) {
+        return x
+    } else {
+        throw MishapInvalidIota.ofType(x, if (argc == 0) idx else argc - (idx + 1), "area")
     }
 }
 

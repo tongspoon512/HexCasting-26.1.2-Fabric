@@ -44,6 +44,7 @@ import at.petrak.hexcasting.common.casting.actions.selectors.OpGetCaster;
 import at.petrak.hexcasting.common.casting.actions.selectors.OpGetEntitiesBy;
 import at.petrak.hexcasting.common.casting.actions.selectors.OpGetEntityAt;
 import at.petrak.hexcasting.common.casting.actions.spells.*;
+import at.petrak.hexcasting.common.casting.actions.spells.domain.*;
 import at.petrak.hexcasting.common.casting.actions.spells.great.*;
 import at.petrak.hexcasting.common.casting.actions.spells.sentinel.OpCreateSentinel;
 import at.petrak.hexcasting.common.casting.actions.spells.sentinel.OpDestroySentinel;
@@ -273,13 +274,39 @@ public class HexActions {
     public static final ActionRegistryEntry EXTINGUISH = make("extinguish",
         new ActionRegistryEntry(HexPattern.fromAngles("ddedwdwd", HexDir.SOUTH_WEST), OpExtinguish.INSTANCE));
     public static final ActionRegistryEntry FALL_BLOCK = make("fall_block",
-        new ActionRegistryEntry(HexPattern.fromAngles("dewqaedwawadadawa", HexDir.EAST), OpFallBlock.INSTANCE));
+        new ActionRegistryEntry(HexPattern.fromAngles("qaqqqwaw", HexDir.EAST), OpFallBlock.INSTANCE));
     public static final ActionRegistryEntry SPAWN_PARTICLES = make("spawn_particles",
-        new ActionRegistryEntry(HexPattern.fromAngles("wdwaeqawqeeedaqae", HexDir.EAST),
+        new ActionRegistryEntry(HexPattern.fromAngles("aedea", HexDir.EAST),
             OpSpawnParticles.INSTANCE));
     public static final ActionRegistryEntry SPAWN_BEZIER_PARTICLES = make("spawn_bezier_particles",
-        new ActionRegistryEntry(HexPattern.fromAngles("aewqqddewdaqadqadqq", HexDir.EAST),
+        new ActionRegistryEntry(HexPattern.fromAngles("waeeeeaw", HexDir.EAST),
             OpSpawnBezierParticles.INSTANCE));
+    public static final ActionRegistryEntry LIFE_BREED = make("life/breed",
+        new ActionRegistryEntry(HexPattern.fromAngles("waqwawwq", HexDir.EAST), OpLifeBreed.INSTANCE));
+    public static final ActionRegistryEntry LIFE_GROW = make("life/grow",
+        new ActionRegistryEntry(HexPattern.fromAngles("awwqwaw", HexDir.EAST), OpLifeGrow.INSTANCE));
+    public static final ActionRegistryEntry LIFE_EXCITE = make("life/excite",
+        new ActionRegistryEntry(HexPattern.fromAngles("awwqwaww", HexDir.EAST), OpLifeExcite.INSTANCE));
+    public static final ActionRegistryEntry DOMAIN_WIND = make("domain/wind",
+        new ActionRegistryEntry(HexPattern.fromAngles("wqaawqaw", HexDir.EAST), OpCreateDomain.WIND));
+    public static final ActionRegistryEntry DOMAIN_FIRE = make("domain/fire",
+        new ActionRegistryEntry(HexPattern.fromAngles("wdaaedwd", HexDir.EAST), OpCreateDomain.FIRE));
+    public static final ActionRegistryEntry DOMAIN_WATER = make("domain/water",
+        new ActionRegistryEntry(HexPattern.fromAngles("wdaaeeeee", HexDir.EAST), OpCreateDomain.WATER));
+    public static final ActionRegistryEntry DOMAIN_EARTH = make("domain/earth",
+        new ActionRegistryEntry(HexPattern.fromAngles("wewdeewdd", HexDir.EAST), OpCreateDomain.EARTH));
+    public static final ActionRegistryEntry DOMAIN_EUCLID_PURIFICATION = make("domain/euclid_purification",
+        new ActionRegistryEntry(HexPattern.fromAngles("aaqwawqq", HexDir.EAST), OpEuclidPurification.INSTANCE));
+    public static final ActionRegistryEntry DOMAIN_SARIEL_STRATEGY = make("domain/sariel_strategy",
+        new ActionRegistryEntry(HexPattern.fromAngles("aaqqwaw", HexDir.EAST), OpSarielStrategy.INSTANCE));
+    public static final ActionRegistryEntry DOMAIN_HEI_WUCHANG_STRATEGY = make("domain/hei_wuchang_strategy",
+        new ActionRegistryEntry(HexPattern.fromAngles("wawaw", HexDir.EAST), OpHeiWuchangStrategy.INSTANCE));
+    public static final ActionRegistryEntry DOMAIN_BAI_WUCHANG_STRATEGY = make("domain/bai_wuchang_strategy",
+        new ActionRegistryEntry(HexPattern.fromAngles("wdwdw", HexDir.EAST), OpBaiWuchangStrategy.INSTANCE));
+    public static final ActionRegistryEntry DOMAIN_MAHORAGA_PURIFICATION = make("domain/mahoraga_purification",
+        new ActionRegistryEntry(HexPattern.fromAngles("aaqqqwwawq", HexDir.EAST), OpMahoragaPurification.INSTANCE));
+    public static final ActionRegistryEntry INFINITE_VOID = make("infinite_void",
+        new ActionRegistryEntry(HexPattern.fromAngles("wdwewdwawwaeaw", HexDir.EAST), OpInfiniteVoid.INSTANCE));
     public static final ActionRegistryEntry CONJURE_BLOCK = make("conjure_block",
         new ActionRegistryEntry(HexPattern.fromAngles("qqa", HexDir.NORTH_EAST), new OpConjureBlock(false)));
     public static final ActionRegistryEntry CONJURE_LIGHT = make("conjure_light",
