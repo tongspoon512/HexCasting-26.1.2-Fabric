@@ -352,7 +352,7 @@ hexparse/  HexParse 文本法术文档（连锁挖掘等）
 - **Patchouli**：没有 26.1 版本，仓库内以源码形式内嵌 API 桩件；书内容改由内置 GUI 读取，不再需要 Patchouli 运行时。
 - **Inline**：仅实现了图案内联，其余 Inline 功能（物品/实体/头像匹配、尺寸修饰、叠加渲染）未实现；世界空间文本（告示牌、名字标签等）会显示占位符。
 - **Trinkets**：未移植，`dev/emi/trinkets` 为桩件，饰品渲染器是空实现（功能可用，视觉不显示）。
-- **Pehkui**：其可用版本链接的是旧 intermediary 名，无法在 26.1 上运行，`getPehkuiApi()` 直接抛 `UnsupportedOperationException`。**不要安装 Pehkui**。
+- **Pehkui**：改用 [Pehkui Rebuilt](https://github.com/wuhenqiubai/Pehkui-Rebuilt)（mod id 仍为 `pehkui`，支持 26.1.2）；安装后自动启用缩放图案，未安装时不注册。
 - **EMI / JEI**：保留编译期集成与插件入口；EMI 相关代码同样基于内嵌桩件。
 - **渲染保真度**：26.1 渲染管线重写后，部分特效（画笔、光效、饰品/鞘翅覆盖层等）是按新管线近似实现的，与原版观感可能有差异。
 - **MoreIotas**：仅移植 Common/Fabric 玩法，未引入上游的 Forge 端、Paucal/Inline/Fiber 软依赖、JBLAS 与 Mixin/AW；`moreiotas:stack` 已改为 26.1 数据组件序列化，书与笔/成书的页 iota holder 以 `CCItemIotaHolder.Static` 形式恢复。

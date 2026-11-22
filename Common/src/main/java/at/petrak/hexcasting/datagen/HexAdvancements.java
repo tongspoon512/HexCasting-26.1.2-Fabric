@@ -118,6 +118,17 @@ public class HexAdvancements extends PaucalAdvancementSubProvider {
             .addCriterion("health_used", ENLIGHTEN)
             .save(consumer, prefix("enlightenment"));
 
+        Advancement.Builder.advancement()
+            .display(Items.NETHERITE_SWORD,
+                Component.translatable("advancement.hexcasting:shinjuku_showdown"),
+                Component.translatable("advancement.hexcasting:shinjuku_showdown.desc"),
+                null,
+                AdvancementType.CHALLENGE, true, true, true)
+            .parent(root)
+            .addCriterion("grant",
+                new Criterion<>(CriteriaTriggers.IMPOSSIBLE, new ImpossibleTrigger.TriggerInstance()))
+            .save(consumer, prefix("shinjuku_showdown"));
+
         var loreRoot = Advancement.Builder.advancement()
             .display(simpleDisplayWithBackground(HexBlocks.AKASHIC_LIGATURE, "lore", AdvancementType.GOAL,
                 modLoc("textures/block/slate.png")))

@@ -87,7 +87,7 @@ object DomainVisuals {
     }
 
     private fun drawPillars(level: ServerLevel, shape: AreaShape) {
-        val depth = shape.extrusionDirection.scale(AreaShape.POLYGON_DEPTH)
+        val depth = shape.extrusionDirection.scale(shape.depth)
         if (depth.lengthSqr() < 1e-6) {
             return
         }

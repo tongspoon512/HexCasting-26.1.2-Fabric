@@ -129,10 +129,18 @@ object FabricHexInitializer : ModInitializer {
         ServerLifecycleEvents.SERVER_STOPPING.register { LifeEffectField.clear() }
         ServerLifecycleEvents.SERVER_STOPPING.register { AreaField.clear() }
         ServerLifecycleEvents.SERVER_STOPPING.register { InfinityVoidField.clear() }
-        ServerLivingEntityEvents.AFTER_DEATH.register { entity, _ ->
+        ServerLivingEntityEvents.AFTER_DEATH.register { entity, source ->
             if (entity is net.minecraft.server.level.ServerPlayer) {
                 AreaField.onOwnerDeath(entity)
                 InfinityVoidField.onPlayerDeath(entity)
+                // 新宿决战：用领域重叠抹除过对方领域后将其击杀
+                val killer = source.entity as? net.minecraft.server.level.ServerPlayer
+                if (killer != null && AreaField.consumeGrudge(entity.uuid, killer.uuid)) {
+                    val holder = entity.level().server?.advancements?.get(modLoc("shinjuku_showdown"))
+                    if (holder != null) {
+                        killer.advancements.award(holder, "grant")
+                    }
+                }
             }
         }
         ServerTickEvents.END_LEVEL_TICK.register { level -> PersonalMediaRegen.tick(level) }

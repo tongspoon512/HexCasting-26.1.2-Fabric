@@ -25,6 +25,9 @@ object AreaField {
     const val MAX_OPS_PER_RELEASE = 1000
     const val MAX_STACK_SIZE = 128
 
+    /** 恩怨记录的有效期：30 分钟。 */
+    private const val GRUDGE_WINDOW_MS = 30L * 60L * 1000L
+
     class DomainInstance(
         val id: UUID,
         val level: ServerLevel,
@@ -44,6 +47,32 @@ object AreaField {
 
     private val domains = LinkedHashMap<UUID, DomainInstance>()
 
+    /** 恩怨记录：被抹除领域的玩家 → 抹除者与发生时间。 */
+    private data class Grudge(val attacker: UUID, val time: Long)
+
+    private val grudges = HashMap<UUID, Grudge>()
+
+    private fun recordGrudge(attacker: UUID, victim: UUID) {
+        if (attacker == victim) {
+            return
+        }
+        this.grudges[victim] = Grudge(attacker, System.currentTimeMillis())
+    }
+
+    /** 击杀者是否抹除过死者的领域；命中后消耗记录，供「新宿决战」判定。 */
+    fun consumeGrudge(victim: UUID, killer: UUID): Boolean {
+        val grudge = this.grudges[victim] ?: return false
+        if (System.currentTimeMillis() - grudge.time > GRUDGE_WINDOW_MS) {
+            this.grudges.remove(victim)
+            return false
+        }
+        if (grudge.attacker != killer) {
+            return false
+        }
+        this.grudges.remove(victim)
+        return true
+    }
+
     /** Sources that tried to bind to a domain before it was restored from disk. */
     private val pendingSources = HashMap<UUID, MutableList<DomainMediaSource>>()
     private val levelSaves = IdentityHashMap<ServerLevel, SpellFieldSave>()
@@ -55,8 +84,59 @@ object AreaField {
         val domain = DomainInstance(id, level, ownerId, shape)
         this.domains[id] = domain
         this.attachPendingSources(domain)
+        this.resolveOverlaps(id)
         this.sync(level)
         return id
+    }
+
+    /**
+     * 领域重叠裁决：同一重叠簇内保留运行咒术列表最长的领域；
+     * 列表等长时随机保留一个，其余全部抹除。
+     */
+    fun resolveOverlaps(seedId: UUID) {
+        val seed = this.domains[seedId] ?: return
+        val level = seed.level
+        val cluster = LinkedHashSet<UUID>()
+        cluster.add(seedId)
+        val queue = ArrayDeque<UUID>()
+        queue.add(seedId)
+        // 用相交关系求传递闭包，避免 A-B、B-C 重叠时只处理一部分
+        while (queue.isNotEmpty()) {
+            val current = this.domains[queue.removeFirst()] ?: continue
+            for (other in this.domains.values) {
+                if (other.level !== level || other.id in cluster) {
+                    continue
+                }
+                if (current.shape.intersects(other.shape)) {
+                    cluster.add(other.id)
+                    queue.add(other.id)
+                }
+            }
+        }
+        if (cluster.size <= 1) {
+            return
+        }
+        val members = cluster.mapNotNull { this.domains[it] }
+        val longest = members.maxOf { it.spells.size }
+        val winners = members.filter { it.spells.size == longest }
+        val keeper = if (winners.size == 1) winners.first() else winners.random()
+        for (domain in members) {
+            if (domain.id == keeper.id) {
+                continue
+            }
+            this.domains.remove(domain.id)
+            domain.mediaSource?.onDomainClosed()
+            this.recordGrudge(keeper.ownerId, domain.ownerId)
+        }
+        this.sync(level)
+    }
+
+    /** 该形状是否与已有领域重叠，且对方已经拥有非空的咒术列表（新领域必然会被抹除）。 */
+    fun overlapsLongerDomain(level: ServerLevel, shape: AreaShape): Boolean {
+        this.ensureLoaded(level)
+        return this.domains.values.any {
+            it.level === level && it.spells.isNotEmpty() && it.shape.intersects(shape)
+        }
     }
 
     fun get(id: UUID): DomainInstance? {
@@ -78,6 +158,7 @@ object AreaField {
     fun setSpells(id: UUID, spells: List<Iota>): Boolean {
         val domain = this.domains[id] ?: return false
         domain.spells = spells.toList()
+        this.resolveOverlaps(id)
         this.sync(domain.level)
         return true
     }
@@ -158,6 +239,7 @@ object AreaField {
             this.sync(level)
         }
         this.pendingSources.clear()
+        this.grudges.clear()
         for (domain in this.domains.values) {
             domain.mediaSource?.onDomainClosed()
         }

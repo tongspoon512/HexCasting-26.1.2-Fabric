@@ -1,6 +1,7 @@
 package at.petrak.hexcasting.client.guidebook
 
 import at.petrak.hexcasting.api.HexAPI
+import at.petrak.hexcasting.interop.HexInterop
 import at.petrak.hexcasting.mixin.accessor.client.AccessorClientAdvancements
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import com.google.gson.JsonObject
@@ -62,6 +63,7 @@ object GuideBook {
         }
         for ((id, resource) in categoryResources) {
             val json = readObject(resource) ?: continue
+            if (!flagMet(json.string("flag", ""))) continue
             val localId = id.path.removePrefix(categoryPrefix).removeSuffix(".json")
             categories += GuideCategory(
                 id = localId,
@@ -81,6 +83,7 @@ object GuideBook {
         for ((id, resource) in entryResources) {
             val json = readObject(resource) ?: continue
             if (!loadConditionsMet(json)) continue
+            if (!flagMet(json.string("flag", ""))) continue
             val localId = id.path.removePrefix(entryPrefix).removeSuffix(".json")
             val category = json.string("category", "").substringAfter(':')
             val pages = ArrayList<GuidePage>()
@@ -145,6 +148,33 @@ object GuideBook {
     }
 
     private fun canonical(key: String): String = key.replace("/.", "/").replace(":.", ":")
+
+    /**
+     * Patchouli 的 `flag` 字段：`mod:<id>` 要求对应模组已加载，
+     * `hexcasting:any_interop` 要求至少安装了一个联动模组。
+     * 不满足时整个分类/条目视为不存在，避免书里出现空壳内容。
+     */
+    private fun flagMet(flag: String): Boolean {
+        if (flag.isBlank()) return true
+        return flag.split(',', '&')
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .all { part ->
+                when {
+                    part.startsWith("mod:") ->
+                        IXplatAbstractions.INSTANCE.isModPresent(part.removePrefix("mod:"))
+                    part == HexInterop.PATCHOULI_ANY_INTEROP_FLAG -> anyInteropInstalled()
+                    else -> true
+                }
+            }
+    }
+
+    private fun anyInteropInstalled(): Boolean {
+        val xplat = IXplatAbstractions.INSTANCE
+        return xplat.isModPresent(HexInterop.PEHKUI_ID) ||
+            xplat.isModPresent(HexInterop.Fabric.TRINKETS_API_ID) ||
+            xplat.isModPresent(HexInterop.Forge.CURIOS_API_ID)
+    }
 
     /**
      * 支持条目声明 `fabric:load_conditions`，目前只处理模组加载条件，

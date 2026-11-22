@@ -13,11 +13,11 @@ import java.util.Locale;
  * The immutable geometry of a domain.
  * <p>
  * Polygon-shaped domains (pentagram and triangle) are prisms: the polygon itself is the top face and
- * the domain extends {@link #POLYGON_DEPTH} blocks downwards from it. Sphere and cuboid domains are
+ * the domain extends downwards by its own {@link #getDepth() depth}. Sphere and cuboid domains are
  * ordinary volumes.
  */
 public final class AreaShape {
-    /** How far polygon-shaped domains extend below their polygon. */
+    /** 多边形领域在未指定深度时使用的默认向下延伸距离。 */
     public static final double POLYGON_DEPTH = 10.0;
     public static final double MAX_SPHERE_RADIUS = 64.0;
 
@@ -26,35 +26,46 @@ public final class AreaShape {
     private final AreaKind kind;
     private final List<Vec3> points;
     private final double radius;
+    /** 多边形领域向下延伸的深度；非多边形领域为 0。 */
+    private final double depth;
     private final List<Vec3> outline;
 
-    private AreaShape(AreaKind kind, List<Vec3> points, double radius) {
+    private AreaShape(AreaKind kind, List<Vec3> points, double radius, double depth) {
         this.kind = kind;
         this.points = List.copyOf(points);
         this.radius = radius;
+        this.depth = depth;
         this.outline = kind.isPolygon() ? computeHull(this.points) : this.points;
     }
 
     public static AreaShape pentagram(List<Vec3> points) {
+        return pentagram(points, POLYGON_DEPTH);
+    }
+
+    public static AreaShape pentagram(List<Vec3> points, double depth) {
         if (points.size() != 5) {
             throw new IllegalArgumentException("a pentagram needs exactly 5 points");
         }
-        return new AreaShape(AreaKind.PENTAGRAM, points, 0.0);
+        return new AreaShape(AreaKind.PENTAGRAM, points, 0.0, depth);
     }
 
     public static AreaShape triangle(List<Vec3> points) {
+        return triangle(points, POLYGON_DEPTH);
+    }
+
+    public static AreaShape triangle(List<Vec3> points, double depth) {
         if (points.size() != 3) {
             throw new IllegalArgumentException("a triangle needs exactly 3 points");
         }
-        return new AreaShape(AreaKind.TRIANGLE, points, 0.0);
+        return new AreaShape(AreaKind.TRIANGLE, points, 0.0, depth);
     }
 
     public static AreaShape sphere(Vec3 center, double radius) {
-        return new AreaShape(AreaKind.SPHERE, List.of(center), radius);
+        return new AreaShape(AreaKind.SPHERE, List.of(center), radius, 0.0);
     }
 
     public static AreaShape cuboid(Vec3 cornerA, Vec3 cornerB) {
-        return new AreaShape(AreaKind.CUBOID, List.of(cornerA, cornerB), 0.0);
+        return new AreaShape(AreaKind.CUBOID, List.of(cornerA, cornerB), 0.0, 0.0);
     }
 
     public AreaKind getKind() {
@@ -73,6 +84,16 @@ public final class AreaShape {
 
     public double getRadius() {
         return this.radius;
+    }
+
+    /** 多边形领域向下延伸的深度；非多边形领域为 0。 */
+    public double getDepth() {
+        return this.depth;
+    }
+
+    /** 返回同形状、同顶点但使用新延伸深度的副本。 */
+    public AreaShape withDepth(double newDepth) {
+        return new AreaShape(this.kind, this.points, this.radius, newDepth);
     }
 
     public Vec3 getCenter() {
@@ -161,7 +182,7 @@ public final class AreaShape {
         }
         Vec3 origin = this.outline.get(0);
         double depth = point.subtract(origin).dot(normal);
-        if (depth < -EPS || depth > POLYGON_DEPTH + EPS) {
+        if (depth < -EPS || depth > this.depth + EPS) {
             return false;
         }
         Vec3 u = basisU(normal);
@@ -214,6 +235,7 @@ public final class AreaShape {
         }
         tag.put("points", pointsTag);
         tag.putDouble("radius", this.radius);
+        tag.putDouble("depth", this.depth);
         return tag;
     }
 
@@ -229,9 +251,11 @@ public final class AreaShape {
                 pointTag.getDoubleOr("z", 0.0)));
         }
         double radius = tag.getDoubleOr("radius", 0.0);
+        // 旧存档没有 depth 字段，沿用原来的固定深度
+        double depth = tag.getDoubleOr("depth", POLYGON_DEPTH);
         return switch (kind) {
-            case PENTAGRAM -> pentagram(points);
-            case TRIANGLE -> triangle(points);
+            case PENTAGRAM -> pentagram(points, depth);
+            case TRIANGLE -> triangle(points, depth);
             case SPHERE -> {
                 if (points.size() != 1) {
                     throw new IllegalArgumentException("a sphere needs exactly 1 center");
@@ -257,12 +281,126 @@ public final class AreaShape {
         }
         return this.kind == shape.kind
             && Double.compare(this.radius, shape.radius) == 0
+            && Double.compare(this.depth, shape.depth) == 0
             && this.points.equals(shape.points);
     }
 
     @Override
     public int hashCode() {
-        return this.points.hashCode() * 31 + this.kind.hashCode() * 17 + Double.hashCode(this.radius);
+        return this.points.hashCode() * 31
+            + this.kind.hashCode() * 17
+            + Double.hashCode(this.radius)
+            + Double.hashCode(this.depth);
+    }
+
+    /** 轴对齐包围盒：{minX, minY, minZ, maxX, maxY, maxZ}。 */
+    public double[] bounds() {
+        return switch (this.kind) {
+            case SPHERE -> {
+                Vec3 center = this.points.get(0);
+                yield new double[]{
+                    center.x - this.radius, center.y - this.radius, center.z - this.radius,
+                    center.x + this.radius, center.y + this.radius, center.z + this.radius};
+            }
+            case CUBOID -> {
+                Vec3 a = this.points.get(0);
+                Vec3 b = this.points.get(1);
+                yield new double[]{
+                    Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z),
+                    Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z)};
+            }
+            default -> {
+                Vec3 down = this.getExtrusionDirection().scale(this.depth);
+                double minX = Double.POSITIVE_INFINITY;
+                double minY = Double.POSITIVE_INFINITY;
+                double minZ = Double.POSITIVE_INFINITY;
+                double maxX = Double.NEGATIVE_INFINITY;
+                double maxY = Double.NEGATIVE_INFINITY;
+                double maxZ = Double.NEGATIVE_INFINITY;
+                for (Vec3 point : this.outline) {
+                    for (Vec3 corner : List.of(point, point.add(down))) {
+                        minX = Math.min(minX, corner.x);
+                        minY = Math.min(minY, corner.y);
+                        minZ = Math.min(minZ, corner.z);
+                        maxX = Math.max(maxX, corner.x);
+                        maxY = Math.max(maxY, corner.y);
+                        maxZ = Math.max(maxZ, corner.z);
+                    }
+                }
+                yield new double[]{minX, minY, minZ, maxX, maxY, maxZ};
+            }
+        };
+    }
+
+    /** 两个领域是否存在体积重叠。 */
+    public boolean intersects(AreaShape other) {
+        double[] a = this.bounds();
+        double[] b = other.bounds();
+        double minX = Math.max(a[0], b[0]);
+        double minY = Math.max(a[1], b[1]);
+        double minZ = Math.max(a[2], b[2]);
+        double maxX = Math.min(a[3], b[3]);
+        double maxY = Math.min(a[4], b[4]);
+        double maxZ = Math.min(a[5], b[5]);
+        if (minX > maxX + EPS || minY > maxY + EPS || minZ > maxZ + EPS) {
+            return false;
+        }
+        if (this.kind == AreaKind.SPHERE && other.kind == AreaKind.SPHERE) {
+            double reach = this.radius + other.radius;
+            return this.points.get(0).distanceToSqr(other.points.get(0)) <= reach * reach + EPS;
+        }
+        // 在重叠包围盒内采样；对细长或贴边的重叠再用轮廓点补充
+        int nx = sampleCount(maxX - minX);
+        int ny = sampleCount(maxY - minY);
+        int nz = sampleCount(maxZ - minZ);
+        double dx = (maxX - minX) / nx;
+        double dy = (maxY - minY) / ny;
+        double dz = (maxZ - minZ) / nz;
+        for (int i = 0; i < nx; i++) {
+            for (int j = 0; j < ny; j++) {
+                for (int k = 0; k < nz; k++) {
+                    Vec3 sample = new Vec3(
+                        minX + (i + 0.5) * dx,
+                        minY + (j + 0.5) * dy,
+                        minZ + (k + 0.5) * dz);
+                    if (this.contains(sample) && other.contains(sample)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        for (Vec3 point : this.candidatePoints()) {
+            if (other.contains(point)) {
+                return true;
+            }
+        }
+        for (Vec3 point : other.candidatePoints()) {
+            if (this.contains(point)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static int sampleCount(double extent) {
+        if (extent <= EPS) {
+            return 2;
+        }
+        return (int) Math.max(2, Math.min(16, Math.ceil(extent)));
+    }
+
+    private List<Vec3> candidatePoints() {
+        if (!this.kind.isPolygon() || this.outline.isEmpty()) {
+            return List.of(this.getCenter());
+        }
+        Vec3 down = this.getExtrusionDirection().scale(this.depth);
+        List<Vec3> candidates = new ArrayList<>(this.outline.size() * 2 + 1);
+        for (Vec3 point : this.outline) {
+            candidates.add(point);
+            candidates.add(point.add(down));
+        }
+        candidates.add(this.getCenter());
+        return candidates;
     }
 
     // --- geometry helpers ---

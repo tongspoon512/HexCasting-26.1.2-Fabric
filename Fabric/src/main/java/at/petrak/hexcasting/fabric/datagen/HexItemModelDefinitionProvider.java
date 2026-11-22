@@ -47,6 +47,8 @@ public class HexItemModelDefinitionProvider implements DataProvider {
     private static final float[] PHIAL_FILL_THRESHOLDS = {0.0f, 0.25f, 0.5f, 0.75f, 1.0f};
 
     static {
+        // 指南书沿用 Patchouli 时期手写的书本模型
+        STATIC_MODELS.put("guide_book", "item/patchouli_book");
         STATIC_MODELS.put("quenched_allay", "block/quenched_allay_0");
         STATIC_MODELS.put("quenched_allay_tiles", "block/deco/quenched_allay_tiles_0");
         STATIC_MODELS.put("quenched_allay_bricks", "block/deco/quenched_allay_bricks_0");

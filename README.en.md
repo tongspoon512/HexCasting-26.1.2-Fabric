@@ -352,7 +352,7 @@ The main gaps that were bridged, for future maintenance:
 - **Patchouli**: no 26.1 version; the API is vendored as source stubs. Book content is read by the built-in GUI and no Patchouli runtime is needed.
 - **Inline**: only pattern inlining is implemented; other Inline features (item/entity/avatar matching, size modifiers, overlay rendering) are missing, and world-space text (signs, name tags, etc.) shows placeholders.
 - **Trinkets**: not ported; `dev/emi/trinkets` are stubs and the trinket renderer is an empty implementation (functionality works, visuals do not show).
-- **Pehkui**: the available version links against old intermediary names and cannot run on 26.1; `getPehkuiApi()` throws `UnsupportedOperationException`. **Do not install Pehkui.**
+- **Pehkui**: use [Pehkui Rebuilt](https://github.com/wuhenqiubai/Pehkui-Rebuilt) (mod id is still `pehkui`, supports 26.1.2); scaling patterns are enabled automatically when it is installed and are not registered otherwise.
 - **EMI / JEI**: compile-time integration and plugin entry points are kept; EMI code is also based on vendored stubs.
 - **Rendering fidelity**: after the 26.1 render pipeline rewrite, some effects (brush, light, trinket/elytra overlays, etc.) are approximations and may differ visually from the original.
 - **MoreIotas**: only Common/Fabric gameplay was ported; upstream's Forge side, Paucal/Inline/Fiber soft dependencies, JBLAS and Mixin/AW were not. `moreiotas:stack` now uses 26.1 data component serialization, and book-and-quill/written-book page iota holders are restored as `CCItemIotaHolder.Static`.

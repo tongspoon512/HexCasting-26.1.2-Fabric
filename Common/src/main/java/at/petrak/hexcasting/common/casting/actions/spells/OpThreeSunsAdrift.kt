@@ -44,15 +44,15 @@ class OpThreeSunsAdrift : SpellAction {
 
         val dust = ceil(area / 4.0).toLong() * MediaConstants.DUST_UNIT
         return SpellAction.Result(
-            Spell(corners[0], corners[1], corners[2]),
+            Spell(corners[0], corners[1], corners[2], areaIota.shape.depth),
             MediaConstants.CRYSTAL_UNIT + dust,
             corners.map { ParticleSpray.burst(it, 1.0, 30) }
         )
     }
 
-    private data class Spell(val a: Vec3, val b: Vec3, val c: Vec3) : RenderedSpell {
+    private data class Spell(val a: Vec3, val b: Vec3, val c: Vec3, val depth: Double) : RenderedSpell {
         override fun cast(env: CastingEnvironment) {
-            ThreeSunsAdriftField.cast(env.world as ServerLevel, a, b, c)
+            ThreeSunsAdriftField.cast(env.world as ServerLevel, a, b, c, this.depth)
         }
     }
 }

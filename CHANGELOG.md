@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_30` - 2026-11-22
+
+### Added
+
+- 新增成就「新宿决战」：通过领域重叠抹除另一个玩家的领域后，在 30 分钟内将其击杀即可达成。
+
+### Changed
+
+- 火之提整与风之提整的领域不再固定向下 10 格：每个顶点向下延伸直到碰到固体方块；各顶点终点高度不同时，以最高的延伸点作为统一底面。
+- 领域重叠时按运行咒术列表长度裁决：保留最长者，列表等长则随机抹除到只剩一个；新建或设置咒术列表后都会立即结算。
+- 「三日凌空」的太阳光柱与伤害范围跟随火之领域的实际深度。
+- 黑无常之策略只能销毁自己的领域，无法再清除其他玩家的领域；领域被重叠裁决抹除时会提示与更强的领域重叠。
+- Pehkui 集成改用 [Pehkui Rebuilt](https://github.com/wuhenqiubai/Pehkui-Rebuilt)（mod id 仍为 `pehkui`，支持 26.1.2）；安装后缩放图案自动启用，修复此前在 26.1 上调用即抛异常的问题。
+
+### Fixed
+
+- 教程书补齐残缺内容：`patchouli:crafting` 页面的 `recipe2` 现在会与 `recipe` 一起绘制；缺少对应模组时联动分类与条目（如 Pehkui）不再显示为空壳；补齐紫水晶粉打包/拆解配方，指南书本体恢复可合成，物品模型指向存在的书本模型。
+
 ## `0.11.4-fabric-build_29` - 2026-11-21
 
 ### Added

@@ -53,7 +53,7 @@ object ThreeSunsAdriftField {
     private val levelSaves = IdentityHashMap<ServerLevel, SpellFieldSave>()
     private val loadedLevels = IdentityHashMap<ServerLevel, Boolean>()
 
-    fun cast(level: ServerLevel, a: Vec3, b: Vec3, c: Vec3) {
+    fun cast(level: ServerLevel, a: Vec3, b: Vec3, c: Vec3, depth: Double) {
         this.ensureLoaded(level)
         // 同一维度只保留最新的一片白昼
         val iter = fields.iterator()
@@ -67,9 +67,9 @@ object ThreeSunsAdriftField {
 
         val corners = listOf(a, b, c)
         val suns = corners.map { corner -> Sun(corner) }
-        fields += newField(level, corners, suns, DURATION_TICKS)
+        fields += newField(level, corners, suns, DURATION_TICKS, depth)
         this.sync(level)
-        draw(level, suns, corners)
+        draw(level, suns, corners, depth)
     }
 
     fun tick(level: ServerLevel) {
@@ -95,7 +95,7 @@ object ThreeSunsAdriftField {
                 applySunlight(field)
             }
             if (field.ticksLeft % PARTICLE_INTERVAL == 0) {
-                draw(level, field.suns, field.corners)
+                draw(level, field.suns, field.corners, field.shape.depth)
             }
         }
         // 每秒同步一次剩余时间与太阳存活状态，退出世界后可以接着燃烧
@@ -116,12 +116,17 @@ object ThreeSunsAdriftField {
         this.loadedLevels.clear()
     }
 
-    private fun newField(level: ServerLevel, corners: List<Vec3>, suns: List<Sun>, ticksLeft: Int): Field {
-        val depth = AreaShape.POLYGON_DEPTH
+    private fun newField(
+        level: ServerLevel,
+        corners: List<Vec3>,
+        suns: List<Sun>,
+        ticksLeft: Int,
+        depth: Double
+    ): Field {
         val bottomY = corners.minOf { it.y } - depth
         return Field(
             level,
-            AreaShape.triangle(corners),
+            AreaShape.triangle(corners, depth),
             corners,
             floor(bottomY).toInt() - 1,
             ceil(corners.maxOf { it.y }).toInt() + 1,
@@ -156,7 +161,7 @@ object ThreeSunsAdriftField {
         val suns = corners.mapIndexed { index, corner ->
             Sun(corner, tag.getBooleanOr("sun$index", true))
         }
-        return newField(level, corners, suns, ticks)
+        return newField(level, corners, suns, ticks, tag.getDoubleOr("depth", AreaShape.POLYGON_DEPTH))
     }
 
     /** Writes this level's daylight fields into its saved data. */
@@ -178,6 +183,7 @@ object ThreeSunsAdriftField {
             tag.put("b", vecTag(field.corners[1]))
             tag.put("c", vecTag(field.corners[2]))
             tag.putInt("ticks", field.ticksLeft)
+            tag.putDouble("depth", field.shape.depth)
             for ((index, sun) in field.suns.withIndex()) {
                 tag.putBoolean("sun$index", sun.alive)
             }
@@ -314,8 +320,7 @@ object ThreeSunsAdriftField {
         }
     }
 
-    private fun draw(level: ServerLevel, suns: List<Sun>, corners: List<Vec3>) {
-        val depth = AreaShape.POLYGON_DEPTH
+    private fun draw(level: ServerLevel, suns: List<Sun>, corners: List<Vec3>, depth: Double) {
         for ((index, sun) in suns.withIndex()) {
             if (!sun.alive) continue
             level.sendParticles(

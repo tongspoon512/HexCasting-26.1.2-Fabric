@@ -43,7 +43,7 @@ repositories {
         }
         filter { includeGroup "maven.modrinth" }
     }
-    // pehkui
+    // JitPack（MixinExtras）
     maven { url = "https://jitpack.io" }
 
     // If you have mod jar dependencies in ./libs, you can declare them as a repository like so:
@@ -102,9 +102,10 @@ dependencies {
     compileOnly("mezz.jei:jei-${minecraftVersion}-common:${jeiVersion}")
     runtimeOnly("mezz.jei:jei-${minecraftVersion}-fabric:${jeiVersion}")
 
-    compileOnly("com.github.Virtuoel:Pehkui:${pehkuiVersion}", {
+    // Pehkui Rebuilt：面向 26.1.2 的官方名构建，运行时由玩家安装；仅编译期依赖
+    compileOnly("maven.modrinth:pehkui-rebuilt:$pehkuiRebuiltVersion") {
         exclude group: "net.fabricmc.fabric-api"
-    })
+    }
 
     // optional (mod menu entrypoint); no compatible build for this snapshot
     compileOnly("com.terraformersmc:modmenu:$modmenuVersion")

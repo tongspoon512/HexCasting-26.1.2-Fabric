@@ -294,8 +294,24 @@ public class HexplatRecipes extends PaucalRecipeProvider {
         ringAll(RecipeCategory.BUILDING_BLOCKS, HexBlocks.SLATE_BLOCK, 8, Blocks.DEEPSLATE, HexItems.AMETHYST_DUST)
             .unlockedBy("has_item", hasItem(HexItems.SLATE)).save(this.output);
 
-        packing(RecipeCategory.BUILDING_BLOCKS, HexItems.AMETHYST_DUST, HexBlocks.AMETHYST_DUST_BLOCK.asItem(), "amethyst_dust",
-            false, null);
+        // 指南书的装饰条目直接引用 packing/unpacking 两个配方 id，名称需与之保持一致
+        ShapedRecipeBuilder.shaped(itemLookup, RecipeCategory.BUILDING_BLOCKS, HexBlocks.AMETHYST_DUST_BLOCK)
+            .define('I', HexItems.AMETHYST_DUST)
+            .pattern("III").pattern("III").pattern("III")
+            .unlockedBy("has_item", hasItem(HexItems.AMETHYST_DUST))
+            .save(this.output, modLoc("amethyst_dust_packing").toString());
+
+        ShapelessRecipeBuilder.shapeless(itemLookup, RecipeCategory.BUILDING_BLOCKS, HexItems.AMETHYST_DUST, 9)
+            .requires(HexBlocks.AMETHYST_DUST_BLOCK)
+            .unlockedBy("has_item", hasItem(HexBlocks.AMETHYST_DUST_BLOCK))
+            .save(this.output, modLoc("amethyst_dust_unpacking").toString());
+
+        // 指南书本体的合成配方（内置书，不依赖 Patchouli）
+        ShapelessRecipeBuilder.shapeless(itemLookup, RecipeCategory.MISC, HexItems.GUIDE_BOOK)
+            .requires(Items.BOOK)
+            .requires(HexItems.AMETHYST_DUST)
+            .unlockedBy("has_item", hasItem(HexItems.AMETHYST_DUST))
+            .save(this.output);
 
         ringAll(RecipeCategory.BUILDING_BLOCKS, HexBlocks.SCROLL_PAPER, 8, Items.PAPER, Items.AMETHYST_SHARD)
             .unlockedBy("has_item", hasItem(Items.AMETHYST_SHARD)).save(this.output);

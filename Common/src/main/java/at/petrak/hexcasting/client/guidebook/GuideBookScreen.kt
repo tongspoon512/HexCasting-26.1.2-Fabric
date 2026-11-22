@@ -364,10 +364,7 @@ class GuideBookScreen(
             "patchouli:image" -> drawImagePage(graphics, page, pageX, top, width, bottom, scroll)
             "patchouli:spotlight" -> drawSpotlightPage(graphics, page, x, top, width, bottom, scroll)
             "patchouli:empty" -> 0
-            "patchouli:crafting" -> {
-                val recipe = Identifier.tryParse(page.string("recipe"))?.let { GuideRecipes.get(it) }
-                drawCraftingPage(graphics, page, recipe, x, top, width, bottom, scroll)
-            }
+            "patchouli:crafting" -> drawCraftingPage(graphics, page, x, top, width, bottom, scroll)
             "hexcasting:crafting_multi" -> drawMultiCraftingPage(graphics, page, x, top, width, bottom, scroll)
             "hexcasting:pattern" -> drawPatternPage(graphics, page, pageX, top, width, bottom, scroll)
             "hexcasting:manual_pattern" -> drawManualPatternPage(graphics, page, pageX, top, width, bottom, scroll)
@@ -506,16 +503,24 @@ class GuideBookScreen(
     private fun drawCraftingPage(
         graphics: GuiGraphicsExtractor,
         page: GuidePage,
-        recipe: GuideRecipes.Recipe?,
         x: Int,
         top: Int,
         width: Int,
         bottom: Int,
         scroll: Int
     ): Int {
+        // Patchouli 的 crafting 页可同时给出 recipe 与 recipe2，两个都要画出来
+        val recipes = listOfNotNull(
+            Identifier.tryParse(page.string("recipe"))?.let { GuideRecipes.get(it) },
+            Identifier.tryParse(page.string("recipe2"))?.let { GuideRecipes.get(it) }
+        ).filter { it.grid.any { stack -> stack != null } }
         var height = font.lineHeight + 2
-        if (recipe != null && recipe.grid.any { it != null }) {
-            height = drawRecipeGrid(graphics, recipe, x, top - scroll, width)
+        if (recipes.isNotEmpty()) {
+            height = 0
+            for ((index, recipe) in recipes.withIndex()) {
+                if (index > 0) height += 4
+                height += drawRecipeGrid(graphics, recipe, x, top + height - scroll, width)
+            }
         }
         height += drawBody(graphics, page.string("text"), x, top + height, width, bottom, scroll)
         return height

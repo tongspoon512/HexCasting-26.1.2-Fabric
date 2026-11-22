@@ -18,5 +18,5 @@
       "rolls": 1.0
     }
   ],
-  "random_sequence": "hexcasting:quenched_allay_tiles"
+  "random_sequence": "hexcasting:blocks/quenched_allay_tiles"
 }

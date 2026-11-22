@@ -97,6 +97,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import virtuoel.pehkui.api.ScaleTypes;
 
 import java.util.Collection;
 import java.util.List;
@@ -580,10 +581,24 @@ public class FabricXplatImpl implements IXplatAbstractions {
         if (!this.isModPresent(HexInterop.PEHKUI_ID)) {
             throw new IllegalArgumentException("cannot get the pehkui api without pehkui");
         }
+        if (PEHKUI_API == null) {
+            // Pehkui Rebuilt（mod id 仍为 pehkui）保留了 virtuoel.pehkui.api 包与 BASE 缩放接口
+            PEHKUI_API = new PehkuiInterop.ApiAbstraction() {
+                @Override
+                public float getScale(Entity e) {
+                    return ScaleTypes.BASE.getScaleData(e).getScale();
+                }
 
-        // TODO(26.1): pehkui has no build for this version yet (its 1.20-era jar links against
-        // intermediary names that no longer resolve), so scaling is unavailable for now.
-        throw new UnsupportedOperationException("pehkui is not available on 26.1 yet");
+                @Override
+                public void setScale(Entity e, float scale) {
+                    ScaleTypes.BASE.getScaleData(e).setScale(scale);
+                }
+            };
+        }
+        return PEHKUI_API;
     }
+
+    @Nullable
+    private static PehkuiInterop.ApiAbstraction PEHKUI_API = null;
 
 }
