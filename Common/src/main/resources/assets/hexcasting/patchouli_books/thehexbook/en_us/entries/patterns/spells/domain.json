@@ -75,6 +75,14 @@
       "text": "hexcasting.page.domain.bai"
     },
     {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:domain/zone_distillation",
+      "anchor": "hexcasting:domain/zone_distillation",
+      "input": "area, bool",
+      "output": "list",
+      "text": "hexcasting.page.domain.zone_distillation"
+    },
+    {
       "type": "patchouli:text",
       "text": "hexcasting.page.domain.3"
     }

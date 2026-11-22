@@ -141,6 +141,7 @@
 | `domain/hei_wuchang_strategy` | `hexcasting:domain/hei_wuchang_strategy` | area | 黑无常之策略：销毁领域 |
 | `domain/bai_wuchang_strategy` | `hexcasting:domain/bai_wuchang_strategy` | area | 白无常之策略：暂停或恢复领域的释放 |
 | `domain/mahoraga_purification` | `hexcasting:domain/mahoraga_purification` | vec | 魔虚罗之纯化：返回该向量所在领域的领域 iota |
+| `domain/zone_distillation` | `hexcasting:domain/zone_distillation` | area, bool | 区域之馏化：领域：返回领域内的实体列表（假：除掉落物；真：再排除领域召唤者） |
 | `add_motion` | `hexcasting:add_motion` | entity, vec | 给实体施加冲量 |
 | `blink` | `hexcasting:blink` | entity, num 距离 | 瞬移（短距离） |
 | `break_block` | `hexcasting:break_block` | vec 位置 | 破坏方块（正常掉落） |

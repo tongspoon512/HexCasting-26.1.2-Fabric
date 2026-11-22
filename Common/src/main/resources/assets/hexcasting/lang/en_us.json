@@ -621,6 +621,7 @@
   "hexcasting.action.hexcasting:domain/hei_wuchang_strategy": "Hei Wuchang's Strategy",
   "hexcasting.action.hexcasting:domain/bai_wuchang_strategy": "Bai Wuchang's Strategy",
   "hexcasting.action.hexcasting:domain/mahoraga_purification": "Mahoraga's Purification",
+  "hexcasting.action.hexcasting:domain/zone_distillation": "Zone Distillation: Domain",
   "hexcasting.action.hexcasting:infinite_void": "Infinite Void",
   "hexcasting.action.hexcasting:conjure_block": "Conjure Block",
   "hexcasting.action.hexcasting:conjure_light": "Conjure Light",
@@ -1744,6 +1745,7 @@
   "hexcasting.page.domain.euclid": "Returns the domain's center.",
   "hexcasting.page.domain.hei": "Destroys the domain.",
   "hexcasting.page.domain.bai": "Pauses or resumes the domain.",
+  "hexcasting.page.domain.zone_distillation": "Distills the entities inside a domain: with a false boolean it returns every entity except dropped items; with true it also leaves out the player who summoned the domain.",
   "hexcasting.entry.infinite_void": "Infinite Void",
   "hexcasting.page.infinite_void.0": "Takes a creature from the stack and seals it in endless darkness. Ordinary mobs stop acting for 60 seconds, then regain their original AI.",
   "hexcasting.page.infinite_void.1": "If the target is a player, they gain Darkness, Blindness and Slowness V, and cannot cast at all for 30 seconds. It can only be cast by a domain, and costs 20 amethyst dust."

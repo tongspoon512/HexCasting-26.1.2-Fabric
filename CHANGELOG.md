@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-fabric-build_31` - 2026-11-22
+
+### Added
+
+- 新增图案「区域之馏化：领域」`aaqqwawa`（东起始，领域 + 布尔 → 实体列表）：布尔为假时返回领域内除掉落物以外的所有实体；为真时再排除召唤该领域的玩家。
+
 ## `0.11.4-fabric-build_30` - 2026-11-22
 
 ### Added

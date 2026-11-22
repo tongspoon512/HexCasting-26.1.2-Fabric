@@ -305,6 +305,8 @@ public class HexActions {
         new ActionRegistryEntry(HexPattern.fromAngles("wdwdw", HexDir.EAST), OpBaiWuchangStrategy.INSTANCE));
     public static final ActionRegistryEntry DOMAIN_MAHORAGA_PURIFICATION = make("domain/mahoraga_purification",
         new ActionRegistryEntry(HexPattern.fromAngles("aaqqqwwawq", HexDir.EAST), OpMahoragaPurification.INSTANCE));
+    public static final ActionRegistryEntry DOMAIN_ZONE_DISTILLATION = make("domain/zone_distillation",
+        new ActionRegistryEntry(HexPattern.fromAngles("aaqqwawa", HexDir.EAST), OpDomainZoneDistillation.INSTANCE));
     public static final ActionRegistryEntry INFINITE_VOID = make("infinite_void",
         new ActionRegistryEntry(HexPattern.fromAngles("wdwewdwawwaeaw", HexDir.EAST), OpInfiniteVoid.INSTANCE));
     public static final ActionRegistryEntry CONJURE_BLOCK = make("conjure_block",

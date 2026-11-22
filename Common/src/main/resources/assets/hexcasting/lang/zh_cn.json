@@ -614,6 +614,7 @@
   "hexcasting.action.hexcasting:domain/hei_wuchang_strategy": "黑无常之策略",
   "hexcasting.action.hexcasting:domain/bai_wuchang_strategy": "白无常之策略",
   "hexcasting.action.hexcasting:domain/mahoraga_purification": "魔虚罗之纯化",
+  "hexcasting.action.hexcasting:domain/zone_distillation": "区域之馏化：领域",
   "hexcasting.action.hexcasting:infinite_void": "无量空处",
   "hexcasting.action.hexcasting:conjure_block": "构筑方块",
   "hexcasting.action.hexcasting:conjure_light": "构筑光源",
@@ -1745,6 +1746,7 @@
   "hexcasting.page.domain.euclid": "取出领域的重心。",
   "hexcasting.page.domain.hei": "销毁领域。",
   "hexcasting.page.domain.bai": "暂停或恢复领域的释放。",
+  "hexcasting.page.domain.zone_distillation": "取出领域内的实体：布尔为假时返回除掉落物以外的所有实体；为真时再排除召唤该领域的玩家。",
   "hexcasting.entry.infinite_void": "无量空处",
   "hexcasting.page.infinite_void.0": "从栈中取出一个生物，把它关进无边的黑暗里。普通生物会停止一切行动 60 秒，然后恢复原本的 AI。",
   "hexcasting.page.infinite_void.1": "如果目标是玩家，他会获得黑暗、失明与缓慢 V，并在 30 秒内完全无法施法。只能由领域释放，消耗 20 个紫水晶粉。"
