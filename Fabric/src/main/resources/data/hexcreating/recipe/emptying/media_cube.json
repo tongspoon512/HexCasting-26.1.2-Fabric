@@ -1,0 +1,19 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "create:emptying",
+  "ingredient": "hexcreating:media_cube",
+  "fluid_result": {
+    "amount": 1000,
+    "id": "hexcreating:media"
+  },
+  "result": {
+    "id": "hexcreating:media_cube"
+  }
+}

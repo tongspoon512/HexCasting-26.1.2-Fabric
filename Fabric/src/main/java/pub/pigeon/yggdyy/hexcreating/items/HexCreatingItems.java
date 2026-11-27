@@ -25,6 +25,9 @@ public final class HexCreatingItems {
         p -> new RawSoulItem(p.fireResistant().rarity(Rarity.UNCOMMON)));
     public static final Item UNFINISHED_TRAIN_GATE_FRAME = register("unfinished_train_gate_frame",
         p -> new SequencedAssemblyItem(p.stacksTo(1)));
+    public static final Item CUBE_FRAME = register("cube_frame", Item::new);
+    public static final Item UNFINISHED_MEDIA_CUBE = register("unfinished_media_cube",
+        p -> new SequencedAssemblyItem(p.stacksTo(1)));
     public static final Item SQUARE = register("square", SquareItem::new);
     public static final Item PRINTED_PAPER = register("printed_paper", PrintedPaperItem::new);
     public static final Item PAPER_REEL = register("paper_reel",

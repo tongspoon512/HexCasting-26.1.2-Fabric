@@ -29,6 +29,14 @@
       "input": "entity, number",
       "output": "",
       "text": "hexcasting.page.life.excite"
+    },
+    {
+      "type": "hexcasting:pattern",
+      "op_id": "hexcasting:life/idle_transfiguration",
+      "anchor": "hexcasting:life/idle_transfiguration",
+      "input": "entity, type",
+      "output": "",
+      "text": "hexcasting.page.life.idle_transfiguration"
     }
   ]
 }

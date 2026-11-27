@@ -303,6 +303,12 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         @ConfigEntry.Gui.Tooltip
         private double nameCost = DEFAULT_NAME_COST;
 
+        // --- 无为转变 ---
+        @ConfigEntry.Gui.Tooltip
+        private List<String> idleTransfigurationWhitelist = List.of();
+        @ConfigEntry.Gui.Tooltip
+        private List<String> idleTransfigurationBlacklist = DEFAULT_IDLE_TRANSFIGURATION_BLACKLIST;
+
         // ModMenu bad and doesn't like java objects in here so we do stupid string parsing
         @ConfigEntry.Gui.Tooltip
         private List<String> scrollInjectionsRaw = HexLootHandler.DEFAULT_SCROLL_INJECTS
@@ -350,6 +356,9 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
             this.maxStringLength = Mth.clamp(this.maxStringLength, MIN_MAX_STRING_LENGTH, MAX_MAX_STRING_LENGTH);
             this.setBlockStringCost = Mth.clamp(this.setBlockStringCost, 0.0, Double.MAX_VALUE);
             this.nameCost = Mth.clamp(this.nameCost, 0.0, Double.MAX_VALUE);
+
+            this.idleTransfigurationWhitelist = sanitizeIds(this.idleTransfigurationWhitelist);
+            this.idleTransfigurationBlacklist = sanitizeIds(this.idleTransfigurationBlacklist);
 
             this.costRescaleMap = new Object2DoubleOpenHashMap<>();
             try {
@@ -509,6 +518,27 @@ public class FabricHexConfig extends PartitioningSerializer.GlobalData {
         @Override
         public double nameCost() {
             return nameCost;
+        }
+
+        @Override
+        public List<String> idleTransfigurationWhitelist() {
+            return idleTransfigurationWhitelist;
+        }
+
+        @Override
+        public List<String> idleTransfigurationBlacklist() {
+            return idleTransfigurationBlacklist;
+        }
+
+        /** 忽略无法解析的实体 id，避免一条拼写错误让整份配置加载失败。 */
+        private static List<String> sanitizeIds(List<String> raw) {
+            var out = new ArrayList<String>();
+            for (String value : raw) {
+                if (Identifier.tryParse(value) != null) {
+                    out.add(value);
+                }
+            }
+            return out;
         }
 
         public double traderScrollChance() {

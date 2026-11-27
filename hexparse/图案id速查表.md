@@ -132,6 +132,7 @@
 | `life/breed` | `hexcasting:life/breed` | entity | 让成年动物进入 30 秒恋爱状态，消耗 2 粉 |
 | `life/grow` | `hexcasting:life/grow` | entity, num 秒数 | 幼崽成长计时推进 1–60 秒，消耗 1 粉 + 每 10 秒 1 粉 |
 | `life/excite` | `hexcasting:life/excite` | entity, num 秒数 | 让悦灵跳舞 1–60 秒，消耗 1 粉 + 每 10 秒 1 粉 |
+| `life/idle_transfiguration` | `hexcasting:life/idle_transfiguration` | entity, type | 无为转变 `aqawdedd`：把实体转变成指定类型，保留位置/朝向/名称并按比例折算血量；消耗 10 粉，Boss 无效 |
 | `domain/wind` | `hexcasting:domain/wind` | vec ×5 | 生得—风之提整：围出五芒星领域（顶面向下延伸 10 格） |
 | `domain/fire` | `hexcasting:domain/fire` | vec ×3 | 生得—火之提整：围出三角形领域（顶面向下延伸 10 格） |
 | `domain/water` | `hexcasting:domain/water` | vec 球心, num 半径 | 生得—水之馏化：围出球形领域（半径不超过 32） |

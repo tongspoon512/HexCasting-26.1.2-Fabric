@@ -1,0 +1,28 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "create:mechanical_crafting",
+  "key": {
+    "X": "create:brass_sheet",
+    "N": "create:sturdy_sheet",
+    ".": "minecraft:netherite_ingot",
+    "O": "minecraft:nether_star"
+  },
+  "pattern": [
+    " XXX ",
+    "XN.NX",
+    "X.O.X",
+    "XN.NX",
+    " XXX "
+  ],
+  "result": {
+    "count": 1,
+    "id": "hexcreating:cube_frame"
+  }
+}

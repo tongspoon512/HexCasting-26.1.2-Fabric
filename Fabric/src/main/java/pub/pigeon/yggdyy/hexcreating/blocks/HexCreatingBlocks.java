@@ -84,6 +84,9 @@ public final class HexCreatingBlocks {
     public static final Block DOMAIN_CORE = block("domain_core", DomainCoreBlock::new,
         metalProps("domain_core"));
 
+    public static final Block MEDIA_CUBE = block("media_cube", Block::new,
+        metalProps("media_cube"));
+
     public static final Block MEDIA = block("media",
         p -> new pub.pigeon.yggdyy.hexcreating.fluids.HexCreatingFluids.MediaLiquidBlock(p),
         BlockBehaviour.Properties.ofFullCopy(net.minecraft.world.level.block.Blocks.WATER));

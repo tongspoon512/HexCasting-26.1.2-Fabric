@@ -93,6 +93,10 @@
     {
       "type": "patchouli:text",
       "text": "hexcasting.page.domain.3"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "hexcasting.page.domain.bonus"
     }
   ]
 }

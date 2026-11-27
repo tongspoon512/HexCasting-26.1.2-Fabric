@@ -177,6 +177,22 @@ public class HexConfig {
             return DEFAULT_NAME_COST;
         }
 
+        /** 无为转变的白名单；为空表示所有非免疫生物都适用。 */
+        default List<String> idleTransfigurationWhitelist() {
+            return List.of();
+        }
+
+        /** 无为转变的免疫生物；凋灵与末影龙在代码中额外硬编码免疫。 */
+        default List<String> idleTransfigurationBlacklist() {
+            return DEFAULT_IDLE_TRANSFIGURATION_BLACKLIST;
+        }
+
+        List<String> DEFAULT_IDLE_TRANSFIGURATION_BLACKLIST = List.of(
+            "minecraft:wither",
+            "minecraft:ender_dragon",
+            "minecraft:warden",
+            "minecraft:elder_guardian");
+
         default ToolMaterial opBreakHarvestLevel() {
             return switch (this.opBreakHarvestLevelBecauseForgeThoughtItWasAGoodIdeaToImplementHarvestTiersUsingAnHonestToGodTopoSort()) {
                 case 0 -> ToolMaterial.WOOD;

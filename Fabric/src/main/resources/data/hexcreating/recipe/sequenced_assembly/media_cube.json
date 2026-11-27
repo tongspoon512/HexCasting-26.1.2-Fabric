@@ -1,0 +1,45 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "create:sequenced_assembly",
+  "ingredient": "hexcreating:cube_frame",
+  "transitional_item": {
+    "id": "hexcreating:unfinished_media_cube"
+  },
+  "result": {
+    "id": "hexcreating:media_cube",
+    "chance": 0.99
+  },
+  "junks": [
+    {
+      "id": "minecraft:budding_amethyst",
+      "chance": 1.0
+    }
+  ],
+  "loops": 500,
+  "sequence": [
+    {
+      "type": "create:filling",
+      "ingredient": "$ingredient",
+      "fluid_ingredient": {
+        "type": "fluid_stack",
+        "amount": 1000,
+        "fluid": "hexcreating:media"
+      },
+      "result": "$result"
+    },
+    {
+      "type": "create:pressing",
+      "ingredient": "$ingredient",
+      "results": [
+        "$result"
+      ]
+    }
+  ]
+}

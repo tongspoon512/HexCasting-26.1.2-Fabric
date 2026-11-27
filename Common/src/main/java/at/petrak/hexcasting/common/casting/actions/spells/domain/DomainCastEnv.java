@@ -25,6 +25,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -34,6 +35,28 @@ import java.util.function.Predicate;
  * patterns are executed per tick. Player-only and circle-only actions are rejected.
  */
 public class DomainCastEnv extends CastingEnvironment {
+    /** 火领域半价的法术。 */
+    private static final Set<Identifier> FIRE_ACTIONS = Set.of(
+        HexAPI.modLoc("explode"),
+        HexAPI.modLoc("explode/fire"),
+        HexAPI.modLoc("ignite"));
+
+    /** 水领域半价的法术。 */
+    private static final Set<Identifier> WATER_ACTIONS = Set.of(
+        HexAPI.modLoc("create_water"),
+        HexAPI.modLoc("destroy_water"));
+
+    /** 地领域半价的法术：高阶拾取与方块工程。 */
+    private static final Set<Identifier> EARTH_ACTIONS = Set.of(
+        HexAPI.modLoc("advanced_pickup"),
+        HexAPI.modLoc("place_block"),
+        HexAPI.modLoc("break_block"),
+        HexAPI.modLoc("fall_block"),
+        HexAPI.modLoc("cycle_variant"),
+        HexAPI.modLoc("conjure_block"),
+        HexAPI.modLoc("conjure_light"),
+        HexAPI.modLoc("edify"));
+
     private final AreaField.DomainInstance domain;
     private final @Nullable ServerPlayer caster;
     private final MishapEnvironment mishapEnv;
@@ -58,6 +81,25 @@ public class DomainCastEnv extends CastingEnvironment {
             }
         }
         super.precheckAction(match);
+    }
+
+    /**
+     * 领域加成：对应种类的领域让特定法术的媒质消耗减半。
+     */
+    @Override
+    protected double getCostModifier(Identifier loc) {
+        double base = super.getCostModifier(loc);
+        return this.isDomainBonus(loc) ? base * 0.5 : base;
+    }
+
+    private boolean isDomainBonus(Identifier loc) {
+        return switch (this.domain.getShape().getKind()) {
+            case TRIANGLE -> FIRE_ACTIONS.contains(loc);
+            // 天底/天顶（potion/*）属于卓越法术；领域主人已启蒙时领域可以释放它们
+            case PENTAGRAM -> HexAPI.MOD_ID.equals(loc.getNamespace()) && loc.getPath().startsWith("potion/");
+            case SPHERE -> WATER_ACTIONS.contains(loc);
+            case CUBOID -> EARTH_ACTIONS.contains(loc);
+        };
     }
 
     @Override

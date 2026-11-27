@@ -287,6 +287,8 @@ public class HexActions {
         new ActionRegistryEntry(HexPattern.fromAngles("awwqwaw", HexDir.EAST), OpLifeGrow.INSTANCE));
     public static final ActionRegistryEntry LIFE_EXCITE = make("life/excite",
         new ActionRegistryEntry(HexPattern.fromAngles("awwqwaww", HexDir.EAST), OpLifeExcite.INSTANCE));
+    public static final ActionRegistryEntry LIFE_IDLE_TRANSFIGURATION = make("life/idle_transfiguration",
+        new ActionRegistryEntry(HexPattern.fromAngles("aqawdedd", HexDir.EAST), OpIdleTransfiguration.INSTANCE));
     public static final ActionRegistryEntry DOMAIN_WIND = make("domain/wind",
         new ActionRegistryEntry(HexPattern.fromAngles("wqaawqaw", HexDir.EAST), OpCreateDomain.WIND));
     public static final ActionRegistryEntry DOMAIN_FIRE = make("domain/fire",
