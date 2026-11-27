@@ -47,9 +47,10 @@ object GuideBook {
         val id = Identifier.tryParse(raw) ?: return true
         val connection = Minecraft.getInstance().connection ?: return false
         val advancements = connection.advancements
-        advancements.get(id) ?: return false
+        val advancement = advancements.get(id) ?: return false
         val progress = (advancements as AccessorClientAdvancements).progress
-        return progress.entries.any { (holder, value) -> holder.id() == id && value.isDone }
+        // 直接按 holder 查表，避免每次条目渲染都线性扫描全部进度
+        return progress[advancement]?.isDone == true
     }
 
     private fun load(): GuideBookData {

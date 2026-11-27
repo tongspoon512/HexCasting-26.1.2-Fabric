@@ -1743,6 +1743,7 @@
   "hexcasting.page.domain.water": "A center and a radius enclose a spherical domain; the larger the radius, the higher the cost.",
   "hexcasting.page.domain.earth": "Two opposite corners enclose a cuboid domain.",
   "hexcasting.page.domain.euclid": "Returns the domain's center.",
+  "hexcasting.page.domain.mahoraga": "Takes a vector and returns the domain iota of the domain containing it; if the point is not inside any domain, it causes a mishap.",
   "hexcasting.page.domain.hei": "Destroys the domain.",
   "hexcasting.page.domain.bai": "Pauses or resumes the domain.",
   "hexcasting.page.domain.zone_distillation": "Distills the entities inside a domain: with a false boolean it returns every entity except dropped items; with true it also leaves out the player who summoned the domain.",

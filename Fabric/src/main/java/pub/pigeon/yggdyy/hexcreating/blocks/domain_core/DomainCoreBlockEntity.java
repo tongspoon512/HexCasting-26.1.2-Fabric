@@ -104,8 +104,11 @@ public class DomainCoreBlockEntity extends SmartBlockEntity implements DomainMed
             if (mB <= 0) {
                 return false;
             }
-            MediaHelper.extractMedia(stack, media, false, false);
-            this.fill(mB);
+            // 先确认罐体真的能接收，再扣除物品里的媒质，避免类型不符时媒质凭空消失
+            if (!this.fill(mB)) {
+                return false;
+            }
+            MediaHelper.extractMedia(stack, mB * 10_000L / 81L, false, false);
             this.setChanged();
             return true;
         }
@@ -116,10 +119,10 @@ public class DomainCoreBlockEntity extends SmartBlockEntity implements DomainMed
         if (!(stack.getItem() instanceof IotaHolderItem holder)) {
             return false;
         }
-        if (this.level == null) {
+        if (!(this.level instanceof ServerLevel serverLevel)) {
             return false;
         }
-        Iota iota = holder.readIota(stack, (ServerLevel) this.level);
+        Iota iota = holder.readIota(stack, serverLevel);
         if (!(iota instanceof AreaIota area)) {
             return false;
         }

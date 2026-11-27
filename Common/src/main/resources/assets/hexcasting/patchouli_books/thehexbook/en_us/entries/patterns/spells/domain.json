@@ -60,6 +60,14 @@
     },
     {
       "type": "hexcasting:pattern",
+      "op_id": "hexcasting:domain/mahoraga_purification",
+      "anchor": "hexcasting:domain/mahoraga_purification",
+      "input": "vector",
+      "output": "area",
+      "text": "hexcasting.page.domain.mahoraga"
+    },
+    {
+      "type": "hexcasting:pattern",
       "op_id": "hexcasting:domain/hei_wuchang_strategy",
       "anchor": "hexcasting:domain/hei_wuchang_strategy",
       "input": "area",

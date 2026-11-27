@@ -52,6 +52,9 @@ object AreaField {
 
     private val grudges = HashMap<UUID, Grudge>()
 
+    /** 上次清扫过期恩怨记录的时间，避免长期运行时 grudges 无限增长。 */
+    private var lastGrudgeSweep: Long = 0L
+
     private fun recordGrudge(attacker: UUID, victim: UUID) {
         if (attacker == victim) {
             return
@@ -207,6 +210,16 @@ object AreaField {
 
     fun tick(level: ServerLevel) {
         this.ensureLoaded(level)
+        val now = System.currentTimeMillis()
+        if (now - this.lastGrudgeSweep >= GRUDGE_WINDOW_MS) {
+            this.lastGrudgeSweep = now
+            val iter = this.grudges.values.iterator()
+            while (iter.hasNext()) {
+                if (now - iter.next().time > GRUDGE_WINDOW_MS) {
+                    iter.remove()
+                }
+            }
+        }
         if (this.domains.isEmpty()) {
             return
         }

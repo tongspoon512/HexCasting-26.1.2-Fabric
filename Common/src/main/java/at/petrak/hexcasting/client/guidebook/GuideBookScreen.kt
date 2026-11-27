@@ -597,10 +597,11 @@ class GuideBookScreen(
         bottom: Int,
         scroll: Int
     ): Int {
-        val pattern = lookupPattern(page)
+        val opId = pageActionId(page)
+        val pattern = lookupPattern(opId)
         if (pattern != null) {
             // 卓越法术的图案随世界随机，书里只画出形状，不显示笔顺（与原版 Hex Casting 一致）
-            renderPatterns(graphics, listOf(pattern), pageX, top - scroll, strokeOrder = !isPerWorldPattern(page))
+            renderPatterns(graphics, listOf(pattern), pageX, top - scroll, strokeOrder = !isPerWorldPattern(opId))
         }
         val signature = signatureText(page)
         var height = 64
@@ -671,17 +672,22 @@ class GuideBookScreen(
         }
     }
 
-    private fun lookupPattern(page: GuidePage): HexPattern? {
-        val opId = Identifier.tryParse(page.string("op_id", page.string("anchor"))) ?: return null
+    /** 页面引用动作的 id，`op_id` 缺失时回退到 `anchor`。 */
+    private fun pageActionId(page: GuidePage): Identifier? =
+        Identifier.tryParse(page.string("op_id", page.string("anchor")))
+
+    private fun lookupPattern(opId: Identifier?): HexPattern? {
+        if (opId == null) {
+            return null
+        }
         val registry = IXplatAbstractions.INSTANCE.actionRegistry
         val key = ResourceKey.create(registry.key(), opId)
         val holder = registry.getOptional(key).orElse(null) ?: return null
         return holder.prototype()
     }
 
-    private fun isPerWorldPattern(page: GuidePage): Boolean {
-        val opId = Identifier.tryParse(page.string("op_id", page.string("anchor"))) ?: return false
-        return isOfTag(IXplatAbstractions.INSTANCE.actionRegistry, opId, HexTags.Actions.PER_WORLD_PATTERN)
+    private fun isPerWorldPattern(opId: Identifier?): Boolean {
+        return opId != null && isOfTag(IXplatAbstractions.INSTANCE.actionRegistry, opId, HexTags.Actions.PER_WORLD_PATTERN)
     }
 
     private fun manualPatterns(page: GuidePage): List<HexPattern> {

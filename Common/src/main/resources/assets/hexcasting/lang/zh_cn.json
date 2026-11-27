@@ -1744,6 +1744,7 @@
   "hexcasting.page.domain.water": "一个球心与一个半径围出球形领域；半径越大，消耗越高。",
   "hexcasting.page.domain.earth": "两个对角向量围出立方体领域。",
   "hexcasting.page.domain.euclid": "取出领域的重心。",
+  "hexcasting.page.domain.mahoraga": "取出一个向量，返回包含该向量的领域的领域 iota；若该向量不在任何领域内，则引发事故。",
   "hexcasting.page.domain.hei": "销毁领域。",
   "hexcasting.page.domain.bai": "暂停或恢复领域的释放。",
   "hexcasting.page.domain.zone_distillation": "取出领域内的实体：布尔为假时返回除掉落物以外的所有实体；为真时再排除召唤该领域的玩家。",
