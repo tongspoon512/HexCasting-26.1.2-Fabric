@@ -8,12 +8,12 @@
     }
   ],
   "type": "create:emptying",
-  "ingredient": "hexcreating:media_cube",
+  "ingredient": "hexcasting:creative_unlocker",
   "fluid_result": {
     "amount": 1000,
     "id": "hexcreating:media"
   },
   "result": {
-    "id": "hexcreating:media_cube"
+    "id": "hexcasting:creative_unlocker"
   }
 }
