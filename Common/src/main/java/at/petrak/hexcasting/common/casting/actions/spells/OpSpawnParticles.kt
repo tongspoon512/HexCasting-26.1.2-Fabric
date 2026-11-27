@@ -14,7 +14,6 @@ import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.world.phys.Vec3
 import ram.talia.moreiotas.api.casting.iota.StringIota
 import kotlin.math.abs
-import kotlin.math.ceil
 
 /**
  * 在指定位置附近生成一批粒子。粒子类型由字符串 iota 指定，
@@ -47,10 +46,11 @@ object OpSpawnParticles : SpellAction {
         }
         val particle = ParticleSpec.parse(particleIota, argc - 4)
 
-        val dust = ceil(amount / 8.0).toLong() * MediaConstants.DUST_UNIT
+        // 基础消耗 0.01 紫水晶粉，每多一个粒子再加 0.0001 紫水晶粉
+        val cost = MediaConstants.DUST_UNIT / 100 + (amount - 1) * (MediaConstants.DUST_UNIT / 10_000)
         return SpellAction.Result(
             Spell(pos, spread, amount, particle),
-            MediaConstants.DUST_UNIT + dust,
+            cost,
             listOf(ParticleSpray.burst(pos, 1.0))
         )
     }

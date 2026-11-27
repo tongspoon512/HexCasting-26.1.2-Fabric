@@ -94,6 +94,7 @@
   "item.hexcasting.creative_unlocker.for_emphasis": "INFINITE MEDIA",
   "item.hexcasting.creative_unlocker.tooltip": "Consume to unlock all %s knowledge.",
   "item.hexcasting.creative_unlocker.mod_name": "Hexcasting",
+  "item.hexcasting.slow_release_saw": "Slow-Release Saw",
   "item.hexcasting.lore_fragment": "Lore Fragment",
   "item.hexcasting.lore_fragment.all": "It seems I have found all the lore this world has to offer.",
   "entity.hexcasting.wall_scroll": "Hanging Scroll",

@@ -160,6 +160,10 @@ public class HexItems {
             .rarity(Rarity.EPIC)
             .food(new FoodProperties.Builder().nutrition(20).saturationModifier(1f).alwaysEdible().build()).setId(itemKey("creative_unlocker"))));
 
+    /** 缓释锯：已启迪的玩家带在物品栏中时，禁止以消耗生命值为代价施法。 */
+    public static final Item SLOW_RELEASE_SAW = make("slow_release_saw",
+        new Item(unstackable().rarity(Rarity.UNCOMMON).setId(itemKey("slow_release_saw"))));
+
     //
 
     private static ResourceKey<Item> itemKey(String name) {

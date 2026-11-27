@@ -179,6 +179,15 @@ public class HexplatRecipes extends PaucalRecipeProvider {
             .pattern("WAW")
             .unlockedBy("has_item", hasItem(HexTags.Items.STAVES)).save(this.output);
 
+        ShapedRecipeBuilder.shaped(itemLookup, RecipeCategory.TOOLS, HexItems.SLOW_RELEASE_SAW)
+            .define('A', Items.AMETHYST_SHARD)
+            .define('D', HexItems.AMETHYST_DUST)
+            .define('S', Items.STICK)
+            .pattern(" AD")
+            .pattern(" SA")
+            .pattern("S  ")
+            .unlockedBy("has_item", hasItem(Items.AMETHYST_SHARD)).save(this.output);
+
         // Why am I like this
         ShapedRecipeBuilder.shaped(itemLookup, RecipeCategory.FOOD, HexItems.SUBMARINE_SANDWICH)
             .define('S', Items.STICK)

@@ -18,6 +18,7 @@ import at.petrak.hexcasting.api.utils.HexUtils;
 import at.petrak.hexcasting.api.utils.MediaHelper;
 import at.petrak.hexcasting.common.lib.HexAttributes;
 import at.petrak.hexcasting.common.lib.HexDamageTypes;
+import at.petrak.hexcasting.common.lib.HexItems;
 import at.petrak.hexcasting.xplat.IXplatAbstractions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -160,7 +161,7 @@ public abstract class PlayerBasedCastEnv extends CastingEnvironment {
             }
         }
 
-        if (costLeft > 0 && allowOvercast) {
+        if (costLeft > 0 && allowOvercast && !this.isOvercastBlockedBySaw()) {
             double mediaToHealth = HexConfig.common().mediaToHealthRate();
             double healthToRemove = Math.max(costLeft / mediaToHealth, 0.5);
             if (simulate) {
@@ -199,6 +200,21 @@ public abstract class PlayerBasedCastEnv extends CastingEnvironment {
         var adv = this.world.getServer().getAdvancements().get(modLoc("y_u_no_cast_angy"));
         var advs = this.caster.getAdvancements();
         return advs.getOrStartProgress(adv).isDone();
+    }
+
+    /**
+     * 已启迪的玩家只要把缓释锯带在物品栏里，就不允许再以消耗生命值的方式施法。
+     */
+    protected boolean isOvercastBlockedBySaw() {
+        if (!this.isEnlightened()) {
+            return false;
+        }
+        for (ItemStack stack : this.caster.getInventory().getNonEquipmentItems()) {
+            if (stack.is(HexItems.SLOW_RELEASE_SAW)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

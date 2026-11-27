@@ -13,7 +13,6 @@ import at.petrak.hexcasting.api.misc.MediaConstants
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.world.phys.Vec3
 import ram.talia.moreiotas.api.casting.iota.StringIota
-import kotlin.math.ceil
 
 /**
  * 沿三次贝塞尔曲线生成粒子。
@@ -50,10 +49,11 @@ object OpSpawnBezierParticles : SpellAction {
         }
         val particle = ParticleSpec.parse(particleIota, argc - 6)
 
-        val dust = ceil(amount / 8.0).toLong() * MediaConstants.DUST_UNIT
+        // 基础消耗 0.01 紫水晶粉，每多一个粒子再加 0.0001 紫水晶粉
+        val cost = MediaConstants.DUST_UNIT / 100 + (amount - 1) * (MediaConstants.DUST_UNIT / 10_000)
         return SpellAction.Result(
             Spell(p0, p1, p2, p3, amount, particle),
-            MediaConstants.DUST_UNIT + dust,
+            cost,
             listOf(ParticleSpray.burst(p0, 1.0))
         )
     }
