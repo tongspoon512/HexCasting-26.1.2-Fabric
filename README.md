@@ -26,7 +26,7 @@ Hex Casting 的 **Minecraft 26.1.2（Fabric / NeoForge 双平台）** 移植分�
 | Java | 25 |
 | 构建 | `:Fabric:build`、`:Fabric:jar`、`:NeoForge:jar` 均通过，产出可安装 jar |
 | 运行验证 | Fabric：已实机进入世界，施法、内联图案、指南书、剪接台、磁带界面均已验证；NeoForge：客户端已启动至主菜单，模组/资源/mixin 加载正常 |
-| Forge | **未移植**，`Forge/` 仅为 1.20.1 遗留源码，不参与构建 |
+| Forge（1.20.1） | **已移除**；当前只维护 Fabric 与 NeoForge 两个平台 |
 
 `Common` 为共享源码，`Fabric/build.gradle` 与 `NeoForge/build.gradle` 分别把它并入各自的 `compileJava`，因此 `Common` 不是独立的编译产物。`settings.gradle` 当前纳入 `Common`、`Fabric`、`NeoForge` 三个模块。
 
@@ -367,7 +367,7 @@ NeoForge/  平台实现：入口、注册、网络、能力、事件、平台 mi
            └─ at/petrak/hexcasting/neoforge/  入口、客户端初始化、mixin、xplat、存储
            └─ pub/pigeon/yggdyy/hexcreating/  Create 6 联动（com.simibubi.create）
            └─ ram/talia/moreiotas/neoforge/、miyucomics/hexcassettes/、gay/object/hexdebug/ 附属模组平台侧
-Forge/     上游 1.20.1 遗留，未纳入构建，请勿修改
+Forge/     旧 1.20.1 平台，已移除；当前仅维护 Fabric 与 NeoForge
 doc/       原版文档源
 hexparse/  HexParse 文本法术文档（连锁挖掘等）与项目架构表
 ```

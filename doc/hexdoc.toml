@@ -52,6 +52,6 @@ package = "{src}/main/java/at/petrak/hexcasting"
 src = "../Fabric/src"
 package = "{src}/main/java/at/petrak/hexcasting/fabric"
 
-[_forge]
-src = "../Forge/src"
-package = "{src}/main/java/at/petrak/hexcasting/forge"
+[_neoforge]
+src = "../NeoForge/src"
+package = "{src}/main/java/at/petrak/hexcasting/neoforge"

@@ -26,7 +26,7 @@ On top of that, this branch also ports [HexDebug](https://github.com/object-Obje
 | Java | 25 |
 | Build | `:Fabric:build`, `:Fabric:jar` and `:NeoForge:jar` all pass and produce installable jars |
 | Runtime verification | Fabric: client launched into a world; casting, inline patterns, the guide book, the splicing table and the cassette screen verified in game. NeoForge: client reaches the main menu with mods, resources and mixins loading cleanly |
-| Forge | **Not ported**; `Forge/` is legacy 1.20.1 source and is not built |
+| Forge (1.20.1) | **Removed**; only Fabric and NeoForge are maintained |
 
 `Common` is shared source merged into both `Fabric`'s and `NeoForge`'s `compileJava`, so it is not a standalone artifact. `settings.gradle` currently includes `Common`, `Fabric` and `NeoForge`.
 
@@ -367,7 +367,7 @@ NeoForge/  Platform implementation: entrypoint, registries, networking, capabili
            └─ at/petrak/hexcasting/neoforge/  entrypoint, client setup, mixins, xplat, storage
            └─ pub/pigeon/yggdyy/hexcreating/  Create 6 integration (com.simibubi.create)
            └─ ram/talia/moreiotas/neoforge/, miyucomics/hexcassettes/, gay/object/hexdebug/  addon platform sides
-Forge/     Upstream 1.20.1 leftovers, not in the build; do not modify
+Forge/     Old 1.20.1 platform, removed; only Fabric and NeoForge are maintained
 doc/       Original docs source
 hexparse/  HexParse text spell docs and the project architecture table
 ```
