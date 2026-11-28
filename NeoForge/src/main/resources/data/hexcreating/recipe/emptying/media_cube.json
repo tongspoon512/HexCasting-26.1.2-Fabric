@@ -1,0 +1,21 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "create:emptying",
+  "ingredients": [
+    "hexcasting:creative_unlocker"
+  ],
+  "results": [
+    {
+      "id": "hexcasting:creative_unlocker"
+    },
+    {
+      "id": "hexcreating:media",
+      "amount": 1000
+    }
+  ]
+}

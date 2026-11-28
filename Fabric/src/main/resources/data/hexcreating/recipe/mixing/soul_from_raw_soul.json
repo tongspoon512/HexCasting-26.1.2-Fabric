@@ -15,13 +15,13 @@
   "fluid_ingredients": [
     {
       "type": "fluid_stack",
-      "amount": 2025,
+      "amount": 164025,
       "fluid": "hexcreating:media"
     }
   ],
   "fluid_results": [
     {
-      "amount": 2025,
+      "amount": 164025,
       "id": "hexcreating:soul"
     }
   ]

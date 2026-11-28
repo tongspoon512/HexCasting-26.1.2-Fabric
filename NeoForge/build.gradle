@@ -1,0 +1,146 @@
+plugins {
+    id 'java'
+}
+
+platform = 'neoforge'
+
+repositories {
+    mavenCentral()
+
+    // Cloth Config
+    maven { url = 'https://maven.shedaniel.me/' }
+    // JEI（common / neoforge）
+    maven { url = 'https://modmaven.dev' }
+    maven { url = 'https://maven.blamejared.com' }
+    // Curios（可选）
+    maven { url = 'https://maven.theillusivec4.top/' }
+    // 本地依赖（Create: Adapted 等）
+    flatDir {
+        dirs 'libs', rootProject.file('libs')
+    }
+}
+
+// 离线开发类路径：NeoForged Maven 在本机不可达（NFRT 无法下载），
+// 因此直接复用本机 NeoForge 26.1.2 实例的合并 jar 与 libraries。
+// 有网络后可将此段换回 ModDevGradle 的 neoForge { } 配置。
+def homeDir = System.getProperty('user.home')
+// NeoForge 会在运行时给 MC 打补丁（如 BlockEntityType 公开构造器）。
+// 编译必须使用 patched jar，否则会拿到未打补丁的私有构造器。
+def localPatchedJar = file(findProperty('neoForgeLocalPatchedJar')
+    ?: "$homeDir/instances/libraries/net/neoforged/minecraft-client-patched/26.1.2.85/minecraft-client-patched-26.1.2.85.jar")
+def localMcJar = localPatchedJar.exists() ? localPatchedJar : file(findProperty('neoForgeLocalMcJar')
+    ?: "$homeDir/instances/versions/26.1.2-NeoForge/26.1.2-NeoForge.jar")
+def localUniversalJar = file(findProperty('neoForgeLocalUniversalJar')
+    ?: "$homeDir/instances/libraries/net/neoforged/neoforge/26.1.2.85/neoforge-26.1.2.85-universal.jar")
+def localLibrariesDir = file(findProperty('neoForgeLocalLibraries')
+    ?: "$homeDir/instances/libraries")
+def localVersionJsonFile = file(findProperty('neoForgeLocalVersionJson')
+    ?: "$homeDir/instances/versions/26.1.2-NeoForge/26.1.2-NeoForge.json")
+
+def localLibraryJars = []
+if (localVersionJsonFile.exists()) {
+    def versionJson = new groovy.json.JsonSlurper().parse(localVersionJsonFile)
+    versionJson.libraries.each { lib ->
+        def artifact = lib.downloads?.artifact
+        if (artifact?.path) {
+            def jar = new File(localLibrariesDir, artifact.path)
+            if (jar.exists()) {
+                localLibraryJars << jar
+            }
+        }
+    }
+}
+
+configurations {
+    // NeoForge 26.1 运行时不提供 Kotlin，也没有 KotlinLangForge 时需自行内嵌。
+    embed
+}
+
+dependencies {
+    compileOnly files(localMcJar, localUniversalJar)
+    compileOnly files(localLibraryJars)
+
+    compileOnly project(":Common")
+
+    compileOnly "org.jetbrains:annotations:$jetbrainsAnnotationsVersion"
+    compileOnly "com.demonwav.mcdev:annotations:1.0"
+    implementation "com.google.code.findbugs:jsr305:3.0.1"
+
+    // Kotlin 运行时由外部模组 Kotlin for Forge 提供（实例中的 kotlinforforge-6.5.0-all.jar），
+    // 本体 jar 不再内嵌 kotlin-stdlib。
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    def kffJar = file(findProperty('kotlinForForgeJar')
+        ?: "$homeDir/instances/versions/26.1.2-NeoForge/mods/kotlinforforge-6.5.0-all.jar")
+    if (kffJar.exists()) {
+        compileOnly files(kffJar)
+    } else {
+        logger.warn("Kotlin for Forge jar 未找到：${kffJar}")
+    }
+
+    // MoreIotas 矩阵运算（与 Fabric 一致）
+    implementation "org.ejml:ejml-simple:$ejmlVersion"
+    implementation "org.ejml:ejml-core:$ejmlVersion"
+    implementation "org.ejml:ejml-ddense:$ejmlVersion"
+    embed "org.ejml:ejml-simple:$ejmlVersion"
+    embed "org.ejml:ejml-core:$ejmlVersion"
+    embed "org.ejml:ejml-ddense:$ejmlVersion"
+
+    // JEI（Common 源码引用其 API）
+    compileOnly "mezz.jei:jei-${minecraftVersion}-common-api:$jeiVersion"
+    compileOnly "mezz.jei:jei-${minecraftVersion}-common:$jeiVersion"
+    compileOnly "mezz.jei:jei-${minecraftVersion}-neoforge:$jeiVersion"
+
+    // 配置界面（AutoConfig）
+    implementation "me.shedaniel.cloth:cloth-config-neoforge:$clothConfigVersion"
+
+    // Create（可选软依赖）：hexcreating 内容只在 Create 存在时注册。
+    // 实例中的 NeoForge 版 Create Adapted 使用上游包名 com.simibubi.create，Ponder 为 net.createmod.ponder。
+    def createNeoForgeJar = file(findProperty('createNeoForgeJar')
+        ?: "$homeDir/instances/versions/26.1.2-NeoForge/mods/create-adapted-26.1.2-1.31-public-external-assets.jar")
+    if (createNeoForgeJar.exists()) {
+        compileOnly files(createNeoForgeJar)
+    } else {
+        logger.warn("Create Adapted jar 未找到：${createNeoForgeJar}")
+    }
+    // Create Adapted 以 jarjar 内嵌 Ponder / Flywheel / Catnip，编译时需要展开后的类路径。
+    compileOnly fileTree(dir: rootProject.file("libs/create-adapted-deps"), include: '*.jar')
+}
+
+tasks.named("compileJava", JavaCompile) {
+    source(project(":Common").sourceSets.main.allSource)
+}
+
+compileKotlin {
+    source(project(":Common").sourceSets.main.kotlin)
+}
+
+sourceSets {
+    main.resources.srcDirs += ['src/generated/resources', '../Common/src/generated/resources']
+}
+
+processResources {
+    from(project(":Common").sourceSets.main.resources) {
+        // patchouli 未安装时这张表会因 set_nbt / patchouli:guide_book 解析失败；
+        // NeoForge 侧改用 data/hexcasting/loot_table 下带 neoforge:conditions 的副本。
+        exclude 'data/hexcasting/loot_table/grant_patchi_book.json'
+    }
+    // 26.1 的 datagen 产物（advancement/recipe/loot_table/tags）与平台无关。离线环境无法运行
+    // NeoForge datagen，这里复用 Fabric 生成物，并剔除 Create 与 fabric 条件相关条目。
+    from('../Fabric/src/generated/resources') {
+        exclude 'data/create/**'
+        exclude 'data/hexcasting/recipe/compat/**'
+        exclude '.cache/**'
+    }
+    inputs.property "version", project.version
+
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand "version": project.version
+    }
+}
+
+// 把 Kotlin 运行时与 EJML 直接并入本体 jar（离线环境无法用 ModDevGradle 的 JarJar）。
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.embed.collect { it.isDirectory() ? it : zipTree(it) } }
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/MANIFEST.MF'
+}

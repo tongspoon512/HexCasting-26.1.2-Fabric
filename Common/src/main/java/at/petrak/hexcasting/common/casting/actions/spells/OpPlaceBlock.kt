@@ -9,6 +9,7 @@ import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.casting.mishaps.MishapBadBlock
 import at.petrak.hexcasting.api.casting.mishaps.MishapLackingHotbarItem
 import at.petrak.hexcasting.api.misc.MediaConstants
+import at.petrak.hexcasting.common.casting.makeUseOnContext
 import at.petrak.hexcasting.xplat.IXplatAbstractions
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -40,7 +41,7 @@ object OpPlaceBlock : SpellAction {
         )
         val itemUseCtx = env
             .queryForMatchingStack { it.item is BlockItem }
-            ?.let { UseOnContext(env.world, env.castingEntity as? ServerPlayer, env.castingHand, it, blockHit) }
+            ?.let { makeUseOnContext(env.world, env.castingEntity as? ServerPlayer, env.castingHand, it, blockHit) }
             ?: throw MishapLackingHotbarItem.of("placeable")
         val placeContext = BlockPlaceContext(itemUseCtx)
 
@@ -77,7 +78,7 @@ object OpPlaceBlock : SpellAction {
                     spoofedStack.count = 1
 
                     val itemUseCtx =
-                        UseOnContext(env.world, caster as? ServerPlayer, env.otherHand, spoofedStack, blockHit)
+                        makeUseOnContext(env.world, caster as? ServerPlayer, env.otherHand, spoofedStack, blockHit)
                     val placeContext = BlockPlaceContext(itemUseCtx)
                     if (bstate.canBeReplaced(placeContext)) {
                         if (env.withdrawItem({ ItemStack.isSameItemSameComponents(it, placeeStack) }, 1, false)) {

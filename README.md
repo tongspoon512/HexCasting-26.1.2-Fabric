@@ -1,10 +1,10 @@
-# Hex Casting — Minecraft 26.1.2 / Fabric
+# Hex Casting — Minecraft 26.1.2 / Fabric & NeoForge
 
 **简体中文** | [English](./README.en.md)
 
-Hex Casting 的 **Minecraft 26.1.2（Fabric）** 移植分支。原模组由 petrak@（gamma-delta）开发，是一个「在空中绘制图案来施法」的魔法模组，灵感来自 PSI。
+Hex Casting 的 **Minecraft 26.1.2（Fabric / NeoForge 双平台）** 移植分支。原模组由 petrak@（gamma-delta）开发，是一个「在空中绘制图案来施法」的魔法模组，灵感来自 PSI。
 
-本仓库基于上游 0.11.4 代码，把 1.20.1 时代的实现迁移到 26.1 的新 API 体系：官方名直出（无混淆、无 remap）、Java 25、渲染走 render state / submit 管线、网络走 payload 体系。
+本仓库基于上游 0.11.4 代码，把 1.20.1 时代的实现迁移到 26.1 的新 API 体系：官方名直出（无混淆、无 remap）、Java 25、渲染走 render state / submit 管线、网络走 payload 体系。`Common` 为共享实现，`Fabric` 与 `NeoForge` 各自只保留平台接线、mixin 与资源条件。
 
 在此基础上，本分支还移植了 [HexDebug](https://github.com/object-Object/HexDebug) 的**剪接台（Splicing Table）**，用于在游戏内直接编辑 iota 列表。
 
@@ -13,7 +13,7 @@ Hex Casting 的 **Minecraft 26.1.2（Fabric）** 移植分支。原模组由 pet
 > 本仓库是个人学习与存档用途的**非官方移植分支**，与 FallingColors、petrak@（gamma-delta）、object-Object 及 YukkuriC 均无隶属或合作关系，也不代表上述项目的质量与立场。
 >
 > - 这里的改动**不会提交给上游仓库**，也不建议把本仓库的问题反馈到上游 issue 区。
-> - 上游项目本身请以各自官方仓库与文档为准；本仓库只保证「能在 26.1.2 Fabric 上跑起来」。
+> - 上游项目本身请以各自官方仓库与文档为准；本仓库只保证「能在 26.1.2 上跑起来」。
 > - 仅供个人存档与继续移植使用，并非官方发布版本。遇到问题时请附上完整日志。
 > - 上游的 GitHub Actions 工作流（`build_docs.yml`、`pr.yml`）已从本仓库移除，本分支不使用上游 CI。
 
@@ -22,13 +22,13 @@ Hex Casting 的 **Minecraft 26.1.2（Fabric）** 移植分支。原模组由 pet
 | 项 | 状态 |
 | --- | --- |
 | Minecraft | 26.1.2（`fabric.loom.disableObfuscation=true`，源码名 = 官方名 = 线上名） |
-| 加载器 | Fabric Loader ≥ 0.20.1 |
+| 加载器 | Fabric Loader ≥ 0.20.1；NeoForge ≥ 26.1.2.85 |
 | Java | 25 |
-| 构建 | `:Fabric:build` / `:Fabric:jar` 均通过，产出可安装 jar |
-| 运行验证 | 客户端已在真实实例中启动、进入世界；施法、内联图案、指南书、剪接台、磁带界面均已实机验证 |
-| Forge | **未移植**，未在 `settings.gradle` 中 include，不参与构建 |
+| 构建 | `:Fabric:build`、`:Fabric:jar`、`:NeoForge:jar` 均通过，产出可安装 jar |
+| 运行验证 | Fabric：已实机进入世界，施法、内联图案、指南书、剪接台、磁带界面均已验证；NeoForge：客户端已启动至主菜单，模组/资源/mixin 加载正常 |
+| Forge | **未移植**，`Forge/` 仅为 1.20.1 遗留源码，不参与构建 |
 
-Common 与 Fabric 是合并编译的：`Fabric/build.gradle` 会把 `Common` 的主源码并入 Fabric 的 `compileJava`，因此 Common 并不是独立的编译产物。
+`Common` 为共享源码，`Fabric/build.gradle` 与 `NeoForge/build.gradle` 分别把它并入各自的 `compileJava`，因此 `Common` 不是独立的编译产物。`settings.gradle` 当前纳入 `Common`、`Fabric`、`NeoForge` 三个模块。
 
 ## 特色改动
 
@@ -241,7 +241,10 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
 
 移植 [yggdyy/hexcreating](https://github.com/yggdyy/hexcreating) 的 Create 联动内容：排版板、紫水晶灯、液态媒质/灵魂、法术环输入/输出与增幅器、iota 网络方块、分析机、列车传送门方块，以及 10 个新图案和 4 个 Ponder 场景。
 
-- **软依赖**：`fabric.mod.json` 只声明 `recommends.create`；Create 缺席时零注册、零类加载。配方与指南书条目均带 `fabric:all_mods_loaded` 条件，缺少 Create 时自动隐藏。
+- **软依赖**：Fabric 的 `fabric.mod.json` 只声明 `recommends.create`，NeoForge 的 `neoforge.mods.toml` 把 `create` 声明为可选依赖；Create 缺席时零注册、零类加载。配方与指南书条目分别带 `fabric:all_mods_loaded` / `neoforge:mod_loaded` 条件，缺少 Create 时自动隐藏。
+- **双平台实现**：Fabric 侧对接 Create-Fly（包名 `com.zurrtum.create`），NeoForge 侧对接 Create 6（`com.simibubi.create`）；两侧共用 `Common` 里的模型、贴图、语言与指南书资源，平台差异集中在流体能力、显示源注册与 Ponder 接线。
+- **流体单位**：NeoForge Create 以 mB 计量（1000 mB = 1 桶）；Fabric Create-Fly 以液滴计量（81000 液滴 = 1 桶，81 液滴 = 1 mB）。因此 Fabric 配方中的流体量按 ×81 换算，领域咒核的流体罐也在液滴与 mB 之间做转换，保证「1 紫水晶粉 = 81 mB = 6561 液滴」在两端一致。
+- **媒质立方组装线**：`hexcreating:media_cube` 的 `create:sequenced_assembly` 循环次数为 **100 次**（两端一致）。
 - **Create 集成**：方块接入应力系统（法术环增幅器 4.0 SU、iota 网络终端 1.0 SU、分析机动力接口 8.0 SU）；新增 4 个显示源（Impetus 媒质、排版板图案、排版板 iota、石板图案），可接 Create 翻转显示器。
 - **Ponder**：4 个「思维之匙」场景（咒法简介、Iota 基础、向量、栈），仅在安装 Create 时注册。
 - **法术环输入/输出配方**（本轮补齐）：
@@ -269,7 +272,20 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
 
 实现位置：[HexCreatingCompat.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/HexCreatingCompat.java)、[HexCreatingRegistration.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/HexCreatingRegistration.java)、[HexCreatingPonder.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/client/HexCreatingPonder.java)、[HexCreatingActions.kt](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/cast/HexCreatingActions.kt)、[HexCreatingDisplaySources.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/create/HexCreatingDisplaySources.java)。
 
+### 13. NeoForge 平台移植
+
+`NeoForge/` 与 `Fabric/` 平级，复用 `Common` 的 API、施法 VM、方块/物品/实体、客户端逻辑与资源，只补齐平台接线：
+
+- **入口与注册**：[NeoForgeHexInitializer.kt](NeoForge/src/main/java/at/petrak/hexcasting/neoforge/NeoForgeHexInitializer.kt) 负责物品、方块、方块实体、图案、iota 类型、流体、创造模式页签与能力注册；客户端入口为 [NeoForgeClientSetup.kt](NeoForge/src/main/java/at/petrak/hexcasting/neoforge/client/NeoForgeClientSetup.kt)。
+- **Kotlin 运行时**：使用**外部** Kotlin for Forge（≥ 6.5.0），不做 jar-in-jar；`neoforge.mods.toml` 将其声明为必需依赖，jar 内不再包含 `kotlin/` 类。
+- **Create 联动**：对接 Create 6 / Create Adapted（包名 `com.simibubi.create`），可选依赖；该包中的 Ponder、Flywheel、Catnip 以 jarjar 形式由 Create 自身提供，编译期从 `libs/create-adapted-deps/` 引用。
+- **mixin 配置**：`hexplat.mixins.json`（Common 共享）、`hexcreating.mixins.json`（Create 灌注/灵魂）、`hexcasting.neoforge.mixins.json`（Altiora 翅膀层、咒术粒子渲染顺序）。最后者不能命名为 `neoforge.mixins.json`，否则会与 NeoForge 内置配置同名冲突并在启动阶段报 `ModLoadingException`。
+- **26.1 能力与事件**：流体方块通过 `ResourceHandler<FluidResource>` + `Capabilities.Fluid.BLOCK` 暴露给 Create 管道；物品模型属性、物品/方块 tint、鼠标滚轮、粒子等改用 NeoForge 公开事件，不再复制 Fabric 的客户端注入 mixin。
+- **数据条件**：`data/hexcreating` 由 Fabric 资源转换而来，条件改为 `neoforge:conditions` / `neoforge:mod_loaded`，并适配 Create 6 的配方 schema（`ingredients` / `results`、流体 `amount` 为 mB）。
+
 ## 安装
+
+### Fabric
 
 1. 安装 Fabric Loader ≥ 0.20.1（对应 26.1.2）。
 2. 把构建产物放入实例的 `mods/`：
@@ -289,6 +305,24 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
 
    可选：ModMenu（提供配置入口）；Create-Fly（≥ 6.0.9-4，安装后启用 HexCreating 的排版板、法术环、Ponder 等全部联动内容，不安装则完全隐形）。
 
+### NeoForge
+
+1. 安装 NeoForge ≥ 26.1.2.85（对应 Minecraft 26.1.2）。
+2. 把构建产物放入实例的 `mods/`：
+
+   ```
+   hexcasting-neoforge-26.1.2-0.11.4.jar
+   ```
+
+3. 同时安装以下前置模组：
+
+   | 模组 | 最低版本 | 说明 |
+   | --- | --- | --- |
+   | Kotlin for Forge | ≥ 6.5.0 | **必需**；本 jar 不自带 Kotlin 运行时 |
+   | Cloth Config | ≥ 26.1.154 | 配置界面 |
+
+   可选：Create Adapted（26.1.2 移植版，安装后启用 HexCreating 全部联动内容；其 Ponder / Flywheel / Catnip 由 Create 自身以 jarjar 提供）。
+
 > 仓库内以源码形式内嵌了 Patchouli、Inline、Trinkets、Paucal 等依赖的桩件，**不要**再安装真实的同名模组，否则会出现同名类冲突。指南书已由模组自带 GUI 实现，不需要安装 Patchouli。剪接台已并入本 jar，也不需要单独安装 HexDebug。
 
 ## 构建
@@ -296,9 +330,10 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
 需要 JDK 25（`build.gradle` 中 `release = 25`、`jvmTarget = 25`）。
 
 ```bash
-./gradlew :Fabric:build     # 完整构建，含 sources / javadoc jar
-./gradlew :Fabric:jar       # 只出可安装 jar，速度更快
-./gradlew :Fabric:clean     # 清理构建产物
+./gradlew :Fabric:build      # Fabric 完整构建，含 sources / javadoc jar
+./gradlew :Fabric:jar        # Fabric 可安装 jar
+./gradlew :NeoForge:jar      # NeoForge 可安装 jar
+./gradlew :Fabric:clean      # 清理 Fabric 构建产物
 ```
 
 产物：
@@ -307,7 +342,10 @@ S G S        A = 紫水晶碎片      F = 焦点（hexcasting:focus）
 Fabric/build/libs/hexcasting-fabric-26.1.2-0.11.4.jar
 Fabric/build/libs/hexcasting-fabric-26.1.2-0.11.4-sources.jar
 Fabric/build/libs/hexcasting-fabric-26.1.2-0.11.4-javadoc.jar
+NeoForge/build/libs/hexcasting-neoforge-26.1.2-0.11.4.jar
 ```
+
+NeoForge 默认使用本机实例中的 patched jar 进行离线编译，可用 `-PneoForgeLocalPatchedJar=...` 等属性覆盖（见 `gradle.properties`）；Create 集成默认读取实例 `mods/` 下的 Create Adapted jar，可用 `-PcreateNeoForgeJar=...` 覆盖，Kotlin for Forge 同理可用 `-PkotlinForForgeJar=...`。
 
 开发期运行（需要图形环境）：
 
@@ -320,13 +358,18 @@ Fabric/build/libs/hexcasting-fabric-26.1.2-0.11.4-javadoc.jar
 ## 项目结构
 
 ```
-Common/   平台无关代码：API、施法 VM、方块/物品/实体、数据生成、mixin、客户端 GUI
-          └─ gay/object/hexdebug/  HexDebug 移植：media（个人媒质）、actions（图案）、ext（静默环境）
-Fabric/   平台实现：入口、网络、CCA 组件、事件、interop、datagen 接线
-          └─ gay/object/hexdebug/  剪接台（方块、菜单、GUI、网络、数据模型）与 HUD
-Forge/    上游 1.20.1 遗留，未纳入构建，请勿修改
-doc/      原版文档源
-hexparse/  HexParse 文本法术文档（连锁挖掘等）
+Common/    平台无关代码：API、施法 VM、方块/物品/实体、数据生成、mixin、客户端 GUI
+           └─ gay/object/hexdebug/  HexDebug 移植：media（个人媒质）、actions（图案）、ext（静默环境）
+Fabric/    平台实现：入口、网络、CCA 组件、事件、interop、datagen 接线
+           └─ gay/object/hexdebug/  剪接台（方块、菜单、GUI、网络、数据模型）与 HUD
+           └─ pub/pigeon/yggdyy/hexcreating/  Create-Fly 联动（com.zurrtum.create）
+NeoForge/  平台实现：入口、注册、网络、能力、事件、平台 mixin
+           └─ at/petrak/hexcasting/neoforge/  入口、客户端初始化、mixin、xplat、存储
+           └─ pub/pigeon/yggdyy/hexcreating/  Create 6 联动（com.simibubi.create）
+           └─ ram/talia/moreiotas/neoforge/、miyucomics/hexcassettes/、gay/object/hexdebug/ 附属模组平台侧
+Forge/     上游 1.20.1 遗留，未纳入构建，请勿修改
+doc/       原版文档源
+hexparse/  HexParse 文本法术文档（连锁挖掘等）与项目架构表
 ```
 
 ## 26.1 移植要点
@@ -343,6 +386,9 @@ hexparse/  HexParse 文本法术文档（连锁挖掘等）
 - **输入**：`Screen` 的鼠标回调改为 `MouseButtonEvent` / `KeyEvent`，`GuiSpellcasting` 可嵌入其他界面（剪接台迷你网格即复用此能力）。
 - **CCA v8**：item component 形式的附加数据被删除，物品附加数据改为直接构造 adapter；`CardinalComponent` 读写走 `ValueInput` / `ValueOutput`。
 - **Datagen**：配方/战利品构建器 codec 化，`RecipeBuilder` 不再有 `getResult()`，`RecipeProvider.buildRecipes()` 的可见性也变了。
+- **NeoForge 流体**：26.1 的能力类型为 `ResourceHandler<FluidResource>`（`Capabilities.Fluid.BLOCK`），Create 管道通过事务式 `insert` / `extract` 读写领域咒核。
+- **NeoForge 客户端**：物品模型属性改用 `RegisterRangeSelectItemModelPropertyEvent` / `RegisterConditionalItemModelPropertyEvent`，物品/方块 tint 改用 `RegisterColorHandlersEvent.ItemTintSources` / `BlockTintSources`，粒子与鼠标滚轮也有公开事件；只有 Altiora 翅膀层与粒子渲染顺序仍需 mixin。
+- **NeoForge 资源条件**：26.1 只加载单数数据目录，条件改用 `neoforge:conditions`（配方扁平结构，战利品表用 `neoforge:value` 包装）。
 
 ## 已知限制
 
@@ -352,17 +398,18 @@ hexparse/  HexParse 文本法术文档（连锁挖掘等）
 - **Patchouli**：没有 26.1 版本，仓库内以源码形式内嵌 API 桩件；书内容改由内置 GUI 读取，不再需要 Patchouli 运行时。
 - **Inline**：仅实现了图案内联，其余 Inline 功能（物品/实体/头像匹配、尺寸修饰、叠加渲染）未实现；世界空间文本（告示牌、名字标签等）会显示占位符。
 - **Trinkets**：未移植，`dev/emi/trinkets` 为桩件，饰品渲染器是空实现（功能可用，视觉不显示）。
-- **Pehkui**：改用 [Pehkui Rebuilt](https://github.com/wuhenqiubai/Pehkui-Rebuilt)（mod id 仍为 `pehkui`，支持 26.1.2）；安装后自动启用缩放图案，未安装时不注册。
-- **EMI / JEI**：保留编译期集成与插件入口；EMI 相关代码同样基于内嵌桩件。
+- **Pehkui**：Fabric 侧使用 [Pehkui Rebuilt](https://github.com/wuhenqiubai/Pehkui-Rebuilt)（mod id 仍为 `pehkui`，支持 26.1.2）；安装后自动启用缩放图案，未安装时不注册。
+- **EMI / JEI**：保留编译期集成与插件入口；EMI 相关代码基于内嵌桩件，NeoForge 侧只接入了 JEI 的 common API。
 - **渲染保真度**：26.1 渲染管线重写后，部分特效（画笔、光效、饰品/鞘翅覆盖层等）是按新管线近似实现的，与原版观感可能有差异。
-- **MoreIotas**：仅移植 Common/Fabric 玩法，未引入上游的 Forge 端、Paucal/Inline/Fiber 软依赖、JBLAS 与 Mixin/AW；`moreiotas:stack` 已改为 26.1 数据组件序列化，书与笔/成书的页 iota holder 以 `CCItemIotaHolder.Static` 形式恢复。
-- **验证程度**：构建与基础实机流程已通过，尚未做完整玩法回归；启动阶段的问题请附日志。
+- **MoreIotas**：移植 Common 玩法与 Fabric / NeoForge 平台侧，未引入上游的 Forge 端、Paucal/Inline/Fiber 软依赖、JBLAS 与 Mixin/AW；`moreiotas:stack` 已改为 26.1 数据组件序列化，书与笔/成书的页 iota holder 以 `CCItemIotaHolder.Static` 形式恢复。
+- **验证程度**：Fabric 构建与基础实机流程已通过；NeoForge 已启动到主菜单并确认模组 / 资源 / mixin 加载正常，进入世界后的玩法回归与专用服务器测试仍待补做；启动阶段的问题请附日志。
 
 ## 玩法与文档
 
 - 原版在线手册：https://hexcasting.hexxy.media/
 - HexDebug 在线手册：https://hexdebug.hexxy.media/
 - HexParse 法术示例：[hexparse/连锁挖掘.md](hexparse/连锁挖掘.md)
+- 项目架构与源码导航：[hexparse/项目架构表.md](hexparse/项目架构表.md)
 - 更新日志：见 [CHANGELOG.md](./CHANGELOG.md)
 - 贡献指南：见 [CONTRIBUTING.md](./CONTRIBUTING.md)
 

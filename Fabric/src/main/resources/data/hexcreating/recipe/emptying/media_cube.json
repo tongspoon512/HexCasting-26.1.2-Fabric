@@ -10,7 +10,7 @@
   "type": "create:emptying",
   "ingredient": "hexcasting:creative_unlocker",
   "fluid_result": {
-    "amount": 1000,
+    "amount": 81000,
     "id": "hexcreating:media"
   },
   "result": {

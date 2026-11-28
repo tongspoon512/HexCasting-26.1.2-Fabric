@@ -1,0 +1,52 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "create:sequenced_assembly",
+  "ingredient": "hexcreating:cube_frame",
+  "transitional_item": {
+    "id": "hexcreating:unfinished_media_cube"
+  },
+  "loops": 100,
+  "sequence": [
+    {
+      "type": "create:filling",
+      "ingredients": [
+        "hexcreating:unfinished_media_cube",
+        {
+          "ingredient": "hexcreating:media",
+          "amount": 1000
+        }
+      ],
+      "results": [
+        {
+          "id": "hexcreating:unfinished_media_cube"
+        }
+      ]
+    },
+    {
+      "type": "create:pressing",
+      "results": [
+        {
+          "id": "hexcreating:unfinished_media_cube"
+        }
+      ],
+      "ingredients": [
+        "hexcreating:unfinished_media_cube"
+      ]
+    }
+  ],
+  "results": [
+    {
+      "id": "hexcasting:creative_unlocker",
+      "chance": 99.0
+    },
+    {
+      "id": "minecraft:budding_amethyst",
+      "chance": 100.0
+    }
+  ]
+}

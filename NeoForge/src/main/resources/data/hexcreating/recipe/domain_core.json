@@ -1,0 +1,27 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": true,
+  "key": {
+    "A": "minecraft:amethyst_shard",
+    "C": "hexcasting:charged_amethyst",
+    "M": "create:precision_mechanism",
+    "P": "create:fluid_pipe"
+  },
+  "pattern": [
+    "  A  ",
+    " APA ",
+    "AMCMA",
+    " APA ",
+    "  A  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "hexcreating:domain_core"
+  }
+}

@@ -14,13 +14,13 @@
   "fluid_ingredients": [
     {
       "type": "fluid_stack",
-      "amount": 1620,
+      "amount": 131220,
       "fluid": "minecraft:water"
     }
   ],
   "fluid_results": [
     {
-      "amount": 1620,
+      "amount": 131220,
       "id": "hexcreating:media"
     }
   ],

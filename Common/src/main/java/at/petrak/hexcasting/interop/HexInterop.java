@@ -60,6 +60,8 @@ public class HexInterop {
                 platformSpecificIntegrations = List.of();
             } else if (platform == Platform.FABRIC) {
                 platformSpecificIntegrations = List.of();
+            } else if (platform == Platform.NEOFORGE) {
+                platformSpecificIntegrations = List.of();
             } else {
                 throw new UnsupportedOperationException();
             }

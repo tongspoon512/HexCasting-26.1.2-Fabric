@@ -20,8 +20,12 @@ import java.util.List;
  * mirroring the original hexcreating mechanic.
  */
 public final class FlayMindBySpout {
-    /** Create stores fluid amounts in droplets: 81 droplets make one millibucket. */
-    private static final long DROPLETS_PER_DUST = 81L;
+    /**
+     * Create-Fly 以液滴计量流体：81 液滴 = 1 mB。
+     * 1 紫水晶粉 = 81 mB，因此一次洗魂至少需要 6561 液滴。
+     */
+    private static final long DROPLETS_PER_MB = 81L;
+    private static final long DROPLETS_PER_DUST = DROPLETS_PER_MB * 81L;
 
     private FlayMindBySpout() {
     }

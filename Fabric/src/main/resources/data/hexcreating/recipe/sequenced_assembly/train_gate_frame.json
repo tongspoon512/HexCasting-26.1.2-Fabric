@@ -38,7 +38,7 @@
       "ingredient": "$ingredient",
       "fluid_ingredient": {
         "type": "fluid_stack",
-        "amount": 1620,
+        "amount": 131220,
         "fluid": "hexcreating:media"
       },
       "result": "$result"

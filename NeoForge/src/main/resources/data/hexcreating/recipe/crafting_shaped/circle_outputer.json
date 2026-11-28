@@ -1,0 +1,24 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BQB",
+    "SAS",
+    "BTB"
+  ],
+  "key": {
+    "B": "create:brass_sheet",
+    "Q": "create:polished_rose_quartz",
+    "S": "hexcasting:slate",
+    "A": "hexcasting:charged_amethyst",
+    "T": "create:electron_tube"
+  },
+  "result": {
+    "id": "hexcreating:circle_outputer"
+  }
+}

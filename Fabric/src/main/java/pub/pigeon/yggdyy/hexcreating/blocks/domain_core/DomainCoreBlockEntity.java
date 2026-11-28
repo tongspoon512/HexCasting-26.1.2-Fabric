@@ -27,13 +27,18 @@ import java.util.UUID;
  * 领域咒核：存入一个写着领域 iota 的物品后，可以用液态或固态紫水晶媒质维持领域。
  */
 public class DomainCoreBlockEntity extends SmartBlockEntity implements DomainMediaSource {
-    /** 1 紫水晶粉 = 81 mB，所以 81000 mB = 1000 粉。 */
+    /**
+     * Create-Fly 以液滴计量流体：81 液滴 = 1 mB，81000 液滴 = 1 桶。
+     * 1 紫水晶粉 = 81 mB = 6561 液滴，所以罐体 81000 mB = 1000 粉。
+     */
+    public static final int DROPLETS_PER_MB = 81;
     public static final int CAPACITY_MB = 81_000;
+    private static final int CAPACITY_DROPLETS = CAPACITY_MB * DROPLETS_PER_MB;
 
     private static final String TAG_ITEM = "Area";
     private static final String TAG_DOMAIN = "Domain";
 
-    private final FluidTank tank = new FluidTank(CAPACITY_MB);
+    private final FluidTank tank = new FluidTank(CAPACITY_DROPLETS);
     private ItemStack stored = ItemStack.EMPTY;
     @Nullable
     private UUID domainId;
@@ -82,7 +87,7 @@ public class DomainCoreBlockEntity extends SmartBlockEntity implements DomainMed
             return true;
         }
         if (stack.is(pub.pigeon.yggdyy.hexcreating.items.HexCreatingItems.MEDIA_BUCKET)) {
-            if (this.fill(1000)) {
+            if (this.fillMb(1000)) {
                 if (!player.hasInfiniteMaterials()) {
                     stack.shrink(1);
                     player.getInventory().placeItemBackInInventory(
@@ -94,18 +99,18 @@ public class DomainCoreBlockEntity extends SmartBlockEntity implements DomainMed
             return false;
         }
         if (MediaHelper.isMediaItem(stack)) {
-            int space = CAPACITY_MB - this.tank.getFluid().getAmount();
-            if (space <= 0) {
+            int spaceMb = (CAPACITY_DROPLETS - this.tank.getFluid().getAmount()) / DROPLETS_PER_MB;
+            if (spaceMb <= 0) {
                 return false;
             }
-            long affordable = (long) space * 10_000L / 81L;
+            long affordable = (long) spaceMb * 10_000L / 81L;
             long media = Math.min(MediaHelper.extractMedia(stack, -1, false, true), affordable);
             int mB = (int) (media * 81L / 10_000L);
             if (mB <= 0) {
                 return false;
             }
             // 先确认罐体真的能接收，再扣除物品里的媒质，避免类型不符时媒质凭空消失
-            if (!this.fill(mB)) {
+            if (!this.fillMb(mB)) {
                 return false;
             }
             MediaHelper.extractMedia(stack, mB * 10_000L / 81L, false, false);
@@ -157,19 +162,19 @@ public class DomainCoreBlockEntity extends SmartBlockEntity implements DomainMed
         }
     }
 
-    private boolean fill(int mB) {
+    private boolean fillMb(int mB) {
+        int droplets = mB * DROPLETS_PER_MB;
         FluidStack fluid = this.tank.getFluid();
         if (!fluid.isEmpty() && !fluid.isOf(HexCreatingFluids.MEDIA)) {
             return false;
         }
-        int space = CAPACITY_MB - fluid.getAmount();
-        if (space < mB) {
+        if (CAPACITY_DROPLETS - fluid.getAmount() < droplets) {
             return false;
         }
         if (fluid.isEmpty()) {
-            this.tank.setFluid(new FluidStack(HexCreatingFluids.MEDIA, mB));
+            this.tank.setFluid(new FluidStack(HexCreatingFluids.MEDIA, droplets));
         } else {
-            fluid.setAmount(fluid.getAmount() + mB);
+            fluid.setAmount(fluid.getAmount() + droplets);
         }
         return true;
     }
@@ -180,16 +185,17 @@ public class DomainCoreBlockEntity extends SmartBlockEntity implements DomainMed
         if (fluid.isEmpty() || !fluid.isOf(HexCreatingFluids.MEDIA)) {
             return 0;
         }
-        long available = fluid.getAmount() * 10_000L / 81L;
+        long availableMb = fluid.getAmount() / DROPLETS_PER_MB;
+        long available = availableMb * 10_000L / 81L;
         long taken = Math.min(cost, available);
         if (taken <= 0) {
             return 0;
         }
-        int mB = (int) Math.ceil(taken * 81.0 / 10_000.0);
+        int droplets = (int) Math.ceil(taken * (double) DROPLETS_PER_MB * 81.0 / 10_000.0);
         if (simulate) {
             return taken;
         }
-        fluid.setAmount(fluid.getAmount() - mB);
+        fluid.setAmount(fluid.getAmount() - droplets);
         if (fluid.getAmount() <= 0) {
             this.tank.setFluid(FluidStack.EMPTY);
         }

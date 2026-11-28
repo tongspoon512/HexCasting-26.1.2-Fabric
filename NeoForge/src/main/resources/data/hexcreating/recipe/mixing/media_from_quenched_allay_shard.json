@@ -1,0 +1,27 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "create:mixing",
+  "ingredients": [
+    "hexcasting:quenched_allay_shard",
+    {
+      "ingredient": "hexcreating:media",
+      "amount": 81
+    },
+    {
+      "ingredient": "minecraft:water",
+      "amount": 3159
+    }
+  ],
+  "heat_requirement": "heated",
+  "results": [
+    {
+      "id": "hexcreating:media",
+      "amount": 3240
+    }
+  ]
+}

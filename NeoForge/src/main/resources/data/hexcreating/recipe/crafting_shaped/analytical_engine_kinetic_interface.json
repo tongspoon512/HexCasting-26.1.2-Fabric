@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " A ",
+    "BCB",
+    " A "
+  ],
+  "key": {
+    "A": "create:shaft",
+    "B": "create:brass_sheet",
+    "C": "create:brass_casing"
+  },
+  "result": {
+    "id": "hexcreating:analytical_engine_kinetic_interface",
+    "count": 1
+  }
+}

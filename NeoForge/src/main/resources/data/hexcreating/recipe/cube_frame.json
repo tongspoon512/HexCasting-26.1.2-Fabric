@@ -1,0 +1,26 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "create:mechanical_crafting",
+  "key": {
+    "X": "create:brass_sheet",
+    "N": "create:sturdy_sheet",
+    ".": "minecraft:netherite_ingot",
+    "O": "minecraft:nether_star"
+  },
+  "pattern": [
+    " XXX ",
+    "XN.NX",
+    "X.O.X",
+    "XN.NX",
+    " XXX "
+  ],
+  "result": {
+    "count": 1,
+    "id": "hexcreating:cube_frame"
+  }
+}

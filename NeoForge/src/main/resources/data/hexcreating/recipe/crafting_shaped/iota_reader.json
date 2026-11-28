@@ -1,0 +1,24 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BSB",
+    "SAS",
+    "BTB"
+  ],
+  "key": {
+    "B": "create:brass_sheet",
+    "S": "hexcasting:slate",
+    "A": "hexcasting:charged_amethyst",
+    "T": "create:electron_tube"
+  },
+  "result": {
+    "id": "hexcreating:iota_reader",
+    "count": 1
+  }
+}

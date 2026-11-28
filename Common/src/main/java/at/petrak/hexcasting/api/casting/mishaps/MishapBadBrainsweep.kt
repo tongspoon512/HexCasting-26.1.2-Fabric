@@ -6,6 +6,8 @@ import at.petrak.hexcasting.api.casting.iota.Iota
 import at.petrak.hexcasting.api.pigment.FrozenPigment
 import at.petrak.hexcasting.common.lib.HexDamageTypes
 import net.minecraft.core.BlockPos
+import net.minecraft.core.registries.Registries
+import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Mob
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.phys.Vec3
@@ -15,7 +17,10 @@ class MishapBadBrainsweep(val mob: Mob, val pos: BlockPos) : Mishap() {
         dyeColor(DyeColor.GREEN)
 
     override fun execute(env: CastingEnvironment, errorCtx: Context, stack: MutableList<Iota>) {
-        trulyHurt(mob, mob.damageSources().source(HexDamageTypes.OVERCAST, env.castingEntity), 1f)
+        val overcast = mob.level().registryAccess()
+            .lookupOrThrow(Registries.DAMAGE_TYPE)
+            .getOrThrow(HexDamageTypes.OVERCAST)
+        trulyHurt(mob, DamageSource(overcast, env.castingEntity), 1f)
     }
 
     override fun particleSpray(env: CastingEnvironment): ParticleSpray {

@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## `0.11.4-build_33` - 2026-11-28
+
+### Added
+
+- 新增 `NeoForge` 平台模块：与 `Common`、`Fabric` 并列参与构建，复用共享源码，提供入口、注册表、能力、网络、玩家附件、客户端初始化与平台 mixin。
+- NeoForge 端完整接入 HexCreating：流体方块通过 `ResourceHandler<FluidResource>` / `Capabilities.Fluid.BLOCK` 接入 Create 6 管道，配方改用 `neoforge:conditions` 与 Create 6 schema，显示源、Ponder、护目镜信息同步移植。
+- NeoForge 客户端补齐 Altiora 翅膀层、咒术粒子渲染顺序、物品模型属性、物品/方块 tint、鼠标滚轮、HUD 与实体/方块实体渲染器。
+- 新增 `hexcasting.neoforge.mixins.json`，与 `hexplat.mixins.json`、`hexcreating.mixins.json` 一起在 `neoforge.mods.toml` 中加载。
+
+### Changed
+
+- Kotlin 运行时改为**外部** Kotlin for Forge（≥ 6.5.0），不再 jar-in-jar；NeoForge 产物内不再包含 `kotlin/` 类，`kotlinforforge` 在 `neoforge.mods.toml` 中声明为必需依赖。
+- hexcreating / hexdebug 的模型、贴图、语言与指南书资源移入 `Common`，Fabric 与 NeoForge 共用同一份资源。
+- 媒质立方组装线循环次数由 500 次调整为 **100 次**（两端一致）。
+- README 与 `hexparse/项目架构表.md` 补充 NeoForge 平台、双平台构建/安装、mixin 配置、流体单位与已知限制。
+
+### Fixed
+
+- 修复 Fabric 液态媒质数量只有应有值 1/81 的问题：Create-Fly 以液滴计量（81000 液滴 = 1 桶、81 液滴 = 1 mB），现按此换算全部 Fabric 配方，并让领域咒核罐体在液滴与 mB 间转换、灵魂灌注按 6561 液滴/紫水晶粉计算。
+- 修复 NeoForge 启动崩溃：自定义 mixin 配置原命名为 `neoforge.mixins.json`，与 NeoForge 内置配置同名，改名为 `hexcasting.neoforge.mixins.json`。
+- 修复领域咒核在 Fabric 上被 Create 管道读写时按 mB 误当液滴导致的容量与媒质换算错误。
+
 ## `0.11.4-fabric-build_32` - 2026-11-27
 
 ### Added

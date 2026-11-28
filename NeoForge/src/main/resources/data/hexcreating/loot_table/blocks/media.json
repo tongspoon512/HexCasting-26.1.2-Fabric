@@ -1,0 +1,13 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "neoforge:value": {
+    "type": "minecraft:block",
+    "pools": [],
+    "random_sequence": "hexcreating:blocks/media"
+  }
+}

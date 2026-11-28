@@ -1,0 +1,17 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:amethyst_shard",
+    "minecraft:redstone",
+    "create:zinc_ingot"
+  ],
+  "result": {
+    "id": "hexcreating:amethyst_lamp"
+  }
+}

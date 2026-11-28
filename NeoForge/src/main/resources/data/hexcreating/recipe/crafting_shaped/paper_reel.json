@@ -1,0 +1,21 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PPP",
+    "PEP",
+    "PPP"
+  ],
+  "key": {
+    "P": "minecraft:paper",
+    "E": "hexcreating:empty_reel"
+  },
+  "result": {
+    "id": "hexcreating:paper_reel"
+  }
+}

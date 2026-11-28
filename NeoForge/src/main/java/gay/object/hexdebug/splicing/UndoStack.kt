@@ -1,0 +1,58 @@
+package gay.`object`.hexdebug.splicing
+
+import at.petrak.hexcasting.api.casting.iota.Iota
+import gay.`object`.hexdebug.splicing.Option.Some
+
+data class UndoStack(
+    val stack: MutableList<Entry> = mutableListOf(),
+    var index: Int = -1,
+) {
+    val size get() = stack.size
+
+    private val maxSize = MAX_SIZE
+
+    fun undo() = moveTo(index - 1)
+
+    fun redo() = moveTo(index + 1)
+
+    private fun moveTo(newIndex: Int) = stack.getOrNull(newIndex)?.also { index = newIndex }
+
+    fun push(entry: Entry) {
+        // drop entries from the top of the stack above the current index
+        if (index < stack.lastIndex) {
+            stack.subList(index + 1, stack.size).clear()
+        }
+
+        stack.add(entry)
+
+        // drop entries from the bottom of the stack to enforce the size limit
+        if (maxSize > 0 && stack.size > maxSize) {
+            stack.subList(0, stack.size - maxSize).clear()
+        }
+
+        index = stack.lastIndex
+    }
+
+    fun clear() {
+        stack.clear()
+        index = -1
+    }
+
+    data class Entry(
+        val list: Option<List<Iota>>,
+        val clipboard: Option<Iota?>,
+        val selection: Option<Selection?>,
+    ) {
+        val isNotEmpty = list is Some || clipboard is Some || selection is Some
+
+        fun applyTo(data: SplicingTableData) {
+            list.ifPresent(data::writeList)
+            clipboard.ifPresent(data::writeClipboard)
+            selection.ifPresent { data.selection = it }
+        }
+    }
+
+    companion object {
+        const val MAX_SIZE = 64
+    }
+}

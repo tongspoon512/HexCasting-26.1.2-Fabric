@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " C ",
+    "CAC",
+    " C "
+  ],
+  "key": {
+    "C": "create:copper_sheet",
+    "A": "hexcasting:amethyst_dust"
+  },
+  "result": {
+    "id": "hexcreating:iota_wire",
+    "count": 4
+  }
+}

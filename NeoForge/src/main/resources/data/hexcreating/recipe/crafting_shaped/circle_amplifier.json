@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "E",
+    "B",
+    "S"
+  ],
+  "key": {
+    "E": "hexcasting:charged_amethyst",
+    "B": "create:brass_casing",
+    "S": "create:shaft"
+  },
+  "result": {
+    "id": "hexcreating:circle_amplifier"
+  }
+}

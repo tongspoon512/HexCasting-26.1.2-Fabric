@@ -1,0 +1,24 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BSB",
+    "SOS",
+    "BAB"
+  ],
+  "key": {
+    "B": "create:brass_sheet",
+    "S": "hexcasting:slate",
+    "O": "minecraft:observer",
+    "A": "hexcasting:charged_amethyst"
+  },
+  "result": {
+    "id": "hexcreating:iota_pack_observer",
+    "count": 1
+  }
+}

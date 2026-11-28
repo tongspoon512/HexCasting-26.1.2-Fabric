@@ -1,0 +1,60 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "create:sequenced_assembly",
+  "ingredient": "create:railway_casing",
+  "transitional_item": {
+    "id": "hexcreating:unfinished_train_gate_frame"
+  },
+  "loops": 1,
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "results": [
+        {
+          "id": "hexcreating:unfinished_train_gate_frame"
+        }
+      ],
+      "ingredients": [
+        "hexcreating:unfinished_train_gate_frame",
+        "hexcasting:quenched_allay_shard"
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "results": [
+        {
+          "id": "hexcreating:unfinished_train_gate_frame"
+        }
+      ],
+      "ingredients": [
+        "hexcreating:unfinished_train_gate_frame",
+        "hexcasting:slate"
+      ]
+    },
+    {
+      "type": "create:filling",
+      "ingredients": [
+        "hexcreating:unfinished_train_gate_frame",
+        {
+          "ingredient": "hexcreating:media",
+          "amount": 1620
+        }
+      ],
+      "results": [
+        {
+          "id": "hexcreating:unfinished_train_gate_frame"
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "id": "hexcreating:train_gate_frame"
+    }
+  ]
+}

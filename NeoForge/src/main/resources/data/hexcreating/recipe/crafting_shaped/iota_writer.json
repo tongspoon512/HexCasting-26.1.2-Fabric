@@ -1,0 +1,24 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BSB",
+    "SAS",
+    "BDB"
+  ],
+  "key": {
+    "B": "create:brass_sheet",
+    "S": "hexcasting:slate",
+    "A": "hexcasting:charged_amethyst",
+    "D": "hexcasting:amethyst_dust"
+  },
+  "result": {
+    "id": "hexcreating:iota_writer",
+    "count": 1
+  }
+}

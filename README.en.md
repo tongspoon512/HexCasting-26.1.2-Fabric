@@ -1,10 +1,10 @@
-# Hex Casting — Minecraft 26.1.2 / Fabric
+# Hex Casting — Minecraft 26.1.2 / Fabric & NeoForge
 
 [简体中文](./README.md) | **English**
 
-A port of **Hex Casting** to **Minecraft 26.1.2 (Fabric)**. The original mod by petrak@ (gamma-delta) is a magic mod about drawing patterns in the air to cast spells, inspired by PSI.
+A port of **Hex Casting** to **Minecraft 26.1.2 (Fabric / NeoForge)**. The original mod by petrak@ (gamma-delta) is a magic mod about drawing patterns in the air to cast spells, inspired by PSI.
 
-This repository starts from upstream 0.11.4 and moves the 1.20.1-era implementation onto the 26.1 API stack: official names directly (no obfuscation, no remapping), Java 25, render state / submit pipeline for rendering, and payload packets for networking.
+This repository starts from upstream 0.11.4 and moves the 1.20.1-era implementation onto the 26.1 API stack: official names directly (no obfuscation, no remapping), Java 25, render state / submit pipeline for rendering, and payload packets for networking. `Common` holds the shared implementation; `Fabric` and `NeoForge` only keep platform wiring, mixins and resource conditions.
 
 On top of that, this branch also ports [HexDebug](https://github.com/object-Object/HexDebug)'s **Splicing Table** for editing iota lists in game.
 
@@ -13,7 +13,7 @@ On top of that, this branch also ports [HexDebug](https://github.com/object-Obje
 > This is an **unofficial port** kept for personal study and archiving. It is not affiliated with FallingColors, petrak@ (gamma-delta), object-Object or YukkuriC, and does not represent their quality or opinions.
 >
 > - Changes here are **not submitted upstream**, and issues from this repository should not be reported to upstream trackers.
-> - Refer to each upstream project's own repository and documentation as the source of truth; this repository only aims to "run on 26.1.2 Fabric".
+> - Refer to each upstream project's own repository and documentation as the source of truth; this repository only aims to "run on 26.1.2".
 > - For personal archiving and further porting only; this is not an official release. Please attach full logs when reporting problems.
 > - Upstream GitHub Actions workflows (`build_docs.yml`, `pr.yml`) were removed from this repository; this branch does not use upstream CI.
 
@@ -22,13 +22,13 @@ On top of that, this branch also ports [HexDebug](https://github.com/object-Obje
 | Item | Status |
 | --- | --- |
 | Minecraft | 26.1.2 (`fabric.loom.disableObfuscation=true`, source names = official names = runtime names) |
-| Loader | Fabric Loader ≥ 0.20.1 |
+| Loader | Fabric Loader ≥ 0.20.1; NeoForge ≥ 26.1.2.85 |
 | Java | 25 |
-| Build | `:Fabric:build` / `:Fabric:jar` both pass and produce an installable jar |
-| Runtime verification | Client has been launched in a real instance and entered a world; casting, inline patterns, the guide book, the splicing table and the cassette screen have all been verified in game |
-| Forge | **Not ported**, not included in `settings.gradle`, and not built |
+| Build | `:Fabric:build`, `:Fabric:jar` and `:NeoForge:jar` all pass and produce installable jars |
+| Runtime verification | Fabric: client launched into a world; casting, inline patterns, the guide book, the splicing table and the cassette screen verified in game. NeoForge: client reaches the main menu with mods, resources and mixins loading cleanly |
+| Forge | **Not ported**; `Forge/` is legacy 1.20.1 source and is not built |
 
-Common and Fabric are compiled together: `Fabric/build.gradle` merges `Common`'s main sources into Fabric's `compileJava`, so `Common` is not a standalone artifact.
+`Common` is shared source merged into both `Fabric`'s and `NeoForge`'s `compileJava`, so it is not a standalone artifact. `settings.gradle` currently includes `Common`, `Fabric` and `NeoForge`.
 
 ## Features
 
@@ -241,7 +241,10 @@ Implementation: [CassetteState.kt](Fabric/src/main/java/miyucomics/hexcassettes/
 
 A port of [yggdyy/hexcreating](https://github.com/yggdyy/hexcreating): the board, amethyst lamp, liquid media/soul, circle inputer/outputer and amplifier, iota network blocks, analytical engine, train gate blocks, plus 10 new patterns and 4 Ponder scenes.
 
-- **Soft dependency**: `fabric.mod.json` only declares `recommends.create`. When Create is absent nothing is registered and no Create class is loaded; recipes and guide book entries carry `fabric:all_mods_loaded` conditions and disappear automatically.
+- **Soft dependency**: Fabric's `fabric.mod.json` declares `recommends.create`, while NeoForge's `neoforge.mods.toml` declares `create` as optional. When Create is absent nothing is registered and no Create class is loaded; recipes and guide book entries carry `fabric:all_mods_loaded` / `neoforge:mod_loaded` conditions and disappear automatically.
+- **Both platforms**: Fabric talks to Create-Fly (`com.zurrtum.create`), NeoForge talks to Create 6 (`com.simibubi.create`). Models, textures, language files and guide book resources are shared through `Common`; differences are limited to fluid capabilities, display-source registration and Ponder wiring.
+- **Fluid units**: NeoForge Create uses mB (1000 mB = 1 bucket); Fabric Create-Fly uses droplets (81000 droplets = 1 bucket, 81 droplets = 1 mB). Fabric recipe amounts are therefore multiplied by 81, and the domain core tank converts between droplets and mB so that "1 amethyst dust = 81 mB = 6561 droplets" holds on both sides.
+- **Media cube assembly**: `hexcreating:media_cube`'s `create:sequenced_assembly` now runs **100 loops** on both platforms.
 - **Create integration**: blocks register stress values (circle amplifier 4.0 SU, iota network terminals 1.0 SU, analytical engine kinetic interface 8.0 SU), and four display sources (Impetus media, board pattern, board iota, slate pattern) work with Create's display boards.
 - **Ponder**: four "thought key" scenes (Hexcasting intro, iota basics, vectors, stack) registered only when Create is installed.
 - **Circle inputer/outputer recipes** (added in this pass):
@@ -269,7 +272,20 @@ A port of [yggdyy/hexcreating](https://github.com/yggdyy/hexcreating): the board
 
 Implementation: [HexCreatingCompat.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/HexCreatingCompat.java), [HexCreatingRegistration.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/HexCreatingRegistration.java), [HexCreatingPonder.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/client/HexCreatingPonder.java), [HexCreatingActions.kt](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/cast/HexCreatingActions.kt), [HexCreatingDisplaySources.java](Fabric/src/main/java/pub/pigeon/yggdyy/hexcreating/create/HexCreatingDisplaySources.java).
 
+### 13. NeoForge platform port
+
+`NeoForge/` sits next to `Fabric/` and reuses `Common`'s API, casting VM, blocks/items/entities, client logic and resources, adding only platform wiring:
+
+- **Entry and registration**: [NeoForgeHexInitializer.kt](NeoForge/src/main/java/at/petrak/hexcasting/neoforge/NeoForgeHexInitializer.kt) registers items, blocks, block entities, actions, iota types, fluids, creative tabs and capabilities; the client entry is [NeoForgeClientSetup.kt](NeoForge/src/main/java/at/petrak/hexcasting/neoforge/client/NeoForgeClientSetup.kt).
+- **Kotlin runtime**: uses an **external** Kotlin for Forge (≥ 6.5.0) with no jar-in-jar; `neoforge.mods.toml` makes it a required dependency and the jar ships no `kotlin/` classes.
+- **Create integration**: targets Create 6 / Create Adapted (`com.simibubi.create`) as an optional dependency; Ponder, Flywheel and Catnip are provided by Create's own jarjar, and are on the compile classpath from `libs/create-adapted-deps/`.
+- **Mixin configs**: `hexplat.mixins.json` (shared from Common), `hexcreating.mixins.json` (Create spout/soul) and `hexcasting.neoforge.mixins.json` (Altiora wing layer, conjure particle render order). The last one must not be named `neoforge.mixins.json`, which collides with NeoForge's built-in config and fails at bootstrap with a `ModLoadingException`.
+- **26.1 capabilities and events**: fluid blocks expose `ResourceHandler<FluidResource>` through `Capabilities.Fluid.BLOCK`; item model properties, item/block tints, mouse scrolling and particles use NeoForge public events instead of copied Fabric client mixins.
+- **Data conditions**: `data/hexcreating` is converted from the Fabric resources, switching conditions to `neoforge:conditions` / `neoforge:mod_loaded` and adapting recipes to Create 6's schema (`ingredients` / `results`, fluid `amount` in mB).
+
 ## Installation
+
+### Fabric
 
 1. Install Fabric Loader ≥ 0.20.1 (for 26.1.2).
 2. Put the build artifact into the instance's `mods/`:
@@ -289,6 +305,24 @@ Implementation: [HexCreatingCompat.java](Fabric/src/main/java/pub/pigeon/yggdyy/
 
    Optional: ModMenu (for the config entry point); Create-Fly (≥ 6.0.9-4 — installing it enables all HexCreating content such as the board, circle blocks and Ponder scenes; without it everything stays hidden).
 
+### NeoForge
+
+1. Install NeoForge ≥ 26.1.2.85 (for Minecraft 26.1.2).
+2. Put the build artifact into the instance's `mods/`:
+
+   ```
+   hexcasting-neoforge-26.1.2-0.11.4.jar
+   ```
+
+3. Also install:
+
+   | Mod | Minimum | Notes |
+   | --- | --- | --- |
+   | Kotlin for Forge | ≥ 6.5.0 | **Required**; this jar does not bundle the Kotlin runtime |
+   | Cloth Config | ≥ 26.1.154 | Config UI |
+
+   Optional: Create Adapted (the 26.1.2 port — enables all HexCreating content; Ponder / Flywheel / Catnip come from Create's own jarjar).
+
 > Patchouli, Inline, Trinkets, Paucal and other dependencies are vendored as stubs in source form — **do not** install real mods with the same names, or you will get duplicate-class conflicts. The guide book is implemented by this mod's own GUI and does not need Patchouli. The splicing table is merged into this jar and does not need HexDebug.
 
 ## Building
@@ -296,9 +330,10 @@ Implementation: [HexCreatingCompat.java](Fabric/src/main/java/pub/pigeon/yggdyy/
 Requires JDK 25 (`release = 25`, `jvmTarget = 25` in `build.gradle`).
 
 ```bash
-./gradlew :Fabric:build     # full build, including sources / javadoc jars
-./gradlew :Fabric:jar       # installable jar only, faster
-./gradlew :Fabric:clean     # clean build outputs
+./gradlew :Fabric:build      # Fabric full build, including sources / javadoc jars
+./gradlew :Fabric:jar        # Fabric installable jar
+./gradlew :NeoForge:jar      # NeoForge installable jar
+./gradlew :Fabric:clean      # clean Fabric build outputs
 ```
 
 Outputs:
@@ -307,7 +342,10 @@ Outputs:
 Fabric/build/libs/hexcasting-fabric-26.1.2-0.11.4.jar
 Fabric/build/libs/hexcasting-fabric-26.1.2-0.11.4-sources.jar
 Fabric/build/libs/hexcasting-fabric-26.1.2-0.11.4-javadoc.jar
+NeoForge/build/libs/hexcasting-neoforge-26.1.2-0.11.4.jar
 ```
+
+NeoForge compiles offline against a local patched jar by default; override paths such as `-PneoForgeLocalPatchedJar=...` (see `gradle.properties`). Create integration reads the Create Adapted jar from the instance `mods/` folder unless `-PcreateNeoForgeJar=...` is given; Kotlin for Forge can likewise be overridden with `-PkotlinForForgeJar=...`.
 
 Development runs (need a graphical environment):
 
@@ -320,13 +358,18 @@ Development runs (need a graphical environment):
 ## Project layout
 
 ```
-Common/   Platform-neutral code: API, casting VM, blocks/items/entities, datagen, mixins, client GUI
-          └─ gay/object/hexdebug/  HexDebug port: media (personal media), actions (patterns), ext (silenced env)
-Fabric/   Platform implementation: entrypoint, networking, CCA components, events, interop, datagen wiring
-          └─ gay/object/hexdebug/  Splicing table (block, menu, GUI, networking, data model) and HUD
-Forge/    Upstream 1.20.1 leftovers, not in the build; do not modify
-doc/      Original docs source
-hexparse/ HexParse text spell docs (chain mining, etc.)
+Common/    Platform-neutral code: API, casting VM, blocks/items/entities, datagen, mixins, client GUI
+           └─ gay/object/hexdebug/  HexDebug port: media (personal media), actions (patterns), ext (silenced env)
+Fabric/    Platform implementation: entrypoint, networking, CCA components, events, interop, datagen wiring
+           └─ gay/object/hexdebug/  Splicing table (block, menu, GUI, networking, data model) and HUD
+           └─ pub/pigeon/yggdyy/hexcreating/  Create-Fly integration (com.zurrtum.create)
+NeoForge/  Platform implementation: entrypoint, registries, networking, capabilities, events, platform mixins
+           └─ at/petrak/hexcasting/neoforge/  entrypoint, client setup, mixins, xplat, storage
+           └─ pub/pigeon/yggdyy/hexcreating/  Create 6 integration (com.simibubi.create)
+           └─ ram/talia/moreiotas/neoforge/, miyucomics/hexcassettes/, gay/object/hexdebug/  addon platform sides
+Forge/     Upstream 1.20.1 leftovers, not in the build; do not modify
+doc/       Original docs source
+hexparse/  HexParse text spell docs and the project architecture table
 ```
 
 ## 26.1 porting notes
@@ -343,6 +386,9 @@ The main gaps that were bridged, for future maintenance:
 - **Input**: mouse callbacks use `MouseButtonEvent` / `KeyEvent`, and `GuiSpellcasting` can be embedded in other screens (the splicing table's mini grid reuses this).
 - **CCA v8**: item-component attachment was removed; item attachments are built directly as adapters; `CardinalComponent` reads/writes via `ValueInput` / `ValueOutput`.
 - **Datagen**: recipe/loot builders are codec-based, `RecipeBuilder` no longer has `getResult()`, and `RecipeProvider.buildRecipes()` visibility changed.
+- **NeoForge fluids**: the 26.1 capability type is `ResourceHandler<FluidResource>` (`Capabilities.Fluid.BLOCK`); Create pipes read/write the domain core through transactional `insert` / `extract`.
+- **NeoForge client**: item model properties use `RegisterRangeSelectItemModelPropertyEvent` / `RegisterConditionalItemModelPropertyEvent`, item/block tints use `RegisterColorHandlersEvent.ItemTintSources` / `BlockTintSources`, and particles plus mouse scrolling have public events; only the Altiora wing layer and particle render order still need mixins.
+- **NeoForge data conditions**: 26.1 only loads singular data folders, and conditions use `neoforge:conditions` (flat recipes, `neoforge:value` wrappers for loot tables).
 
 ## Known limitations
 
@@ -352,17 +398,18 @@ The main gaps that were bridged, for future maintenance:
 - **Patchouli**: no 26.1 version; the API is vendored as source stubs. Book content is read by the built-in GUI and no Patchouli runtime is needed.
 - **Inline**: only pattern inlining is implemented; other Inline features (item/entity/avatar matching, size modifiers, overlay rendering) are missing, and world-space text (signs, name tags, etc.) shows placeholders.
 - **Trinkets**: not ported; `dev/emi/trinkets` are stubs and the trinket renderer is an empty implementation (functionality works, visuals do not show).
-- **Pehkui**: use [Pehkui Rebuilt](https://github.com/wuhenqiubai/Pehkui-Rebuilt) (mod id is still `pehkui`, supports 26.1.2); scaling patterns are enabled automatically when it is installed and are not registered otherwise.
-- **EMI / JEI**: compile-time integration and plugin entry points are kept; EMI code is also based on vendored stubs.
+- **Pehkui**: Fabric uses [Pehkui Rebuilt](https://github.com/wuhenqiubai/Pehkui-Rebuilt) (mod id is still `pehkui`, supports 26.1.2); scaling patterns are enabled automatically when it is installed and are not registered otherwise.
+- **EMI / JEI**: compile-time integration and plugin entry points are kept; EMI code is based on vendored stubs, and NeoForge only wires the JEI common API.
 - **Rendering fidelity**: after the 26.1 render pipeline rewrite, some effects (brush, light, trinket/elytra overlays, etc.) are approximations and may differ visually from the original.
-- **MoreIotas**: only Common/Fabric gameplay was ported; upstream's Forge side, Paucal/Inline/Fiber soft dependencies, JBLAS and Mixin/AW were not. `moreiotas:stack` now uses 26.1 data component serialization, and book-and-quill/written-book page iota holders are restored as `CCItemIotaHolder.Static`.
-- **Verification**: builds and basic in-game flows pass; no full gameplay regression has been done. Attach logs for startup issues.
+- **MoreIotas**: Common gameplay plus the Fabric / NeoForge platform sides were ported; upstream's Forge side, Paucal/Inline/Fiber soft dependencies, JBLAS and Mixin/AW were not. `moreiotas:stack` now uses 26.1 data component serialization, and book-and-quill/written-book page iota holders are restored as `CCItemIotaHolder.Static`.
+- **Verification**: Fabric builds and basic in-game flows pass; NeoForge reaches the main menu with mods, resources and mixins loading cleanly, while in-world regression and dedicated-server testing are still pending. Attach logs for startup issues.
 
 ## Documentation
 
 - Original online manual: https://hexcasting.hexxy.media/
 - HexDebug online manual: https://hexdebug.hexxy.media/
 - HexParse spell examples: [hexparse/连锁挖掘.md](hexparse/连锁挖掘.md)
+- Project architecture and source map: [hexparse/项目架构表.md](hexparse/项目架构表.md)
 - Changelog: see [CHANGELOG.md](./CHANGELOG.md)
 - Contributing: see [CONTRIBUTING.md](./CONTRIBUTING.md)
 

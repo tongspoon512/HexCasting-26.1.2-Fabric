@@ -1,0 +1,11 @@
+{
+  "minVersion": "0.8",
+  "required": true,
+  "compatibilityLevel": "JAVA_25",
+  "package": "at.petrak.hexcasting.neoforge.mixin",
+  "mixins": [],
+  "client": [
+    "client.NeoForgeParticleEngineMixin",
+    "client.NeoForgePlayerRendererMixin"
+  ]
+}

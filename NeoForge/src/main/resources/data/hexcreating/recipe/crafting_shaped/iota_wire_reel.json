@@ -1,0 +1,21 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " W ",
+    "WEW",
+    " W "
+  ],
+  "key": {
+    "W": "hexcreating:iota_wire",
+    "E": "hexcreating:empty_reel"
+  },
+  "result": {
+    "id": "hexcreating:iota_wire_reel"
+  }
+}
